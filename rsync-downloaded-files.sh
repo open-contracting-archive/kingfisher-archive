@@ -12,8 +12,6 @@ for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhos
 
         rsync -rv -e "ssh -o StrictHostKeyChecking=no" /home/ocdskfs/scrapyd/data/${collection} archive@archive.kingfisher.open-contracting.org:/home/archive/data/${collection} || break
 
-	echo "rm -rf /home/ocdskfs/scrapyd/data/${collection}"
-
         # Delete original files if rsync returned 0 (restricted to the right place by sudoers)
         sudo -u ocdskfs rm -rf /home/ocdskfs/scrapyd/data/${collection}
 
