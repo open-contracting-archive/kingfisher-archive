@@ -8,9 +8,9 @@ for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhos
         timestamp=$(echo ${collection} | awk 'BEGIN { FS = "/" } { print $2 }')
 
         # Rsync to the disk server
-	ssh archive@archive.kingfisher.open-contracting.org "mkdir -p /home/archive/data/${collection}"
+	ssh -o StrictHostKeyChecking=no archive@archive.kingfisher.open-contracting.org "mkdir -p /home/archive/data/${collection}"
 
-        rsync -rv -e "ssh -o StrictHostKeyChecking=no" /home/ocdskfs/scrapyd/data/${collection} archive@archive.kingfisher.open-contracting.org:/home/archive/data/${collection} || break
+        rsync -r -e "ssh -o StrictHostKeyChecking=no" /home/ocdskfs/scrapyd/data/${collection} archive@archive.kingfisher.open-contracting.org:/home/archive/data/${collection} || break
 
         # Delete original files if rsync returned 0 (restricted to the right place by sudoers)
         sudo -u ocdskfs rm -rf /home/ocdskfs/scrapyd/data/${collection}
