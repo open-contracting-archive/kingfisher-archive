@@ -6,6 +6,9 @@ set -e
 
 for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhost -c "select source_id, to_char(data_version, 'YYYYMMDD_HH24MISS') from collection where store_end_at is not null and transform_type is null" -qAtX | tr "|" "/"); do
 
+	# Run date so that when output appears in log we know when it happened
+	date
+
         echo "COLLECTION ${collection}"
 
         scraper=$(echo ${collection} | awk 'BEGIN { FS = "/" } { print $1 }')
@@ -23,17 +26,26 @@ for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhos
 	
         if [ "${LOCAL_DIR}" ]; then
 
+		echo "Found ${LOCAL_DIR}"
+
 		# Create folder on disk server
+		echo "Create folder on disk server"
 		ssh -o StrictHostKeyChecking=no archive@archive.kingfisher.open-contracting.org "mkdir -p /home/archive/data/${collection}"
 
-	        # Rsync to the disk server
+		# Rsync to the disk server
+		echo "Rsync to the disk server"
 		rsync -r -e "ssh -o StrictHostKeyChecking=no" ${LOCAL_DIR} archive@archive.kingfisher.open-contracting.org:/home/archive/data/${collection}/ || continue
 
 		# Delete original files if rsync returned 0 (restricted to the right place by sudoers)
+		echo "Delete original files"
 		sudo -u ocdskfs rm -rf ${LOCAL_DIR}
 
 		# Compress target files
+		echo "Compress target files"
 		ssh archive@archive.kingfisher.open-contracting.org "tar -Jcvf /home/archive/data/${scraper}_${timestamp}.tar.xz /home/archive/data/$collection && rm -rf /home/archive/data/${collection}"
+
+		########### TEMP TEMP TEMP while this is still new and in testing, we only transfer one at a time and then stop
+		exit 1
 
 	fi
 
