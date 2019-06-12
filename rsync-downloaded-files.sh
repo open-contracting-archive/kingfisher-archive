@@ -44,9 +44,6 @@ for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhos
 		echo "Compress target files"
 		ssh archive@archive.kingfisher.open-contracting.org "tar -Jcvf /home/archive/data/${scraper}_${timestamp}.tar.xz /home/archive/data/$collection && rm -rf /home/archive/data/${collection}"
 
-		########### TEMP TEMP TEMP while this is still new and in testing, we only transfer one at a time and then stop
-		exit 1
-
 	fi
 
 done;
