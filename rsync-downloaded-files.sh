@@ -4,7 +4,7 @@ set -e
 
 # Iterate over all the collections that are fully loaded into the database
 
-for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhost -c "select source_id, to_char(data_version, 'YYYYMMDD_HH24MISS') from collection where store_end_at is not null and transform_type is null" -qAtX | tr "|" "/"); do
+for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhost -c "select source_id, to_char(data_version, 'YYYYMMDD_HH24MISS') from collection where store_end_at is not null and transform_type = ''" -qAtX | tr "|" "/"); do
 
 	# Run date so that when output appears in log we know when it happened
 	date
