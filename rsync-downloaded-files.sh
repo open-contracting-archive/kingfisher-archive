@@ -25,7 +25,7 @@ for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhos
     echo "Compress target files"
 	  spider=$(echo ${collection} | awk 'BEGIN { FS = "/" } { print $1 }')
 	  timestamp=$(echo ${collection} | awk 'BEGIN { FS = "/" } { print $2 }')
-    ssh archive@archive.kingfisher.open-contracting.org "tar -Jcvf /home/archive/data/${spider}_${timestamp}.tar.xz /home/archive/data/$collection && rm -rf /home/archive/data/${collection} && find /home/archive/data/${collection} -empty -type d -delete"
+    ssh archive@archive.kingfisher.open-contracting.org "tar -Jcvf /home/archive/data/${spider}_${timestamp}.tar.xz -C /home/archive/data $collection && rm -rf /home/archive/data/${collection} && find /home/archive/data/${spider} -empty -type d -delete"
 
     # Only one of these processes should run at once. So once we have found and done some work, exit.
     exit 1
