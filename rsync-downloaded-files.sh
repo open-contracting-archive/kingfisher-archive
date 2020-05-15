@@ -16,18 +16,13 @@ for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhos
     ssh archive@archive.kingfisher.open-contracting.org "mkdir -p /home/archive/data/${collection}"
 
     echo "Rsync to the disk server"
-    rsync -az ${LOCAL_DIR} archive@archive.kingfisher.open-contracting.org:/home/archive/data/${collection}/ || continue
+    rsync -avz ${LOCAL_DIR} archive@archive.kingfisher.open-contracting.org:/home/archive/data/${collection}/ || continue
 
     # Delete original files if rsync returned 0 (restricted to the right place by sudoers)
     echo "Delete original files"
     sudo -u ocdskfs rm -rf ${LOCAL_DIR}
 
     echo "Compress target files"
-	  spider=$(echo ${collection} | awk 'BEGIN { FS = "/" } { print $1 }')
-	  timestamp=$(echo ${collection} | awk 'BEGIN { FS = "/" } { print $2 }')
-    ssh archive@archive.kingfisher.open-contracting.org "tar -Jcvf /home/archive/data/${spider}_${timestamp}.tar.xz -C /home/archive/data $collection && rm -rf /home/archive/data/${collection} && find /home/archive/data/${spider} -empty -type d -delete"
-
-    # Only one of these processes should run at once. So once we have found and done some work, exit.
-    exit 1
+    ssh archive@archive.kingfisher.open-contracting.org "cd /home/archive/data && 7z a -bd -sdel $(echo "$collection" | tr "/" "_").7z $collection && find . -type d -mindepth 1 -empty -delete"
   fi
 done
