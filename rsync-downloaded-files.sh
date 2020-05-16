@@ -23,6 +23,6 @@ for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhos
     sudo -u ocdskfs rm -rf ${LOCAL_DIR}
 
     echo "Compress target files"
-    ssh archive@archive.kingfisher.open-contracting.org "cd /home/archive/data && 7z a -bd -sdel $(echo "$collection" | tr "/" "_").7z $collection && find . -type d -mindepth 1 -empty -delete"
+    ssh archive@archive.kingfisher.open-contracting.org "cd /home/archive/data && tar cf - $collection | lz4 - $(echo "$collection" | tr "/" "_").tar.lz4 && rm -rf $collection && find . -type d -mindepth 1 -empty -delete"
   fi
 done
