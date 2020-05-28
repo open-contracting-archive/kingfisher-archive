@@ -6,7 +6,7 @@ set -e
 for collection in $(psql -U ocdskfpreadonly -d ocdskingfisherprocess -h localhost -c "SELECT source_id, to_char(data_version, 'YYYYMMDD_HH24MISS') FROM collection WHERE store_end_at IS NOT NULL AND transform_type = ''" -qAtX | tr "|" "/"); do
   # If the data has already been successfully archived, nothing is done.
   if [ -d "/home/ocdskfs/scrapyd/data/${collection}/" ]; then 
-	  date
+	  date -u
 	  echo "COLLECTION ${collection}"
 
     LOCAL_DIR="/home/ocdskfs/scrapyd/data/${collection}/"
