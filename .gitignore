@@ -1,0 +1,9 @@
+.ve
+__pycache__
+.coverage
+docs/_build
+.pytest_cache
+venv/
+/debug.log
+/info.log
+/error.log
