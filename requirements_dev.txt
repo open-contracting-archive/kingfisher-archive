@@ -4,9 +4,9 @@
 #
 #    pip-compile requirements_dev.in
 #
-attrs==20.1.0             # via pytest
-boto3==1.14.54            # via -r requirements.txt
-botocore==1.17.54         # via -r requirements.txt, boto3, s3transfer
+attrs==20.2.0             # via pytest
+boto3==1.14.56            # via -r requirements.txt
+botocore==1.17.56         # via -r requirements.txt, boto3, s3transfer
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
 click==7.1.2              # via -r requirements.txt, pip-tools
@@ -18,7 +18,7 @@ flake8==3.8.3             # via -r requirements_dev.in
 idna==2.10                # via requests
 importlib-metadata==1.7.0  # via flake8, pluggy, pytest
 iniconfig==1.0.1          # via pytest
-isort==5.5.0              # via -r requirements_dev.in
+isort==5.5.1              # via -r requirements_dev.in
 jmespath==0.10.0          # via -r requirements.txt, boto3, botocore
 mccabe==0.6.1             # via flake8
 more-itertools==8.5.0     # via pytest
@@ -27,6 +27,7 @@ pgpasslib==1.1.0          # via -r requirements.txt
 pip-tools==5.3.1          # via -r requirements_dev.in
 pluggy==0.13.1            # via pytest
 psutil==5.7.2             # via -r requirements.txt, python-pidfile
+psycopg2==2.8.6           # via -r requirements.txt
 py==1.9.0                 # via pytest
 pycodestyle==2.6.0        # via flake8
 pyflakes==2.2.0           # via flake8
@@ -38,6 +39,7 @@ python-pidfile==3.0.0     # via -r requirements.txt
 requests==2.24.0          # via coveralls
 s3transfer==0.3.3         # via -r requirements.txt, boto3
 six==1.15.0               # via -r requirements.txt, packaging, pip-tools, python-dateutil
+sqlalchemy==1.2.19        # via -r requirements.txt
 toml==0.10.1              # via pytest
 urllib3==1.25.10          # via -r requirements.txt, botocore, requests
 zipp==3.1.0               # via importlib-metadata

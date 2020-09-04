@@ -20,6 +20,12 @@ class Config:
         self._database_name = ''
         self._database_password = ''
 
+        self.directory_data = None
+
+        self.database_archive_filepath = None
+
+        self.s3_bucket_name = None
+
     def load_user_config(self):
         # First, try and load any config in the ini files
         self._load_user_config_ini()
@@ -87,3 +93,9 @@ class Config:
             self._database_port,
             self._database_name
         )
+
+        self.database_archive_filepath = config.get('DBARCHIVE', 'FILEPATH')
+
+        self.directory_data = config.get('DIRECTORIES', 'DATA')
+
+        self.s3_bucket_name = config.get('S3', 'BUCKETNAME')
