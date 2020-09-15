@@ -43,31 +43,27 @@ class Archive:
 
         # Get Data file
         data_file_name = collection.write_data_file()
-        print(data_file_name)
 
         # Get Metadata file
         meta_file_name = collection.write_meta_data_file()
-        print(meta_file_name)
 
         # Upload to staging
         s3_directory = collection.get_s3_directory()
         s3_client = boto3.client('s3')
         try:
-            response = s3_client.upload_file(
+            s3_client.upload_file(
                 meta_file_name,
                 self.config.s3_bucket_name,
                 'staging/' + s3_directory + '/metadata.json'
             )
-            print(response)
         except ClientError as e:
             self.logger.error(e)
         try:
-            response = s3_client.upload_file(
+            s3_client.upload_file(
                 data_file_name,
                 self.config.s3_bucket_name,
                 'staging/' + s3_directory + '/data.tar.lz'
             )
-            print(response)
         except ClientError as e:
             self.logger.error(e)
 
