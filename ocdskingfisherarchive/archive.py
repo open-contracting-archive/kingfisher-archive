@@ -1,15 +1,13 @@
 import logging
 
-import boto3
-from botocore.exceptions import ClientError
-
 
 class Archive:
 
-    def __init__(self, config, database_archive, database_process):
+    def __init__(self, config, database_archive, database_process, s3):
         self.config = config
         self.database_archive = database_archive
         self.database_process = database_process
+        self.s3 = s3
         self.logger = logging.getLogger('ocdskingfisher.archive')
 
     def process(self):
@@ -49,60 +47,13 @@ class Archive:
 
         # Upload to staging
         s3_directory = collection.get_s3_directory()
-        s3_client = boto3.client('s3')
-        try:
-            s3_client.upload_file(
-                meta_file_name,
-                self.config.s3_bucket_name,
-                'staging/' + s3_directory + '/metadata.json'
-            )
-        except ClientError as e:
-            self.logger.error(e)
-        try:
-            s3_client.upload_file(
-                data_file_name,
-                self.config.s3_bucket_name,
-                'staging/' + s3_directory + '/data.tar.lz'
-            )
-        except ClientError as e:
-            self.logger.error(e)
+        self.s3.upload_file_to_staging(meta_file_name, s3_directory + '/metadata.json')
+        self.s3.upload_file_to_staging(data_file_name, s3_directory + '/data.tar.lz')
 
         # Move files in S3
-        try:
-            s3_client.copy(
-                {
-                    'Bucket': self.config.s3_bucket_name,
-                    'Key': 'staging/' + s3_directory + '/metadata.json'
-                },
-                self.config.s3_bucket_name,
-                s3_directory + '/metadata.json'
-            )
-        except ClientError as e:
-            self.logger.error(e)
-        try:
-            s3_client.copy(
-                {
-                    'Bucket': self.config.s3_bucket_name,
-                    'Key': 'staging/' + s3_directory + '/data.tar.lz'
-                },
-                self.config.s3_bucket_name,
-                s3_directory + '/data.tar.lz'
-            )
-        except ClientError as e:
-            self.logger.error(e)
+        self.s3.move_file_from_staging_to_real(s3_directory + '/metadata.json')
+        self.s3.move_file_from_staging_to_real(s3_directory + '/data.tar.lz')
 
         # Delete Staging Files in S3
-        try:
-            s3_client.delete_object(
-                Bucket=self.config.s3_bucket_name,
-                Key='staging/' + s3_directory + '/metadata.json'
-            )
-        except ClientError as e:
-            self.logger.error(e)
-        try:
-            s3_client.delete_object(
-                Bucket=self.config.s3_bucket_name,
-                Key='staging/' + s3_directory + '/data.tar.lz'
-            )
-        except ClientError as e:
-            self.logger.error(e)
+        self.s3.remove_staging_file(s3_directory + '/metadata.json')
+        self.s3.remove_staging_file(s3_directory + '/data.tar.lz')
