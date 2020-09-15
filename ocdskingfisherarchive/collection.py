@@ -27,17 +27,17 @@ class Collection:
 
         dir_to_add = self.config.directory_data + '/' + self.source_id + '/' + \
             self.data_version.strftime("%Y%m%d_%H%M%S")
-        command1 = 'tar -cvf ' + filename + ' ' + dir_to_add
+        command1 = 'tar -cf ' + filename + ' ' + dir_to_add
         return1 = os.system(command1)
         if return1 != 0:
             raise Exception(command1 + ' Got Return ' + str(return1))
 
-        command2 = 'lzip -c ' + filename + ' > ' + filename+'.lz'
+        command2 = 'lz4 ' + filename + ' ' + filename+'.lz4'
         return2 = os.system(command2)
         if return2 != 0:
             raise Exception(command2 + ' Got Return ' + str(return2))
 
-        return filename+'.lz'
+        return filename+'.lz4'
 
     def get_s3_directory(self):
         # Including the database_id is temporary until we have sorted the code to only upload one per source/year/month

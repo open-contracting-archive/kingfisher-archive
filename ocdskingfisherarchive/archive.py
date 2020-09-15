@@ -48,12 +48,12 @@ class Archive:
         # Upload to staging
         s3_directory = collection.get_s3_directory()
         self.s3.upload_file_to_staging(meta_file_name, s3_directory + '/metadata.json')
-        self.s3.upload_file_to_staging(data_file_name, s3_directory + '/data.tar.lz')
+        self.s3.upload_file_to_staging(data_file_name, s3_directory + '/data.tar.lz4')
 
         # Move files in S3
         self.s3.move_file_from_staging_to_real(s3_directory + '/metadata.json')
-        self.s3.move_file_from_staging_to_real(s3_directory + '/data.tar.lz')
+        self.s3.move_file_from_staging_to_real(s3_directory + '/data.tar.lz4')
 
         # Delete Staging Files in S3
         self.s3.remove_staging_file(s3_directory + '/metadata.json')
-        self.s3.remove_staging_file(s3_directory + '/data.tar.lz')
+        self.s3.remove_staging_file(s3_directory + '/data.tar.lz4')
