@@ -47,39 +47,12 @@ You should see user in the list.
 
 Click new user name.
 
-Click "Add inline policy"
+For policies use the wizard and on the relevant S3 bucket make sure the user has:
+* s3:ListBucket
+* s3:PutObject
+* s3:GetObject
+* s3:DeleteObject
 
-Click "JSON" tab.
-
-Enter:
-
-    {
-       "Version":"2012-10-17",
-       "Statement":[
-          {
-             "Effect":"Allow",
-             "Action":[
-                "s3:ListBucket"
-             ],
-             "Resource":"arn:aws:s3:::AWSDOC-EXAMPLE-BUCKET"
-          },
-          {
-             "Effect":"Allow",
-             "Action":[
-                "s3:PutObject",
-                "s3:GetObject",
-                "s3:DeleteObject"
-             ],
-             "Resource":"arn:aws:s3:::AWSDOC-EXAMPLE-BUCKET/*"
-          }
-       ]
-    }
-
-Click Review Policy
-
-Give the policy a name.
-
-Click Create Policy
 
 ### Specifying Config and Credentials
 
