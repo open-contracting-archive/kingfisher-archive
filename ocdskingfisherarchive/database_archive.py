@@ -17,7 +17,10 @@ class DataBaseArchive:
 
     def get_state_of_collection_id(self, collection_id):
         state = 'UNKNOWN'
-        self.cursor.execute("SELECT state FROM collections WHERE collection_id=?", str(collection_id))
+        self.cursor.execute(
+            "SELECT state FROM collections WHERE collection_id=:collection_id",
+            {"collection_id": collection_id}
+        )
         r = self.cursor.fetchone()
         if r:
             state = r[0]
@@ -25,6 +28,7 @@ class DataBaseArchive:
 
     def set_state_of_collection_id(self, collection_id, state):
         self.cursor.execute(
-            "REPLACE INTO collections (collection_id, state) VALUES (?, ?)", (str(collection_id), state)
+            "REPLACE INTO collections (collection_id, state) VALUES (:collection_id, :state)",
+            {"collection_id": collection_id, "state": state}
         )
         self.conn.commit()
