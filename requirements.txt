@@ -4,13 +4,14 @@
 #
 #    pip-compile
 #
-boto3==1.14.54            # via -r requirements.in
-botocore==1.17.54         # via boto3, s3transfer
+boto3==1.14.61            # via -r requirements.in
+botocore==1.17.61         # via boto3, s3transfer
 click==7.1.2              # via -r requirements.in
 docutils==0.15.2          # via botocore
 jmespath==0.10.0          # via boto3, botocore
 pgpasslib==1.1.0          # via -r requirements.in
 psutil==5.7.2             # via python-pidfile
+psycopg2==2.8.6           # via -r requirements.in
 python-dateutil==2.8.1    # via botocore
 python-pidfile==3.0.0     # via -r requirements.in
 s3transfer==0.3.3         # via boto3

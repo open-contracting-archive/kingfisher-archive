@@ -7,3 +7,4 @@ venv/
 /debug.log
 /info.log
 /error.log
+*.sqlite

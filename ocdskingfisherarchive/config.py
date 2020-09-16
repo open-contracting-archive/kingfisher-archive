@@ -13,12 +13,17 @@ Whatever tool is calling it - CLI or other code - should create one of these, se
 class Config:
 
     def __init__(self):
-        self.database_uri = ''
-        self._database_host = ''
-        self._database_port = 5432
-        self._database_user = ''
-        self._database_name = ''
-        self._database_password = ''
+        self.database_host = ''
+        self.database_port = 5432
+        self.database_user = ''
+        self.database_name = ''
+        self.database_password = ''
+
+        self.directory_data = None
+
+        self.database_archive_filepath = None
+
+        self.s3_bucket_name = None
 
     def load_user_config(self):
         # First, try and load any config in the ini files
@@ -29,25 +34,18 @@ class Config:
         self._load_user_config_env()
 
     def _load_user_config_pgpass(self):
-        if not self._database_name or not self._database_user:
+        if not self.database_name or not self.database_user:
             return
 
         try:
             password = pgpasslib.getpass(
-                self._database_host,
-                self._database_port,
-                self._database_name,
-                self._database_user
+                self.database_host,
+                self.database_port,
+                self.database_name,
+                self.database_user
             )
             if password:
-                self._database_password = password
-                self.database_uri = 'postgresql://{}:{}@{}:{}/{}'.format(
-                    self._database_user,
-                    self._database_password,
-                    self._database_host,
-                    self._database_port,
-                    self._database_name
-                )
+                self.database_password = password
 
         except pgpasslib.FileNotFound:
             # Fail silently when no files found.
@@ -62,9 +60,7 @@ class Config:
             return
 
     def _load_user_config_env(self):
-
-        if os.environ.get('KINGFISHER_ARCHIVE_DB_URI'):
-            self.database_uri = os.environ.get('KINGFISHER_ARCHIVE_DB_URI')
+        pass
 
     def _load_user_config_ini(self):
         config = configparser.ConfigParser()
@@ -74,16 +70,23 @@ class Config:
         else:
             return
 
-        self._database_host = config.get('DBHOST', 'HOSTNAME')
-        self._database_port = config.get('DBHOST', 'PORT')
-        self._database_user = config.get('DBHOST', 'USERNAME')
-        self._database_name = config.get('DBHOST', 'DBNAME')
-        self._database_password = config.get('DBHOST', 'PASSWORD', fallback='')
+        self.database_host = config.get('DBHOST', 'HOSTNAME')
+        self.database_port = config.get('DBHOST', 'PORT')
+        self.database_user = config.get('DBHOST', 'USERNAME')
+        self.database_name = config.get('DBHOST', 'DBNAME')
+        self.database_password = config.get('DBHOST', 'PASSWORD', fallback='')
 
-        self.database_uri = 'postgresql://{}:{}@{}:{}/{}'.format(
-            self._database_user,
-            self._database_password,
-            self._database_host,
-            self._database_port,
-            self._database_name
-        )
+        self.database_archive_filepath = config.get('DBARCHIVE', 'FILEPATH')
+
+        self.directory_data = config.get('DIRECTORIES', 'DATA')
+
+        self.s3_bucket_name = config.get('S3', 'BUCKETNAME')
+
+    def get_database_connection_params(self):
+        return {
+            'user': self.database_user,
+            'password': self.database_password,
+            'host': self.database_host,
+            'port': self.database_port,
+            'dbname': self.database_name,
+        }

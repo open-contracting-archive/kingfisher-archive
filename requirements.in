@@ -2,3 +2,4 @@ click
 python-pidfile
 boto3
 pgpasslib
+psycopg2
