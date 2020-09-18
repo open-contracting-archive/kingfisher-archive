@@ -6,8 +6,8 @@ from ocdskingfisherarchive.collection import Collection
 from ocdskingfisherarchive.config import Config
 
 get_s3_directory_data = [
-    ("test", datetime.datetime(2020, 9, 1, 12, 0), 'test/2020/09/1'),
-    ("test", datetime.datetime(2020, 11, 1, 12, 0), 'test/2020/11/1'),
+    ("test", datetime.datetime(2020, 9, 1, 12, 0), 'test/2020/09'),
+    ("test", datetime.datetime(2020, 11, 1, 12, 0), 'test/2020/11'),
 ]
 
 

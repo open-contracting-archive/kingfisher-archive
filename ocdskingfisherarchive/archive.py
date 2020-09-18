@@ -1,4 +1,5 @@
 import logging
+from ocdskingfisherarchive.archived_collection import ArchivedCollection
 
 
 class Archive:
@@ -23,6 +24,8 @@ class Archive:
         if current_state != 'UNKNOWN':
             return
 
+        # TODO If not archiving, still delete local files after 90 days
+
         # Work out what to do, archive if we should
         new_state = self.should_we_archive_collection(collection)
         if new_state:
@@ -33,27 +36,108 @@ class Archive:
 
     def should_we_archive_collection(self, collection):
         self.logger.info("Checking if we should archive collection " + str(collection.database_id))
-        # TODO check all criteria for should archive here
+
+        # TODO check data files exist
+
+        # TODO Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
+
+        # Is there already a collection archived for source / year / month?
+        exact_archived_collection = self._get_exact_archived_collection(collection)
+        if exact_archived_collection:
+            self.logger.debug('Found an archive exists with same year/month')
+
+            # If checksums identical, leave it
+            if exact_archived_collection.get_data_md5() == collection.get_md5_of_data_folder():
+                self.logger.debug('Not Archiving Cos An archive exists with same year/month and same MD5')
+                return False
+
+            # TODO If the local directory has more errors, leave it
+
+            # If the local directory has equal or fewer bytes, leave it
+            if collection.get_size_of_data_folder() <= exact_archived_collection.get_data_size():
+                self.logger.debug('Not Archiving Cos An archive exists with same year/month and same or larger size')
+                return False
+
+            # Otherwise, Backup
+            self.logger.debug(
+                'Archiving Cos An archive exists with same year/month and we can not find a good reason to not archive'
+            )
+            return True
+
+        # Is an earlier collection archived for source?
+        last_archived_collection = self._get_last_archived_collection(collection)
+        if last_archived_collection:
+            self.logger.debug(
+                'Found an archive exists with earlier year/month: {}/{}'.format(
+                    last_archived_collection.year, last_archived_collection.month
+                )
+            )
+
+            # If checksums identical, leave it
+            if last_archived_collection.get_data_md5() == collection.get_md5_of_data_folder():
+                self.logger.debug('Not Archiving Cos An archive exists with older year/month and same MD5')
+                return False
+
+            # Complete: If the local directory has 50% more bytes, replace the remote directory.
+            if collection.get_size_of_data_folder() >= last_archived_collection.get_data_size() * 1.5:
+                self.logger.debug('Archiving Cos An archive exists with older year/month and ' +
+                                  'this collection has 50% more size')
+                return True
+
+            # TODO Clean: If the local directory has fewer errors, and greater or equal bytes,
+            #  replace the remote directory.
+
+            # Otherwise, do not backup
+            self.logger.debug('Not Archiving Cos An Older archive exists and we can not find a good reason to backup')
+            return False
+
+        self.logger.debug('Archiving - no current or previous archives found')
         return True
+
+    def _get_exact_archived_collection(self, collection):
+        # This is a separate method for mocking during testing
+        return ArchivedCollection.load_exact(
+            s3=self.s3,
+            source_id=collection.source_id,
+            data_version=collection.data_version
+        )
+
+    def _get_last_archived_collection(self, collection):
+        # This is a separate method for mocking during testing
+        return ArchivedCollection.load_latest(
+            s3=self.s3,
+            source_id=collection.source_id,
+            data_version=collection.data_version
+        )
 
     def archive_collection(self, collection):
         self.logger.info("Archiving collection " + str(collection.database_id))
 
         # Get Data file
+        self.logger.debug('Getting Data File')
         data_file_name = collection.write_data_file()
 
         # Get Metadata file
+        self.logger.debug('Getting MetaData File')
         meta_file_name = collection.write_meta_data_file()
 
         # Upload to staging
+        self.logger.debug('Upload to Staging')
         s3_directory = collection.get_s3_directory()
         self.s3.upload_file_to_staging(meta_file_name, s3_directory + '/metadata.json')
         self.s3.upload_file_to_staging(data_file_name, s3_directory + '/data.tar.lz4')
 
         # Move files in S3
+        self.logger.debug('Move files in S3')
         self.s3.move_file_from_staging_to_real(s3_directory + '/metadata.json')
         self.s3.move_file_from_staging_to_real(s3_directory + '/data.tar.lz4')
 
         # Delete Staging Files in S3
+        self.logger.debug('Delete Staging files in S3')
         self.s3.remove_staging_file(s3_directory + '/metadata.json')
         self.s3.remove_staging_file(s3_directory + '/data.tar.lz4')
+
+        # TODO Delete data files
+
+        # TODO Delete log files
+        # Analysts may be looking for these - should we wait before deleting?
