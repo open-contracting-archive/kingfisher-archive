@@ -12,7 +12,7 @@ class DataBaseProcess:
 
     def get_collections_to_consider_archiving(self):
         sql = "SELECT id, source_id, data_version  FROM collection " +\
-              "WHERE sample IS FALSE AND store_end_at IS NOT NULL AND transform_type = ''"
+              "WHERE sample IS FALSE AND store_end_at IS NOT NULL AND transform_type = '' AND deleted_at IS NULL"
         collections = []
         self.cursor.execute(sql)
         for row in self.cursor.fetchall():

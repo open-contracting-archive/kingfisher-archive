@@ -26,6 +26,8 @@ class Config:
 
         self.s3_bucket_name = None
 
+        self.sentry_dsn = ''
+
     def load_user_config(self):
         # First, try and load any config in the ini files
         self._load_user_config_ini()
@@ -83,6 +85,8 @@ class Config:
         self.directory_logs = config.get('DIRECTORIES', 'LOGS')
 
         self.s3_bucket_name = config.get('S3', 'BUCKETNAME')
+
+        self.sentry_dsn = config.get('SENTRY', 'DSN', fallback='')
 
     def get_database_connection_params(self):
         return {

@@ -48,3 +48,9 @@ class ArchivedCollection:
 
     def get_data_size(self):
         return self._data and self._data.get('data_size')
+
+    def has_errors_count(self):
+        return self._data and self._data.get('scrapy_log_file_found')
+
+    def get_errors_count(self):
+        return self._data and self._data.get('errors_count')

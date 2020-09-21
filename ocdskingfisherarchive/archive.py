@@ -37,9 +37,14 @@ class Archive:
     def should_we_archive_collection(self, collection):
         self.logger.info("Checking if we should archive collection " + str(collection.database_id))
 
-        # TODO check data files exist
+        if not collection.get_data_files_exist():
+            self.logger.debug('Not Archiving Cos data files do not exist')
+            return False
 
-        # TODO Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
+        # Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
+        if collection.is_subset():
+            self.logger.debug('Not Archiving Cos collection is a subset')
+            return False
 
         # Is there already a collection archived for source / year / month?
         exact_archived_collection = self._get_exact_archived_collection(collection)
@@ -51,7 +56,12 @@ class Archive:
                 self.logger.debug('Not Archiving Cos An archive exists with same year/month and same MD5')
                 return False
 
-            # TODO If the local directory has more errors, leave it
+            # If the local directory has more errors, leave it
+            # (But we may not have an errors count for one of the things we are comparing)
+            if collection.has_errors_count() and exact_archived_collection.has_errors_count() and \
+                    collection.get_errors_count() > exact_archived_collection.get_errors_count():
+                self.logger.debug('Not Archiving Cos An archive exists with less errors')
+                return False
 
             # If the local directory has equal or fewer bytes, leave it
             if collection.get_size_of_data_folder() <= exact_archived_collection.get_data_size():
@@ -84,8 +94,14 @@ class Archive:
                                   'this collection has 50% more size')
                 return True
 
-            # TODO Clean: If the local directory has fewer errors, and greater or equal bytes,
-            #  replace the remote directory.
+            # Clean: If the local directory has fewer errors, and greater or equal bytes, replace the remote directory.
+            # (But we may not have an errors count for one of the things we are comparing)
+            if collection.has_errors_count() and last_archived_collection.has_errors_count() and \
+                    collection.get_errors_count() < last_archived_collection.get_errors_count() and \
+                    collection.get_size_of_data_folder() >= last_archived_collection.get_data_size():
+                self.logger.debug('Archiving Cos An archive exists with older year/month and ' +
+                                  'local collection has less errors and same or bigger size')
+                return True
 
             # Otherwise, do not backup
             self.logger.debug('Not Archiving Cos An Older archive exists and we can not find a good reason to backup')

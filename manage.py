@@ -5,6 +5,7 @@ import os
 
 import click
 import pidfile
+import sentry_sdk
 
 from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.config import Config
@@ -38,4 +39,8 @@ def archive():
 
 
 if __name__ == '__main__':
+    if config.sentry_dsn:
+        sentry_sdk.init(
+            dsn=config.sentry_dsn,
+        )
     cli()

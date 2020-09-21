@@ -13,14 +13,21 @@ class Collection:
         self.source_id = source_id
         self.data_version = data_version
         # The following attributes are filled by functions for caching purposes
-        self.data_md5 = None
-        self.data_size = None
+        self._data_md5 = None
+        self._data_size = None
+        self._scrapy_log_file_name = None
+        self._scrapy_log_file = None
 
     def write_meta_data_file(self):
+        self._cache_scrapyd_log_file_info()
         data = {
             'database_id': self.database_id,
             'data_md5': self.get_md5_of_data_folder(),
             'data_size': self.get_size_of_data_folder(),
+            'scrapy_log_file_found': (True if self._scrapy_log_file else False),
+            # This could come out as 0 (no errors) or None (not known) - that's ok.
+            'errors_count':
+                (self._scrapy_log_file.get_errors_sent_to_process_count() if self._scrapy_log_file else None)
         }
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
         with open(filename, 'w') as file:
@@ -29,8 +36,8 @@ class Collection:
         return filename
 
     def get_md5_of_data_folder(self):
-        if self.data_md5 is not None:
-            return self.data_md5
+        if self._data_md5 is not None:
+            return self._data_md5
 
         dir = self.config.directory_data + '/' + self.source_id + '/' + self.data_version.strftime("%Y%m%d_%H%M%S")
         cmd = 'find '+dir+' -type f -exec md5sum {} + | awk \'{print $1}\' | sort | md5sum | awk \'{print $1}\''
@@ -45,12 +52,12 @@ class Collection:
             shell=True
         )
 
-        self.data_md5 = output.strip()
-        return self.data_md5
+        self._data_md5 = output.strip()
+        return self._data_md5
 
     def get_size_of_data_folder(self):
-        if self.data_size is not None:
-            return self.data_size
+        if self._data_size is not None:
+            return self._data_size
 
         dir = self.config.directory_data + '/' + self.source_id + '/' + self.data_version.strftime("%Y%m%d_%H%M%S")
         args = ['du', '-sb', dir]
@@ -60,16 +67,46 @@ class Collection:
             universal_newlines=True,
         )
 
-        self.data_size = int(output.split('\t')[0])
-        return self.data_size
+        self._data_size = int(output.split('\t')[0])
+        return self._data_size
 
-    def _find_scrapyd_log_file(self):
+    def get_data_files_exist(self):
+        dir_name = self.config.directory_data + '/' + self.source_id + '/' + \
+                   self.data_version.strftime("%Y%m%d_%H%M%S")
+
+        # It must exist and be a directory
+        if not os.path.exists(dir_name) or not os.path.isdir(dir_name):
+            return False
+
+        # No problems found so ...
+        return True
+
+    def _cache_scrapyd_log_file_info(self):
+        if self._scrapy_log_file_name is not None:
+            return self._scrapy_log_file_name
+
         dir_to_search = os.path.join(self.config.directory_logs, self.source_id)
+        if not os.path.exists(dir_to_search) or not os.path.isdir(dir_to_search):
+            return
         for filename in os.listdir(dir_to_search):
             if filename.endswith(".log"):
                 slf = ScrapyLogFile(os.path.join(dir_to_search, filename))
                 if slf.does_match_date_version(self.data_version):
-                    return os.path.join(dir_to_search, filename)
+                    self._scrapy_log_file = slf
+                    self._scrapy_log_file_name = os.path.join(dir_to_search, filename)
+                    return
+
+    def is_subset(self):
+        self._cache_scrapyd_log_file_info()
+        return self._scrapy_log_file and self._scrapy_log_file.is_subset()
+
+    def has_errors_count(self):
+        self._cache_scrapyd_log_file_info()
+        return True if self._scrapy_log_file else False
+
+    def get_errors_count(self):
+        self._cache_scrapyd_log_file_info()
+        return self._scrapy_log_file.get_errors_sent_to_process_count() if self._scrapy_log_file else None
 
     def write_data_file(self):
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')
@@ -80,9 +117,9 @@ class Collection:
             self.data_version.strftime("%Y%m%d_%H%M%S")
         ]
 
-        log_file_name = self._find_scrapyd_log_file()
-        if log_file_name:
-            things_to_add.append(log_file_name)
+        self._cache_scrapyd_log_file_info()
+        if self._scrapy_log_file_name:
+            things_to_add.append(self._scrapy_log_file_name)
 
         command1 = 'tar -cf ' + filename + ' ' + ' '.join(things_to_add)
         return1 = os.system(command1)

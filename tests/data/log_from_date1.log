@@ -1,0 +1,485 @@
+2020-09-21 12:35:47 [scrapy.utils.log] INFO: Scrapy 1.8.0 started (bot: kingfisher_scrapy)
+2020-09-21 12:35:47 [scrapy.utils.log] INFO: Versions: lxml 4.4.2.0, libxml2 2.9.9, cssselect 1.1.0, parsel 1.5.2, w3lib 1.21.0, Twisted 20.3.0, Python 3.6.9 (default, Jul 17 2020, 12:50:27) - [GCC 8.4.0], pyOpenSSL 19.1.0 (OpenSSL 1.1.1d  10 Sep 2019), cryptography 2.8, Platform Linux-4.15.0-117-generic-x86_64-with-Ubuntu-18.04-bionic
+2020-09-21 12:35:47 [scrapy.crawler] INFO: Overridden settings: {'BOT_NAME': 'kingfisher_scrapy', 'COMMANDS_MODULE': 'kingfisher_scrapy.commands', 'CONCURRENT_REQUESTS': 32, 'CONCURRENT_REQUESTS_PER_DOMAIN': 2, 'DOWNLOAD_MAXSIZE': 4000000000, 'DOWNLOAD_TIMEOUT': 360, 'DOWNLOAD_WARNSIZE': 0, 'HTTPPROXY_ENABLED': False, 'LOG_FORMATTER': 'kingfisher_scrapy.log_formatter.KingfisherLogFormatter', 'NEWSPIDER_MODULE': 'kingfisher_scrapy.spiders', 'SPIDER_MODULES': ['kingfisher_scrapy.spiders'], 'USER_AGENT': 'kingfisher_scrapy (+http://www.open-contracting.org)'}
+2020-09-21 12:35:47 [scrapy.extensions.telnet] INFO: Telnet Password: xxxxxxxxxx
+2020-09-21 12:35:47 [scrapy.middleware] INFO: Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.memusage.MemoryUsage',
+ 'scrapy.extensions.logstats.LogStats',
+ 'kingfisher_scrapy.extensions.KingfisherPluck',
+ 'kingfisher_scrapy.extensions.KingfisherFilesStore',
+ 'kingfisher_scrapy.extensions.KingfisherProcessAPI']
+2020-09-21 12:35:47 [scotland_public_contracts] INFO: Spider arguments: {'sample': None, 'note': None, 'from_date': '2020-08', 'until_date': None, 'crawl_time': None, 'keep_collection_open': None, 'package_pointer': None, 'release_pointer': None, 'truncate': None}
+2020-09-21 12:35:47 [scrapy.middleware] INFO: Enabled downloader middlewares:
+['scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats']
+2020-09-21 12:35:47 [scrapy.middleware] INFO: Enabled spider middlewares:
+['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2020-09-21 12:35:47 [scrapy.middleware] INFO: Enabled item pipelines:
+['kingfisher_scrapy.pipelines.Validate', 'kingfisher_scrapy.pipelines.Pluck']
+2020-09-21 12:35:47 [scrapy.core.engine] INFO: Spider opened
+2020-09-21 12:35:47 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2020-09-21 12:35:47 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
+2020-09-21 12:35:48 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=1> (referer: None)
+2020-09-21 12:35:48 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=1>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-1-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=1'}
+2020-09-21 12:35:48 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:48 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:48 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=1]. API status code: 500
+2020-09-21 12:35:48 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=2> (referer: None)
+2020-09-21 12:35:48 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=3> (referer: None)
+2020-09-21 12:35:48 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=4> (referer: None)
+2020-09-21 12:35:48 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=2>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-2-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=2'}
+2020-09-21 12:35:48 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:49 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=2]. API status code: 500
+2020-09-21 12:35:49 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=6> (referer: None)
+2020-09-21 12:35:49 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=5> (referer: None)
+2020-09-21 12:35:49 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=3>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-3-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=3'}
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:49 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=3]. API status code: 500
+2020-09-21 12:35:49 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=4>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-4-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=4'}
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:49 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=4]. API status code: 500
+2020-09-21 12:35:49 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=7> (referer: None)
+2020-09-21 12:35:49 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=12> (referer: None)
+2020-09-21 12:35:49 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=6>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-6-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=6'}
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:49 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=6]. API status code: 500
+2020-09-21 12:35:49 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=5>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-5-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=5'}
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:49 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=5]. API status code: 500
+2020-09-21 12:35:49 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=13> (referer: None)
+2020-09-21 12:35:49 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=7>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-7-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=7'}
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:49 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=7]. API status code: 500
+2020-09-21 12:35:49 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=12>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-12-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=12'}
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:49 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=12]. API status code: 500
+2020-09-21 12:35:49 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=13>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-13-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=13'}
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:49 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:49 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=13]. API status code: 500
+2020-09-21 12:35:50 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=15> (referer: None)
+2020-09-21 12:35:50 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=15>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-15-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=15'}
+2020-09-21 12:35:50 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:50 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:50 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=15]. API status code: 500
+2020-09-21 12:35:51 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=14> (referer: None)
+2020-09-21 12:35:51 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=14>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-14-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=14'}
+2020-09-21 12:35:51 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:51 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:51 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=14]. API status code: 500
+2020-09-21 12:35:52 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=21> (referer: None)
+2020-09-21 12:35:52 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=22> (referer: None)
+2020-09-21 12:35:52 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=21>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-21-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=21'}
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:52 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=21]. API status code: 500
+2020-09-21 12:35:52 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=20> (referer: None)
+2020-09-21 12:35:52 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=22>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-22-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=22'}
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:52 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=22]. API status code: 500
+2020-09-21 12:35:52 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=23> (referer: None)
+2020-09-21 12:35:52 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=24> (referer: None)
+2020-09-21 12:35:52 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=20>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-20-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=20'}
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:52 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=20]. API status code: 500
+2020-09-21 12:35:52 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=25> (referer: None)
+2020-09-21 12:35:52 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=23>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-23-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=23'}
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:52 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=23]. API status code: 500
+2020-09-21 12:35:52 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=24>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-24-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=24'}
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:52 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=24]. API status code: 500
+2020-09-21 12:35:52 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=25>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-25-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=25'}
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:52 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:52 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=25]. API status code: 500
+2020-09-21 12:35:53 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=101> (referer: None)
+2020-09-21 12:35:53 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=102> (referer: None)
+2020-09-21 12:35:53 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=101>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-101-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=101'}
+2020-09-21 12:35:53 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:53 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:53 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=101]. API status code: 500
+2020-09-21 12:35:53 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=102>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-102-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=102'}
+2020-09-21 12:35:53 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:53 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:53 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=102]. API status code: 500
+2020-09-21 12:35:53 [scrapy.downloadermiddlewares.retry] DEBUG: Retrying <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=104> (failed 1 times): 500 Internal Server Error
+2020-09-21 12:35:53 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=103> (referer: None)
+2020-09-21 12:35:53 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=103>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-103-dateFrom-09-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=103'}
+2020-09-21 12:35:53 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:53 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:53 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=103]. API status code: 500
+2020-09-21 12:35:53 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=1> (referer: None)
+2020-09-21 12:35:53 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=1>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-1-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=1'}
+2020-09-21 12:35:53 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:53 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:53 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=1]. API status code: 500
+2020-09-21 12:35:54 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=2> (referer: None)
+2020-09-21 12:35:54 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=4> (referer: None)
+2020-09-21 12:35:54 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=2>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-2-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=2'}
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:54 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=2]. API status code: 500
+2020-09-21 12:35:54 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=5> (referer: None)
+2020-09-21 12:35:54 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=4>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-4-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=4'}
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:54 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=4]. API status code: 500
+2020-09-21 12:35:54 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=6> (referer: None)
+2020-09-21 12:35:54 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=3> (referer: None)
+2020-09-21 12:35:54 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=5>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-5-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=5'}
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:54 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=5]. API status code: 500
+2020-09-21 12:35:54 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=12> (referer: None)
+2020-09-21 12:35:54 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=7> (referer: None)
+2020-09-21 12:35:54 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=6>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-6-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=6'}
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:54 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=6]. API status code: 500
+2020-09-21 12:35:54 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=3>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-3-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=3'}
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:54 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=3]. API status code: 500
+2020-09-21 12:35:54 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=12>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-12-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=12'}
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:54 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=12]. API status code: 500
+2020-09-21 12:35:54 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=7>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-7-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=7'}
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:54 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=7]. API status code: 500
+2020-09-21 12:35:54 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=13> (referer: None)
+2020-09-21 12:35:54 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=13>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-13-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=13'}
+2020-09-21 12:35:54 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:55 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:55 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=13]. API status code: 500
+2020-09-21 12:35:55 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=15> (referer: None)
+2020-09-21 12:35:55 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=15>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-15-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=15'}
+2020-09-21 12:35:55 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:55 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:55 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=15]. API status code: 500
+2020-09-21 12:35:56 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=14> (referer: None)
+2020-09-21 12:35:57 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=14>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-14-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=14'}
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:57 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=14]. API status code: 500
+2020-09-21 12:35:57 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=21> (referer: None)
+2020-09-21 12:35:57 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=21>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-21-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=21'}
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:57 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=21]. API status code: 500
+2020-09-21 12:35:57 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=22> (referer: None)
+2020-09-21 12:35:57 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=20> (referer: None)
+2020-09-21 12:35:57 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=23> (referer: None)
+2020-09-21 12:35:57 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=24> (referer: None)
+2020-09-21 12:35:57 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=22>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-22-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=22'}
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:57 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=22]. API status code: 500
+2020-09-21 12:35:57 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=20>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-20-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=20'}
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:57 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=20]. API status code: 500
+2020-09-21 12:35:57 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=25> (referer: None)
+2020-09-21 12:35:57 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=23>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-23-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=23'}
+2020-09-21 12:35:57 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:58 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=23]. API status code: 500
+2020-09-21 12:35:58 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=24>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-24-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=24'}
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:58 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=24]. API status code: 500
+2020-09-21 12:35:58 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=25>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-25-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=25'}
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:58 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=25]. API status code: 500
+2020-09-21 12:35:58 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=101> (referer: None)
+2020-09-21 12:35:58 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=101>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-101-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=101'}
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:58 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=101]. API status code: 500
+2020-09-21 12:35:58 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=102> (referer: None)
+2020-09-21 12:35:58 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=103> (referer: None)
+2020-09-21 12:35:58 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=102>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-102-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=102'}
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:58 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=102]. API status code: 500
+2020-09-21 12:35:58 [scrapy.core.scraper] DEBUG: Scraped from <200 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=103>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'noticeType-103-dateFrom-08-2020.json',
+ 'post_to_api': True,
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=103'}
+2020-09-21 12:35:58 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:59 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file/ HTTP/1.1" 500 None
+2020-09-21 12:35:59 [scotland_public_contracts] WARNING: Failed to post [https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=103]. API status code: 500
+2020-09-21 12:35:59 [scrapy.downloadermiddlewares.retry] DEBUG: Retrying <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=104> (failed 1 times): 500 Internal Server Error
+2020-09-21 12:35:59 [scrapy.downloadermiddlewares.retry] DEBUG: Retrying <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=104> (failed 2 times): 500 Internal Server Error
+2020-09-21 12:35:59 [scrapy.downloadermiddlewares.retry] DEBUG: Retrying <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=104> (failed 2 times): 500 Internal Server Error
+2020-09-21 12:35:59 [scrapy.downloadermiddlewares.retry] DEBUG: Gave up retrying <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=104> (failed 3 times): 500 Internal Server Error
+2020-09-21 12:35:59 [scrapy.core.engine] DEBUG: Crawled (500) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=104> (referer: None)
+2020-09-21 12:35:59 [scrapy.core.scraper] DEBUG: Scraped from <500 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=104>
+{'errors': {'http_code': 500},
+ 'file_name': 'noticeType-104-dateFrom-09-2020.json',
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=09-2020&outputType=1&noticeType=104'}
+2020-09-21 12:35:59 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:59 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file_errors/ HTTP/1.1" 200 30
+2020-09-21 12:35:59 [scrapy.downloadermiddlewares.retry] DEBUG: Gave up retrying <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=104> (failed 3 times): 500 Internal Server Error
+2020-09-21 12:35:59 [scrapy.core.engine] DEBUG: Crawled (500) <GET https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=104> (referer: None)
+2020-09-21 12:35:59 [scrapy.core.scraper] DEBUG: Scraped from <500 https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=104>
+{'errors': {'http_code': 500},
+ 'file_name': 'noticeType-104-dateFrom-08-2020.json',
+ 'url': 'https://api.publiccontractsscotland.gov.uk/v1/Notices?dateFrom=08-2020&outputType=1&noticeType=104'}
+2020-09-21 12:35:59 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:59 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/file_errors/ HTTP/1.1" 200 30
+2020-09-21 12:35:59 [scrapy.core.engine] INFO: Closing spider (finished)
+2020-09-21 12:35:59 [urllib3.connectionpool] DEBUG: Starting new HTTP connection (1): localhost:9090
+2020-09-21 12:35:59 [urllib3.connectionpool] DEBUG: http://localhost:9090 "POST /api/v1/submit/end_collection_store/ HTTP/1.1" 200 30
+2020-09-21 12:35:59 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'downloader/request_bytes': 14028,
+ 'downloader/request_count': 46,
+ 'downloader/request_method_count/GET': 46,
+ 'downloader/response_bytes': 1363539,
+ 'downloader/response_count': 46,
+ 'downloader/response_status_count/200': 40,
+ 'downloader/response_status_count/500': 6,
+ 'elapsed_time_seconds': 11.693856,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2020, 9, 21, 12, 35, 59, 691798),
+ 'item_scraped_count': 42,
+ 'log_count/DEBUG': 176,
+ 'log_count/INFO': 11,
+ 'log_count/WARNING': 40,
+ 'memusage/max': 58155008,
+ 'memusage/startup': 58155008,
+ 'response_received_count': 42,
+ 'retry/count': 4,
+ 'retry/max_reached': 2,
+ 'retry/reason_count/500 Internal Server Error': 4,
+ 'scheduler/dequeued': 46,
+ 'scheduler/dequeued/memory': 46,
+ 'scheduler/enqueued': 46,
+ 'scheduler/enqueued/memory': 46,
+ 'start_time': datetime.datetime(2020, 9, 21, 12, 35, 47, 997942)}
+2020-09-21 12:35:59 [scrapy.core.engine] INFO: Spider closed (finished)
