@@ -131,6 +131,8 @@ class Collection:
         if return2 != 0:
             raise Exception(command2 + ' Got Return ' + str(return2))
 
+        os.unlink(filename)
+
         return filename+'.lz4'
 
     def get_s3_directory(self):

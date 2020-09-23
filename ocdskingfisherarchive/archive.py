@@ -1,4 +1,5 @@
 import logging
+import os
 from ocdskingfisherarchive.archived_collection import ArchivedCollection
 
 
@@ -161,6 +162,11 @@ class Archive:
         self.logger.debug('Delete Staging files in S3')
         self.s3.remove_staging_file(s3_directory + '/metadata.json')
         self.s3.remove_staging_file(s3_directory + '/data.tar.lz4')
+
+        # Delete local files we made
+        self.logger.debug('Delete local files we made')
+        os.unlink(meta_file_name)
+        os.unlink(data_file_name)
 
         # TODO Delete data files
 
