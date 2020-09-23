@@ -11,28 +11,37 @@ class Archive:
         self.s3 = s3
         self.logger = logging.getLogger('ocdskingfisher.archive')
 
-    def process(self):
+    def process(self, test_run=False):
         collections = self.database_process.get_collections_to_consider_archiving()
         for collection in collections:
-            self.process_collection(collection)
+            self.process_collection(collection, test_run)
 
-    def process_collection(self, collection):
+    def process_collection(self, collection, test_run=False):
         self.logger.info("Processing collection " + str(collection.database_id))
 
         # Check local database
         current_state = self.database_archive.get_state_of_collection_id(collection.database_id)
         if current_state != 'UNKNOWN':
+            self.logger.debug('Ignoring; Local state is ' + current_state)
             return
 
         # TODO If not archiving, still delete local files after 90 days
 
         # Work out what to do, archive if we should
-        new_state = self.should_we_archive_collection(collection)
-        if new_state:
-            self.archive_collection(collection)
-            self.database_archive.set_state_of_collection_id(collection.database_id, 'ARCHIVED')
+        should_archive = self.should_we_archive_collection(collection)
+        if test_run:
+            self.logger.info(
+                "Collection " + str(collection.database_id) + " result: " + ("Archive" if should_archive else "Leave")
+            )
+            print(
+                "Collection " + str(collection.database_id) + " result: " + ("Archive" if should_archive else "Leave")
+            )
         else:
-            self.database_archive.set_state_of_collection_id(collection.database_id, 'DO NOT ARCHIVE')
+            if should_archive:
+                self.archive_collection(collection)
+                self.database_archive.set_state_of_collection_id(collection.database_id, 'ARCHIVED')
+            else:
+                self.database_archive.set_state_of_collection_id(collection.database_id, 'DO NOT ARCHIVE')
 
     def should_we_archive_collection(self, collection):
         self.logger.info("Checking if we should archive collection " + str(collection.database_id))
