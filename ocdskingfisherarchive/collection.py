@@ -137,3 +137,26 @@ class Collection:
 
     def get_s3_directory(self):
         return self.source_id + '/' + str(self.data_version.year) + '/' + str(self.data_version.month).zfill(2)
+
+    def delete_data_files(self):
+        if self.get_data_files_exist():
+            data_dir = self.config.directory_data + '/' + self.source_id + '/' + \
+                self.data_version.strftime("%Y%m%d_%H%M%S")
+            # We use os.system here so we know the exact command so we can set up sudo correctly
+            return1 = os.system('sudo -u ocdskfs /bin/rm -rf '+data_dir)
+            if return1 != 0:
+                raise Exception('delete_data_files Got Return ' + str(return1))
+
+    def delete_log_files(self):
+        self._cache_scrapyd_log_file_info()
+        if self._scrapy_log_file_name and os.path.isfile(self._scrapy_log_file_name):
+            # We use os.system here so we know the exact command so we can set up sudo correctly
+            return1 = os.system('sudo -u ocdskfs /bin/rm -f ' + self._scrapy_log_file_name)
+            if return1 != 0:
+                raise Exception('delete_log_files Got Return ' + str(return1))
+            if os.path.isfile(self._scrapy_log_file_name + '.stats'):
+                return2 = os.system('sudo -u ocdskfs /bin/rm -f ' + self._scrapy_log_file_name + '.stats')
+                if return2 != 0:
+                    raise Exception('delete_log_files (.stats file) Got Return ' + str(return2))
+            self._scrapy_log_file_name = None
+            self._scrapy_log_file = None

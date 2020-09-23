@@ -168,7 +168,10 @@ class Archive:
         os.unlink(meta_file_name)
         os.unlink(data_file_name)
 
-        # TODO Delete data files
+        # Delete data files
+        self.logger.debug('Delete data files')
+        collection.delete_data_files()
 
-        # TODO Delete log files
-        # Analysts may be looking for these - should we wait before deleting?
+        # Delete log files
+        self.logger.debug('Delete log files')
+        collection.delete_log_files()
