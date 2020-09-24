@@ -1,4 +1,5 @@
 import json
+import os
 
 
 def _find_latest_year_month_to_load(data, year, month):
@@ -35,8 +36,9 @@ class ArchivedCollection:
         filename = s3.get_file(remote_filename)
         if filename:
             with open(filename) as fp:
-                return ArchivedCollection(json.load(fp), year, month)
-            # TODO delete the file to save our /tmp space
+                archived_collection = ArchivedCollection(json.load(fp), year, month)
+            os.unlink(filename)
+            return archived_collection
 
     def __init__(self, data, year, month):
         self._data = data
