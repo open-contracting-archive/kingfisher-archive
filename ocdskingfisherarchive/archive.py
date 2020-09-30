@@ -37,12 +37,11 @@ class Archive:
             print(
                 "Collection " + str(collection.database_id) + " result: " + ("Archive" if should_archive else "Leave")
             )
+        elif should_archive:
+            self.archive_collection(collection)
+            self.database_archive.set_state_of_collection_id(collection.database_id, 'ARCHIVED')
         else:
-            if should_archive:
-                self.archive_collection(collection)
-                self.database_archive.set_state_of_collection_id(collection.database_id, 'ARCHIVED')
-            else:
-                self.database_archive.set_state_of_collection_id(collection.database_id, 'DO NOT ARCHIVE')
+            self.database_archive.set_state_of_collection_id(collection.database_id, 'DO NOT ARCHIVE')
 
     def should_we_archive_collection(self, collection):
         self.logger.info("Checking if we should archive collection " + str(collection.database_id))
