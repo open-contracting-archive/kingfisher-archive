@@ -113,7 +113,7 @@ class Archive:
                     collection.get_errors_count() <= last_archived_collection.get_errors_count() and \
                     collection.get_size_of_data_folder() >= last_archived_collection.get_data_size():
                 self.logger.debug('Archiving because an archive exists with older year/month and ' +
-                                  'local collection has fewer errors and same or bigger size')
+                                  'local collection has fewer or equal errors and greater or equal size')
                 return True
 
             # Otherwise, do not backup
