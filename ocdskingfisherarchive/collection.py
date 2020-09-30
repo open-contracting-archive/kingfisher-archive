@@ -83,7 +83,7 @@ class Collection:
 
     def _cache_scrapyd_log_file_info(self):
         if self._scrapy_log_file_name is not None:
-            return self._scrapy_log_file_name
+            return
 
         dir_to_search = os.path.join(self.config.directory_logs, self.source_id)
         if not os.path.exists(dir_to_search) or not os.path.isdir(dir_to_search):
