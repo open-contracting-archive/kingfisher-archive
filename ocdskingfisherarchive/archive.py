@@ -69,7 +69,7 @@ class Archive:
             # (But we may not have an errors count for one of the things we are comparing)
             if collection.has_errors_count() and exact_archived_collection.has_errors_count() and \
                     collection.get_errors_count() > exact_archived_collection.get_errors_count():
-                self.logger.debug('Not archiving because an archive exists with less errors')
+                self.logger.debug('Not archiving because an archive exists with fewer errors')
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
@@ -112,7 +112,7 @@ class Archive:
                     collection.get_errors_count() < last_archived_collection.get_errors_count() and \
                     collection.get_size_of_data_folder() >= last_archived_collection.get_data_size():
                 self.logger.debug('Archiving because an archive exists with older year/month and ' +
-                                  'local collection has less errors and same or bigger size')
+                                  'local collection has fewer errors and same or bigger size')
                 return True
 
             # Otherwise, do not backup
