@@ -1,3 +1,4 @@
+import logging
 import tempfile
 
 import boto3
@@ -8,6 +9,7 @@ class S3:
 
     def __init__(self, config):
         self.config = config
+        self.logger = logging.getLogger('ocdskingfisher.archive')
         self.s3_client = boto3.client('s3')
 
     def upload_file_to_staging(self, local_file_name, remote_file_name):
