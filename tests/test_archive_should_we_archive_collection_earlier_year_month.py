@@ -31,6 +31,36 @@ def test_backup():
     assert True == archive.should_we_archive_collection(collection)  # noqa: E712
 
 
+def test_backup_zero_errors_slightly_bigger_size():
+    """" This source was archived before this month.
+    Both collections have zero errors, but local is slightly bigger (not 50% bigger)
+    We should archive. """
+    config = Config()
+    database_archive = None
+    database_process = None
+    s3 = None
+
+    archive = Archive(config, database_archive, database_process, s3)
+    archive._get_exact_archived_collection = lambda c: None
+    archive._get_last_archived_collection = \
+        lambda c: ArchivedCollection(
+            {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 0, 'scrapy_log_file_found': True},
+            2020,
+            9
+        )
+
+    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
+    collection.get_size_of_data_folder = lambda: 123457
+    collection.get_data_files_exist = lambda: True
+    collection._scrapy_log_file_name = 'test.log'
+    collection._scrapy_log_file = ScrapyLogFile('test.log')
+    collection._scrapy_log_file._errors_sent_to_process_count = 0
+    collection._scrapy_log_file._spider_arguments = {}
+
+    assert True == archive.should_we_archive_collection(collection)  # noqa: E712
+
+
 def test_same_md5():
     """" This source was archived before this month.  MD5 is the same so don't back up.  """
     config = Config()

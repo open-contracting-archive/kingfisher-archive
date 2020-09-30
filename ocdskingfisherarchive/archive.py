@@ -106,10 +106,11 @@ class Archive:
                                   'this collection has 50% more size')
                 return True
 
-            # Clean: If the local directory has fewer errors, and greater or equal bytes, replace the remote directory.
+            # Clean: If the local directory has fewer or same errors, and greater or equal bytes,
+            # replace the remote directory.
             # (But we may not have an errors count for one of the things we are comparing)
             if collection.has_errors_count() and last_archived_collection.has_errors_count() and \
-                    collection.get_errors_count() < last_archived_collection.get_errors_count() and \
+                    collection.get_errors_count() <= last_archived_collection.get_errors_count() and \
                     collection.get_size_of_data_folder() >= last_archived_collection.get_data_size():
                 self.logger.debug('Archiving because an archive exists with older year/month and ' +
                                   'local collection has fewer errors and same or bigger size')
