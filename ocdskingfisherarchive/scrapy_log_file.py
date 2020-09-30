@@ -31,9 +31,11 @@ class ScrapyLogFile():
         diff = abs(start_time.timestamp() - date_version.timestamp())
         return diff < 3
 
-    # Manual Processing
+    # Line By Line Processing
 
-    def _process_manually(self):
+    def _process_line_by_line(self):
+        """Process log file line by line (Do not load all at once to keep memory use down!).
+        Look for and cache in object variables: error count and spider arguments."""
         self._errors_sent_to_process_count = 0
         self._spider_arguments = {}
         spider_arguments_search_string = '] INFO: Spider arguments: '
@@ -72,12 +74,12 @@ class ScrapyLogFile():
 
     def get_errors_sent_to_process_count(self):
         if self._errors_sent_to_process_count is None:
-            self._process_manually()
+            self._process_line_by_line()
         return self._errors_sent_to_process_count
 
     def is_subset(self):
         if self._spider_arguments is None:
-            self._process_manually()
+            self._process_line_by_line()
 
         # Older spider log files may not have this data, so make sure it can deal with that case.
         return bool(self._spider_arguments.get('sample')) or \
