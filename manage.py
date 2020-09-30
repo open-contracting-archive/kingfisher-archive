@@ -5,6 +5,7 @@ import os
 
 import click
 import pidfile
+import sentry_sdk
 
 from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.config import Config
@@ -25,17 +26,22 @@ def cli():
 
 
 @cli.command()
-def archive():
+@click.option('-n', '--dry-run', is_flag=True)
+def archive(dry_run):
     try:
         with pidfile.PIDFile():
             database_archive = DataBaseArchive(config)
             database_process = DataBaseProcess(config)
             s3 = S3(config)
             archive_worker = Archive(config, database_archive, database_process, s3)
-            archive_worker.process()
+            archive_worker.process(dry_run)
     except pidfile.AlreadyRunningError:
         print('Already running.')
 
 
 if __name__ == '__main__':
+    if config.sentry_dsn:
+        sentry_sdk.init(
+            dsn=config.sentry_dsn,
+        )
     cli()

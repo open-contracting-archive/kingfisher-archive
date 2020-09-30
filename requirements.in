@@ -4,3 +4,4 @@ boto3
 pgpasslib
 psycopg2
 logparser
+sentry-sdk
