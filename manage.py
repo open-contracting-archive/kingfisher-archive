@@ -26,7 +26,7 @@ def cli():
 
 
 @cli.command()
-@click.option('-d', '--dry-run', is_flag=True)
+@click.option('-n', '--dry-run', is_flag=True)
 def archive(dry_run):
     try:
         with pidfile.PIDFile():
