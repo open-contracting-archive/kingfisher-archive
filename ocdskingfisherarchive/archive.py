@@ -47,12 +47,12 @@ class Archive:
         self.logger.info("Checking if we should archive collection " + str(collection.database_id))
 
         if not collection.get_data_files_exist():
-            self.logger.debug('Not Archiving Cos data files do not exist')
+            self.logger.debug('Not archiving because data files do not exist')
             return False
 
         # Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
         if collection.is_subset():
-            self.logger.debug('Not Archiving Cos collection is a subset')
+            self.logger.debug('Not archiving because collection is a subset')
             return False
 
         # Is there already a collection archived for source / year / month?
@@ -62,24 +62,27 @@ class Archive:
 
             # If checksums identical, leave it
             if exact_archived_collection.get_data_md5() == collection.get_md5_of_data_folder():
-                self.logger.debug('Not Archiving Cos An archive exists with same year/month and same MD5')
+                self.logger.debug('Not archiving because an archive exists with same year/month and same MD5')
                 return False
 
             # If the local directory has more errors, leave it
             # (But we may not have an errors count for one of the things we are comparing)
             if collection.has_errors_count() and exact_archived_collection.has_errors_count() and \
                     collection.get_errors_count() > exact_archived_collection.get_errors_count():
-                self.logger.debug('Not Archiving Cos An archive exists with less errors')
+                self.logger.debug('Not archiving because an archive exists with less errors')
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
             if collection.get_size_of_data_folder() <= exact_archived_collection.get_data_size():
-                self.logger.debug('Not Archiving Cos An archive exists with same year/month and same or larger size')
+                self.logger.debug(
+                    'Not archiving because an archive exists with same year/month and same or larger size'
+                )
                 return False
 
             # Otherwise, Backup
             self.logger.debug(
-                'Archiving Cos An archive exists with same year/month and we can not find a good reason to not archive'
+                'Archiving because an archive exists with same year/month ' +
+                'and we can not find a good reason to not archive'
             )
             return True
 
@@ -94,12 +97,12 @@ class Archive:
 
             # If checksums identical, leave it
             if last_archived_collection.get_data_md5() == collection.get_md5_of_data_folder():
-                self.logger.debug('Not Archiving Cos An archive exists with older year/month and same MD5')
+                self.logger.debug('Not archiving because an archive exists with older year/month and same MD5')
                 return False
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
             if collection.get_size_of_data_folder() >= last_archived_collection.get_data_size() * 1.5:
-                self.logger.debug('Archiving Cos An archive exists with older year/month and ' +
+                self.logger.debug('Archiving because an archive exists with older year/month and ' +
                                   'this collection has 50% more size')
                 return True
 
@@ -108,12 +111,14 @@ class Archive:
             if collection.has_errors_count() and last_archived_collection.has_errors_count() and \
                     collection.get_errors_count() < last_archived_collection.get_errors_count() and \
                     collection.get_size_of_data_folder() >= last_archived_collection.get_data_size():
-                self.logger.debug('Archiving Cos An archive exists with older year/month and ' +
+                self.logger.debug('Archiving because an archive exists with older year/month and ' +
                                   'local collection has less errors and same or bigger size')
                 return True
 
             # Otherwise, do not backup
-            self.logger.debug('Not Archiving Cos An Older archive exists and we can not find a good reason to backup')
+            self.logger.debug(
+                'Not archiving because an older archive exists and we can not find a good reason to backup'
+            )
             return False
 
         self.logger.debug('Archiving - no current or previous archives found')
