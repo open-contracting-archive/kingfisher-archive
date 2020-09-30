@@ -130,7 +130,7 @@ class Collection:
         return filename+'.lz4'
 
     def get_s3_directory(self):
-        return self.source_id + '/' + str(self.data_version.year) + '/' + str(self.data_version.month).zfill(2)
+        return '/'.join([self.source_id, str(self.data_version.year), str(self.data_version.month).zfill(2)])
 
     def delete_data_files(self):
         if self.get_data_files_exist():
