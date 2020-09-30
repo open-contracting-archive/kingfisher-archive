@@ -32,10 +32,10 @@ class Archive:
         should_archive = self.should_we_archive_collection(collection)
         if dry_run:
             self.logger.info(
-                "Collection " + str(collection.database_id) + " result: " + ("Archive" if should_archive else "Leave")
+                "Collection " + str(collection.database_id) + " result: " + ("Archive" if should_archive else "Skip")
             )
             print(
-                "Collection " + str(collection.database_id) + " result: " + ("Archive" if should_archive else "Leave")
+                "Collection " + str(collection.database_id) + " result: " + ("Archive" if should_archive else "Skip")
             )
         elif should_archive:
             self.archive_collection(collection)
