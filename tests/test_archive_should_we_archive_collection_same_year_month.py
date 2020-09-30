@@ -23,10 +23,10 @@ def test_backup():
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 186306
     collection.get_data_files_exist = lambda: True
-    collection._scrapy_log_file_name = 'test.log'
-    collection._scrapy_log_file = ScrapyLogFile('test.log')
-    collection._scrapy_log_file._errors_sent_to_process_count = 0
-    collection._scrapy_log_file._spider_arguments = {}
+    collection._cached_scrapy_log_file_name = 'test.log'
+    collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
+    collection._cached_scrapy_log_file._errors_sent_to_process_count = 0
+    collection._cached_scrapy_log_file._spider_arguments = {}
 
     assert True == archive.should_we_archive_collection(collection)  # noqa: E712
 
@@ -47,10 +47,10 @@ def test_same_md5():
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 186306
     collection.get_data_files_exist = lambda: True
-    collection._scrapy_log_file_name = 'test.log'
-    collection._scrapy_log_file = ScrapyLogFile('test.log')
-    collection._scrapy_log_file._errors_sent_to_process_count = 0
-    collection._scrapy_log_file._spider_arguments = {}
+    collection._cached_scrapy_log_file_name = 'test.log'
+    collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
+    collection._cached_scrapy_log_file._errors_sent_to_process_count = 0
+    collection._cached_scrapy_log_file._spider_arguments = {}
 
     assert False == archive.should_we_archive_collection(collection)  # noqa: E712
 
@@ -71,10 +71,10 @@ def test_smaller_size():
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 186306
     collection.get_data_files_exist = lambda: True
-    collection._scrapy_log_file_name = 'test.log'
-    collection._scrapy_log_file = ScrapyLogFile('test.log')
-    collection._scrapy_log_file._errors_sent_to_process_count = 0
-    collection._scrapy_log_file._spider_arguments = {}
+    collection._cached_scrapy_log_file_name = 'test.log'
+    collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
+    collection._cached_scrapy_log_file._errors_sent_to_process_count = 0
+    collection._cached_scrapy_log_file._spider_arguments = {}
 
     assert False == archive.should_we_archive_collection(collection)  # noqa: E712
 
@@ -98,9 +98,9 @@ def test_more_errors():
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 186306
     collection.get_data_files_exist = lambda: True
-    collection._scrapy_log_file_name = 'test.log'
-    collection._scrapy_log_file = ScrapyLogFile('test.log')
-    collection._scrapy_log_file._errors_sent_to_process_count = 1
-    collection._scrapy_log_file._spider_arguments = {}
+    collection._cached_scrapy_log_file_name = 'test.log'
+    collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
+    collection._cached_scrapy_log_file._errors_sent_to_process_count = 1
+    collection._cached_scrapy_log_file._spider_arguments = {}
 
     assert False == archive.should_we_archive_collection(collection)  # noqa: E712

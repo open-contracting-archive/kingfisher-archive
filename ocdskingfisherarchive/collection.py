@@ -15,22 +15,21 @@ class Collection:
         # The following attributes are filled by functions for caching purposes
         self._data_md5 = None
         self._data_size = None
-        self._scrapy_log_file_name = None
-        self._scrapy_log_file = None
+        self._cached_scrapy_log_file_name = None
+        self._cached_scrapy_log_file = None
 
     def _get_data_dir_name(self):
         return os.path.join(self.config.directory_data, self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
 
     def write_meta_data_file(self):
-        self._cache_scrapyd_log_file_info()
         data = {
             'database_id': self.database_id,
             'data_md5': self.get_md5_of_data_folder(),
             'data_size': self.get_size_of_data_folder(),
-            'scrapy_log_file_found': bool(self._scrapy_log_file),
+            'scrapy_log_file_found': bool(self.scrapy_log_file),
             # This could come out as 0 (no errors) or None (not known) - that's ok.
             'errors_count':
-                (self._scrapy_log_file.get_errors_sent_to_process_count() if self._scrapy_log_file else None)
+                (self.scrapy_log_file.get_errors_sent_to_process_count() if self.scrapy_log_file else None)
         }
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
         with open(filename, 'w') as file:
@@ -77,7 +76,7 @@ class Collection:
         return os.path.isdir(self._get_data_dir_name())
 
     def _cache_scrapyd_log_file_info(self):
-        if self._scrapy_log_file_name is not None:
+        if self._cached_scrapy_log_file_name is not None:
             return
 
         dir_to_search = os.path.join(self.config.directory_logs, self.source_id)
@@ -87,21 +86,28 @@ class Collection:
             if filename.endswith(".log"):
                 slf = ScrapyLogFile(os.path.join(dir_to_search, filename))
                 if slf.does_match_date_version(self.data_version):
-                    self._scrapy_log_file = slf
-                    self._scrapy_log_file_name = os.path.join(dir_to_search, filename)
+                    self._cached_scrapy_log_file = slf
+                    self._cached_scrapy_log_file_name = os.path.join(dir_to_search, filename)
                     return
 
-    def is_subset(self):
+    @property
+    def scrapy_log_file(self):
         self._cache_scrapyd_log_file_info()
-        return self._scrapy_log_file and self._scrapy_log_file.is_subset()
+        return self._cached_scrapy_log_file
+
+    @property
+    def scrapy_log_file_name(self):
+        self._cache_scrapyd_log_file_info()
+        return self._cached_scrapy_log_file_name
+
+    def is_subset(self):
+        return self.scrapy_log_file and self.scrapy_log_file.is_subset()
 
     def has_errors_count(self):
-        self._cache_scrapyd_log_file_info()
-        return bool(self._scrapy_log_file)
+        return bool(self.scrapy_log_file)
 
     def get_errors_count(self):
-        self._cache_scrapyd_log_file_info()
-        return self._scrapy_log_file.get_errors_sent_to_process_count() if self._scrapy_log_file else None
+        return self.scrapy_log_file.get_errors_sent_to_process_count() if self.scrapy_log_file else None
 
     def write_data_file(self):
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')
@@ -111,9 +117,8 @@ class Collection:
             self._get_data_dir_name()
         ]
 
-        self._cache_scrapyd_log_file_info()
-        if self._scrapy_log_file_name:
-            things_to_add.append(self._scrapy_log_file_name)
+        if self.scrapy_log_file_name:
+            things_to_add.append(self.scrapy_log_file_name)
 
         command1 = 'tar -cf ' + filename + ' ' + ' '.join(things_to_add)
         return1 = os.system(command1)
@@ -140,15 +145,14 @@ class Collection:
                 raise Exception('delete_data_files Got Return ' + str(return1))
 
     def delete_log_files(self):
-        self._cache_scrapyd_log_file_info()
-        if self._scrapy_log_file_name and os.path.isfile(self._scrapy_log_file_name):
+        if self.scrapy_log_file_name and os.path.isfile(self.scrapy_log_file_name):
             # We use os.system here so we know the exact command so we can set up sudo correctly
-            return1 = os.system('sudo -u ocdskfs /bin/rm -f ' + self._scrapy_log_file_name)
+            return1 = os.system('sudo -u ocdskfs /bin/rm -f ' + self.scrapy_log_file_name)
             if return1 != 0:
                 raise Exception('delete_log_files Got Return ' + str(return1))
-            if os.path.isfile(self._scrapy_log_file_name + '.stats'):
-                return2 = os.system('sudo -u ocdskfs /bin/rm -f ' + self._scrapy_log_file_name + '.stats')
+            if os.path.isfile(self.scrapy_log_file_name + '.stats'):
+                return2 = os.system('sudo -u ocdskfs /bin/rm -f ' + self.scrapy_log_file_name + '.stats')
                 if return2 != 0:
                     raise Exception('delete_log_files (.stats file) Got Return ' + str(return2))
-            self._scrapy_log_file_name = None
-            self._scrapy_log_file = None
+            self._cached_scrapy_log_file_name = None
+            self._cached_scrapy_log_file = None
