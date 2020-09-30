@@ -75,18 +75,14 @@ class Collection:
                    self.data_version.strftime("%Y%m%d_%H%M%S")
 
         # It must exist and be a directory
-        if not os.path.exists(dir_name) or not os.path.isdir(dir_name):
-            return False
-
-        # No problems found so ...
-        return True
+        return os.path.isdir(dir_name)
 
     def _cache_scrapyd_log_file_info(self):
         if self._scrapy_log_file_name is not None:
             return
 
         dir_to_search = os.path.join(self.config.directory_logs, self.source_id)
-        if not os.path.exists(dir_to_search) or not os.path.isdir(dir_to_search):
+        if not os.path.isdir(dir_to_search):
             return
         for filename in os.listdir(dir_to_search):
             if filename.endswith(".log"):
