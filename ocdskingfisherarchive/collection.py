@@ -24,7 +24,7 @@ class Collection:
             'database_id': self.database_id,
             'data_md5': self.get_md5_of_data_folder(),
             'data_size': self.get_size_of_data_folder(),
-            'scrapy_log_file_found': (True if self._scrapy_log_file else False),
+            'scrapy_log_file_found': bool(self._scrapy_log_file),
             # This could come out as 0 (no errors) or None (not known) - that's ok.
             'errors_count':
                 (self._scrapy_log_file.get_errors_sent_to_process_count() if self._scrapy_log_file else None)
@@ -98,7 +98,7 @@ class Collection:
 
     def has_errors_count(self):
         self._cache_scrapyd_log_file_info()
-        return True if self._scrapy_log_file else False
+        return bool(self._scrapy_log_file)
 
     def get_errors_count(self):
         self._cache_scrapyd_log_file_info()
