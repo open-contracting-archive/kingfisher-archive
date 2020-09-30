@@ -12,12 +12,12 @@ class Archive:
         self.s3 = s3
         self.logger = logging.getLogger('ocdskingfisher.archive')
 
-    def process(self, test_run=False):
+    def process(self, dry_run=False):
         collections = self.database_process.get_collections_to_consider_archiving()
         for collection in collections:
-            self.process_collection(collection, test_run)
+            self.process_collection(collection, dry_run)
 
-    def process_collection(self, collection, test_run=False):
+    def process_collection(self, collection, dry_run=False):
         self.logger.info("Processing collection " + str(collection.database_id))
 
         # Check local database
@@ -30,7 +30,7 @@ class Archive:
 
         # Work out what to do, archive if we should
         should_archive = self.should_we_archive_collection(collection)
-        if test_run:
+        if dry_run:
             self.logger.info(
                 "Collection " + str(collection.database_id) + " result: " + ("Archive" if should_archive else "Leave")
             )

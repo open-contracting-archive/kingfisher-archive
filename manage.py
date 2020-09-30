@@ -26,15 +26,15 @@ def cli():
 
 
 @cli.command()
-@click.option('-t', '--test-run', is_flag=True)
-def archive(test_run):
+@click.option('-d', '--dry-run', is_flag=True)
+def archive(dry_run):
     try:
         with pidfile.PIDFile():
             database_archive = DataBaseArchive(config)
             database_process = DataBaseProcess(config)
             s3 = S3(config)
             archive_worker = Archive(config, database_archive, database_process, s3)
-            archive_worker.process(test_run)
+            archive_worker.process(dry_run)
     except pidfile.AlreadyRunningError:
         print('Already running.')
 
