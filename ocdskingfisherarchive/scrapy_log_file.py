@@ -31,6 +31,11 @@ class ScrapyLogFile():
         diff = abs(start_time.timestamp() - date_version.timestamp())
         return diff < 3
 
+    def is_finished(self):
+        if self._logparser_data is None:
+            self._process_logparser()
+        return self._logparser_data.get('finish_reason') == 'finished'
+
     # Line By Line Processing
 
     def _process_line_by_line(self):

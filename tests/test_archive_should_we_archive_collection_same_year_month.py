@@ -27,6 +27,7 @@ def test_backup():
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
     collection._cached_scrapy_log_file._errors_sent_to_process_count = 0
     collection._cached_scrapy_log_file._spider_arguments = {}
+    collection._cached_scrapy_log_file.is_finished = lambda: True
 
     assert True == archive.should_we_archive_collection(collection)  # noqa: E712
 
@@ -51,6 +52,7 @@ def test_same_md5():
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
     collection._cached_scrapy_log_file._errors_sent_to_process_count = 0
     collection._cached_scrapy_log_file._spider_arguments = {}
+    collection._cached_scrapy_log_file.is_finished = lambda: True
 
     assert False == archive.should_we_archive_collection(collection)  # noqa: E712
 
@@ -75,6 +77,7 @@ def test_smaller_size():
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
     collection._cached_scrapy_log_file._errors_sent_to_process_count = 0
     collection._cached_scrapy_log_file._spider_arguments = {}
+    collection._cached_scrapy_log_file.is_finished = lambda: True
 
     assert False == archive.should_we_archive_collection(collection)  # noqa: E712
 
@@ -102,5 +105,6 @@ def test_more_errors():
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
     collection._cached_scrapy_log_file._errors_sent_to_process_count = 1
     collection._cached_scrapy_log_file._spider_arguments = {}
+    collection._cached_scrapy_log_file.is_finished = lambda: True
 
     assert False == archive.should_we_archive_collection(collection)  # noqa: E712
