@@ -28,22 +28,14 @@ def test_does_match_date_version():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG1)
 
     # Exact
-    assert True == scrapy_log_file.does_match_date_version(  # noqa: E712
-        datetime.datetime(2020, 9, 2, 5, 24, 58)
-    )
+    assert scrapy_log_file.does_match_date_version(datetime.datetime(2020, 9, 2, 5, 24, 58)) is True
 
     # Close
-    assert True == scrapy_log_file.does_match_date_version(  # noqa: E712
-        datetime.datetime(2020, 9, 2, 5, 24, 59)
-    )
-    assert True == scrapy_log_file.does_match_date_version(  # noqa: E712
-        datetime.datetime(2020, 9, 2, 5, 25, 00)
-    )
+    assert scrapy_log_file.does_match_date_version(datetime.datetime(2020, 9, 2, 5, 24, 59)) is True
+    assert scrapy_log_file.does_match_date_version(datetime.datetime(2020, 9, 2, 5, 25, 00)) is True
 
     # Not Close
-    assert False == scrapy_log_file.does_match_date_version(  # noqa: E712
-        datetime.datetime(2020, 9, 2, 7, 12, 4)
-    )
+    assert scrapy_log_file.does_match_date_version(datetime.datetime(2020, 9, 2, 7, 12, 4)) is False
 
 
 def test_errors_sent_to_process_count():
@@ -53,39 +45,39 @@ def test_errors_sent_to_process_count():
 
 def test_is_subset_1():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG1)
-    assert False == scrapy_log_file.is_subset()  # noqa: E712
+    assert scrapy_log_file.is_subset() is False
 
 
 def test_is_subset_sample_1():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG_SAMPLE1)
-    assert True == scrapy_log_file.is_subset()  # noqa: E712
+    assert scrapy_log_file.is_subset() is True
 
 
 def test_is_subset_from_date_1():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG_FROM_DATE1)
-    assert True == scrapy_log_file.is_subset()  # noqa: E712
+    assert scrapy_log_file.is_subset() is True
 
 
 def test_is_finished_1():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG1)
-    assert True == scrapy_log_file.is_finished()  # noqa: E712
+    assert scrapy_log_file.is_finished() is True
 
 
 def test_is_finished_sample_1():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG_SAMPLE1)
-    assert True == scrapy_log_file.is_finished()  # noqa: E712
+    assert scrapy_log_file.is_finished() is True
 
 
 def test_is_finished_from_date_1():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG_FROM_DATE1)
-    assert True == scrapy_log_file.is_finished()  # noqa: E712
+    assert scrapy_log_file.is_finished() is True
 
 
 def test_is_finished_sigint_1():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG_SIGINT1)
-    assert False == scrapy_log_file.is_finished()  # noqa: E712
+    assert scrapy_log_file.is_finished() is False
 
 
 def test_is_finished_in_progress_1():
     scrapy_log_file = ScrapyLogFile(FILENAME_LOG_IN_PROGRESS1)
-    assert False == scrapy_log_file.is_finished()  # noqa: E712
+    assert scrapy_log_file.is_finished() is False

@@ -24,5 +24,5 @@ def test_find_latest_year_month_to_load__not_found():
         2020: {1: True}
     }
     year, month = _find_latest_year_month_to_load(data, 2019, 10)
-    assert year == None  # noqa: E711
-    assert month == None  # noqa: E711
+    assert year is None
+    assert month is None
