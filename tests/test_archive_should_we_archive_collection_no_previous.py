@@ -69,7 +69,7 @@ def test_no_data_files():
     collection._cached_scrapy_log_file._spider_arguments = {}
     collection._cached_scrapy_log_file.is_finished = lambda: True
 
-    assert False == archive.should_we_archive_collection(collection)  # noqa: E712
+    assert archive.should_we_archive_collection(collection) is False
 
 
 def test_scrapy_log_file_says_not_finished():
