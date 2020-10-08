@@ -55,6 +55,13 @@ class Archive:
             self.logger.debug('Not archiving because collection is a subset')
             return False
 
+        # If not finished, don't archive
+        # (Note if loaded from Process database we check this there;
+        #  but we may load from other places in the future so check again)
+        if collection.scrapy_log_file and not collection.scrapy_log_file.is_finished():
+            self.logger.debug('Not archiving because Scrapy log file says it is not finished')
+            return False
+
         # Is there already a collection archived for source / year / month?
         exact_archived_collection = self._get_exact_archived_collection(collection)
         if exact_archived_collection:

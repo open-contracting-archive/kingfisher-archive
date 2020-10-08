@@ -1,0 +1,46 @@
+2020-10-02 08:41:19 [scrapy.utils.log] INFO: Scrapy 1.8.0 started (bot: kingfisher_scrapy)
+2020-10-02 08:41:19 [scrapy.utils.log] INFO: Versions: lxml 4.4.2.0, libxml2 2.9.9, cssselect 1.1.0, parsel 1.5.2, w3lib 1.21.0, Twisted 20.3.0, Python 3.6.9 (default, Jul 17 2020, 12:50:27) - [GCC 8.4.0], pyOpenSSL 19.1.0 (OpenSSL 1.1.1d  10 Sep 2019), cryptography 2.8, Platform Linux-4.15.0-118-generic-x86_64-with-Ubuntu-18.04-bionic
+2020-10-02 08:41:19 [scrapy.crawler] INFO: Overridden settings: {'BOT_NAME': 'kingfisher_scrapy', 'COMMANDS_MODULE': 'kingfisher_scrapy.commands', 'CONCURRENT_REQUESTS': 32, 'CONCURRENT_REQUESTS_PER_DOMAIN': 2, 'DOWNLOAD_MAXSIZE': 4000000000, 'DOWNLOAD_TIMEOUT': 360, 'DOWNLOAD_WARNSIZE': 0, 'HTTPPROXY_ENABLED': False, 'LOG_FORMATTER': 'kingfisher_scrapy.log_formatter.KingfisherLogFormatter', 'NEWSPIDER_MODULE': 'kingfisher_scrapy.spiders', 'SPIDER_MODULES': ['kingfisher_scrapy.spiders'], 'USER_AGENT': 'kingfisher_scrapy (+http://www.open-contracting.org)'}
+2020-10-02 08:41:20 [scrapy.extensions.telnet] INFO: Telnet Password: xxxxxxxxxxxxxx
+2020-10-02 08:41:20 [scrapy.middleware] WARNING: Disabled KingfisherProcessAPI: KINGFISHER_API_URI and/or KINGFISHER_API_KEY is not set.
+2020-10-02 08:41:20 [scrapy.middleware] INFO: Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.memusage.MemoryUsage',
+ 'scrapy.extensions.logstats.LogStats',
+ 'kingfisher_scrapy.extensions.KingfisherPluck',
+ 'kingfisher_scrapy.extensions.KingfisherFilesStore']
+2020-10-02 08:41:20 [canada_buyandsell] INFO: Spider arguments: {'sample': None, 'note': None, 'from_date': None, 'until_date': None, 'crawl_time': None, 'keep_collection_open': None, 'package_pointer': None, 'release_pointer': None, 'truncate': None}
+2020-10-02 08:41:20 [scrapy.middleware] INFO: Enabled downloader middlewares:
+['scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats']
+2020-10-02 08:41:20 [scrapy.middleware] INFO: Enabled spider middlewares:
+['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2020-10-02 08:41:20 [scrapy.middleware] INFO: Enabled item pipelines:
+['kingfisher_scrapy.pipelines.Validate', 'kingfisher_scrapy.pipelines.Pluck']
+2020-10-02 08:41:20 [scrapy.core.engine] INFO: Spider opened
+2020-10-02 08:41:20 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2020-10-02 08:41:20 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
+2020-10-02 08:41:20 [scrapy.crawler] INFO: Received SIGINT, shutting down gracefully. Send again to force 
+2020-10-02 08:41:20 [scrapy.core.engine] INFO: Closing spider (shutdown)
+2020-10-02 08:41:21 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-16-17.json> (referer: None)
+2020-10-02 08:41:21 [scrapy.core.scraper] DEBUG: Scraped from <200 https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-16-17.json>
+{'data_type': 'release_package',
+ 'encoding': 'utf-8',
+ 'file_name': 'tpsgc-pwgsc_ocds_EF-FY-16-17.json',
+ 'post_to_api': True,
+ 'url': 'https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-16-17.json'}
+2020-10-02 08:41:22 [scrapy.crawler] INFO: Received SIGINT twice, forcing unclean shutdown
+2020-10-02 08:41:22 [scrapy.downloadermiddlewares.retry] DEBUG: Retrying <GET https://buyandsell.gc.ca/cds/public/ocds/tpsgc-pwgsc_ocds_EF-FY-15-16.json> (failed 1 times): [<twisted.python.failure.Failure twisted.internet.error.ConnectionLost: Connection to the other side was lost in a non-clean fashion: Connection lost.>]
