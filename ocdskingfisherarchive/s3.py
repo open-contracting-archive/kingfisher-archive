@@ -1,51 +1,41 @@
 import logging
 import tempfile
+from contextlib import contextmanager
 
 import boto3
 from botocore.exceptions import ClientError
 
 
-class S3:
+@contextmanager
+def _try(s3):
+    try:
+        yield
+    except ClientError as e:
+        s3.logger.error(e)
+        raise e
 
+
+class S3:
     def __init__(self, config):
         self.config = config
         self.logger = logging.getLogger('ocdskingfisher.archive')
         self.s3_client = boto3.client('s3')
 
     def upload_file_to_staging(self, local_file_name, remote_file_name):
-        try:
-            self.s3_client.upload_file(
-                local_file_name,
-                self.config.s3_bucket_name,
-                f'staging/{remote_file_name}',
-            )
-        except ClientError as e:
-            self.logger.error(e)
-            raise e
+        with _try(self):
+            self.s3_client.upload_file(local_file_name, self.config.s3_bucket_name, f'staging/{remote_file_name}')
 
     def move_file_from_staging_to_real(self, remote_file_name):
-        try:
-            self.s3_client.copy(
-                {
-                    'Bucket': self.config.s3_bucket_name,
-                    'Key': f'staging/{remote_file_name}',
-                },
-                self.config.s3_bucket_name,
-                remote_file_name
-            )
-        except ClientError as e:
-            self.logger.error(e)
-            raise e
+        copy_source = {
+            'Bucket': self.config.s3_bucket_name,
+            'Key': f'staging/{remote_file_name}',
+        }
+        with _try(self):
+            self.s3_client.copy(copy_source, self.config.s3_bucket_name, remote_file_name)
 
     def remove_staging_file(self, remote_file_name):
-        try:
-            self.s3_client.delete_object(
-                Bucket=self.config.s3_bucket_name,
-                Key=f'staging/{remote_file_name}',
-            )
-        except ClientError as e:
-            self.logger.error(e)
-            raise e
+        with _try(self):
+            self.s3_client.delete_object(Bucket=self.config.s3_bucket_name, Key=f'staging/{remote_file_name}')
 
     def get_file(self, remote_file_name):
         try:
@@ -60,12 +50,9 @@ class S3:
                 raise e
 
     def get_years_and_months_for_source(self, source_id):
-        try:
+        with _try(self):
             # This is max 1000 responses but given how many files we should have per source this should be fine
-            response = self.s3_client.list_objects_v2(
-                Bucket=self.config.s3_bucket_name,
-                Prefix=source_id+'/',
-            )
+            response = self.s3_client.list_objects_v2(Bucket=self.config.s3_bucket_name, Prefix=source_id+'/')
             if response['KeyCount'] == 0:
                 return {}
             out = {}
@@ -77,6 +64,3 @@ class S3:
                     out[year] = {}
                 out[year][month] = True
             return out
-        except ClientError as e:
-            self.logger.error(e)
-            raise e
