@@ -8,12 +8,7 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 def test_no_previous():
     """" No Previous collections have been archived. We should archive. """
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
@@ -30,12 +25,7 @@ def test_no_previous():
 
 def test_no_previous_subset():
     """" No Previous collections have been archived. But this is a subset, so we should not archive. """
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
@@ -52,12 +42,7 @@ def test_no_previous_subset():
 
 def test_no_data_files():
     """" No Previous collections have been archived. But there are no data files, so we should not archive. """
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
@@ -74,12 +59,7 @@ def test_no_data_files():
 
 def test_scrapy_log_file_says_not_finished():
     """" Scrapy log says it is not finished so should not archive """
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 

@@ -9,12 +9,7 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 def test_backup():
     """" This source was archived before this month. We should archive. """
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection({'data_md5': 'oeu7394ud48h', 'data_size': 123456}, 2020, 9)
@@ -36,12 +31,7 @@ def test_backup_zero_errors_slightly_bigger_size():
     """" This source was archived before this month.
     Both collections have zero errors, but local is slightly bigger (not 50% bigger)
     We should archive. """
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection(
@@ -65,12 +55,7 @@ def test_backup_zero_errors_slightly_bigger_size():
 
 def test_same_md5():
     """" This source was archived before this month.  MD5 is the same so don't back up.  """
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection({'data_md5': 'eo39tj38jm', 'data_size': 123456}, 2020, 1)
@@ -90,12 +75,7 @@ def test_same_md5():
 
 def test_size_not_50_percent_more():
     """" This source was archived before this month.  The size is slightly larger but not 50% so don't back up."""
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection({'data_md5': 'oeu7394ud48h', 'data_size': 123456}, 2020, 1)
@@ -115,12 +95,7 @@ def test_size_not_50_percent_more():
 
 def test_less_errors():
     """" This source was archived before this month.  Local Collection has less errors, so backup.  """
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection(
@@ -144,12 +119,7 @@ def test_less_errors():
 def test_less_errors_but_smaller_size():
     """This source was archived before this month.
     Local Collection has less errors but is smaller size, so don't backup."""
-    config = Config()
-    database_archive = None
-    database_process = None
-    s3 = None
-
-    archive = Archive(database_archive, database_process, s3)
+    archive = Archive(None, None, None)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection(
