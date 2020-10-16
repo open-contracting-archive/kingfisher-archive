@@ -39,7 +39,7 @@ class Collection:
         if self._data_md5 is not None:
             return self._data_md5
 
-        cmd = 'find '+self._get_data_dir_name() + \
+        cmd = 'find ' + self._get_data_dir_name() + \
               ' -type f -exec md5sum {} + | awk \'{print $1}\' | sort | md5sum | awk \'{print $1}\''
 
         # Using Shell=True is not recommended when there are security implications,
@@ -130,15 +130,15 @@ class Collection:
 
         os.unlink(filename)
 
-        return filename+'.lz4'
+        return f'{filename}.lz4'
 
     def get_s3_directory(self):
-        return '/'.join([self.source_id, str(self.data_version.year), str(self.data_version.month).zfill(2)])
+        return f'{self.source_id}/{self.data_version.year}/{self.data_version.month:02d}'
 
     def delete_data_files(self):
         if self.get_data_files_exist():
             # We use os.system here so we know the exact command so we can set up sudo correctly
-            return1 = os.system('sudo -u ocdskfs /bin/rm -rf '+self._get_data_dir_name())
+            return1 = os.system(f'sudo -u ocdskfs /bin/rm -rf {self._get_data_dir_name()}')
             if return1 != 0:
                 raise Exception(f'delete_data_files Got Return {return1}')
 

@@ -52,7 +52,7 @@ class S3:
     def get_years_and_months_for_source(self, source_id):
         with _try(self):
             # This is max 1000 responses but given how many files we should have per source this should be fine
-            response = self.s3_client.list_objects_v2(Bucket=self.config.s3_bucket_name, Prefix=source_id+'/')
+            response = self.s3_client.list_objects_v2(Bucket=self.config.s3_bucket_name, Prefix=f'{source_id}/')
             if response['KeyCount'] == 0:
                 return {}
             out = {}
