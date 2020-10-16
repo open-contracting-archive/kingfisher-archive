@@ -8,11 +8,12 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 class Collection:
     def __init__(self, database_id, source_id, data_version, data_directory='', logs_directory=''):
-        self.data_directory = data_directory
-        self.logs_directory = logs_directory
         self.database_id = database_id
         self.source_id = source_id
         self.data_version = data_version
+        self.data_directory = data_directory
+        self.logs_directory = logs_directory
+
         # The following attributes are filled by functions for caching purposes
         self._data_md5 = None
         self._data_size = None
@@ -47,11 +48,7 @@ class Collection:
         # but there is no user input here so it should be fine.
         # https://docs.python.org/3/library/subprocess.html#replacing-shell-pipeline
         # is the alternative and this is much more readable.
-        output = subprocess.check_output(
-            cmd,
-            universal_newlines=True,
-            shell=True
-        )
+        output = subprocess.check_output(cmd, universal_newlines=True, shell=True)
 
         self._data_md5 = output.strip()
         return self._data_md5
@@ -60,12 +57,7 @@ class Collection:
         if self._data_size is not None:
             return self._data_size
 
-        args = ['du', '-sb', self._get_data_dir_name()]
-
-        output = subprocess.check_output(
-            args,
-            universal_newlines=True,
-        )
+        output = subprocess.check_output(['du', '-sb', self._get_data_dir_name()], universal_newlines=True)
 
         self._data_size = int(output.split('\t')[0])
         return self._data_size
@@ -119,15 +111,8 @@ class Collection:
         if self.scrapy_log_file_name:
             things_to_add.append(self.scrapy_log_file_name)
 
-        command1 = f'tar -cf {filename} ' + ' '.join(things_to_add)
-        return1 = os.system(command1)
-        if return1 != 0:
-            raise Exception(f'{command1} Got Return {return1}')
-
-        command2 = f'lz4 {filename} {filename}.lz4'
-        return2 = os.system(command2)
-        if return2 != 0:
-            raise Exception(f'{command2} Got Return {return2}')
+        subprocess.run(['tar', '-cf', filename, *things_to_add], check=True)
+        subprocess.run(['lz4', filename, '{filename}.lz4'], check=True)
 
         os.unlink(filename)
 
@@ -138,20 +123,13 @@ class Collection:
 
     def delete_data_files(self):
         if self.get_data_files_exist():
-            # We use os.system here so we know the exact command so we can set up sudo correctly
-            return1 = os.system(f'sudo -u ocdskfs /bin/rm -rf {self._get_data_dir_name()}')
-            if return1 != 0:
-                raise Exception(f'delete_data_files Got Return {return1}')
+            subprocess.run(['sudo', '-u', 'ocdskfs', '/bin/rm', '-rf', self._get_data_dir_name()], check=True)
 
     def delete_log_files(self):
         if self.scrapy_log_file_name and os.path.isfile(self.scrapy_log_file_name):
-            # We use os.system here so we know the exact command so we can set up sudo correctly
-            return1 = os.system(f'sudo -u ocdskfs /bin/rm -f {self.scrapy_log_file_name}')
-            if return1 != 0:
-                raise Exception(f'delete_log_files Got Return {return1}')
+            subprocess.run(['sudo', '-u', 'ocdskfs', '/bin/rm', '-f', self.scrapy_log_file_name], check=True)
             if os.path.isfile(f'{self.scrapy_log_file_name}.stats'):
-                return2 = os.system(f'sudo -u ocdskfs /bin/rm -f {self.scrapy_log_file_name}.stats')
-                if return2 != 0:
-                    raise Exception(f'delete_log_files (.stats file) Got Return {return2}')
+                subprocess.run(['sudo', '-u', 'ocdskfs', '/bin/rm', '-f', f'{self.scrapy_log_file_name}.stats'],
+                               check=True)
             self._cached_scrapy_log_file_name = None
             self._cached_scrapy_log_file = None
