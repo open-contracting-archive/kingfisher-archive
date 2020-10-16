@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import tempfile
+
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 

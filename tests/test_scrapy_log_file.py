@@ -3,7 +3,6 @@ import os
 
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
-
 FILENAME_LOG1 = os.path.join(os.path.dirname(
         os.path.realpath(__file__)), 'data', 'log1.log'
     )

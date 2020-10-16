@@ -5,7 +5,6 @@ from logparser import parse
 
 
 class ScrapyLogFile():
-
     def __init__(self, file_name):
         self._file_name = file_name
         # We lazy-parse any data we need

@@ -15,7 +15,6 @@ def _find_latest_year_month_to_load(data, year, month):
 
 
 class ArchivedCollection:
-
     @staticmethod
     def load_exact(s3, source_id, data_version):
         """Loads an archive from S3 for source && exact year/month, if it exists"""
