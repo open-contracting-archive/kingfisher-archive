@@ -17,7 +17,7 @@ class S3:
             self.s3_client.upload_file(
                 local_file_name,
                 self.config.s3_bucket_name,
-                'staging/' + remote_file_name
+                f'staging/{remote_file_name}',
             )
         except ClientError as e:
             self.logger.error(e)
@@ -28,7 +28,7 @@ class S3:
             self.s3_client.copy(
                 {
                     'Bucket': self.config.s3_bucket_name,
-                    'Key': 'staging/' + remote_file_name
+                    'Key': f'staging/{remote_file_name}',
                 },
                 self.config.s3_bucket_name,
                 remote_file_name
@@ -41,7 +41,7 @@ class S3:
         try:
             self.s3_client.delete_object(
                 Bucket=self.config.s3_bucket_name,
-                Key='staging/' + remote_file_name
+                Key=f'staging/{remote_file_name}',
             )
         except ClientError as e:
             self.logger.error(e)

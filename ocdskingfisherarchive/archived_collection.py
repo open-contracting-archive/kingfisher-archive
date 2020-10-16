@@ -31,8 +31,7 @@ class ArchivedCollection:
 
     @staticmethod
     def _load(s3, source_id, year, month):
-        remote_filename = source_id + '/' + str(year) + '/' + \
-                          str(month).zfill(2) + '/metadata.json'
+        remote_filename = f'{source_id}/{year}/{month:02d}/metadata.json'
         filename = s3.get_file(remote_filename)
         if filename:
             with open(filename) as fp:

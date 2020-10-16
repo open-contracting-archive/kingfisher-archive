@@ -11,8 +11,8 @@ class DataBaseProcess:
         self.config = config
 
     def get_collections_to_consider_archiving(self):
-        sql = "SELECT id, source_id, data_version  FROM collection " +\
-              "WHERE sample IS FALSE AND store_end_at IS NOT NULL AND transform_type = '' AND deleted_at IS NULL " +\
+        sql = "SELECT id, source_id, data_version  FROM collection " \
+              "WHERE sample IS FALSE AND store_end_at IS NOT NULL AND transform_type = '' AND deleted_at IS NULL " \
               "ORDER BY id ASC"
         collections = []
         self.cursor.execute(sql)

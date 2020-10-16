@@ -8,11 +8,11 @@ from ocdskingfisherarchive.database_archive import DataBaseArchive
 
 def test_get_and_set():
     config = Config()
-    config.database_archive_filepath = os.path.join(tempfile.gettempdir(), 'ocdskingfisherarchive' +
-                                                    str(random.randint(0, 100000000))+'.sqlite')
+    config.database_archive_filepath = os.path.join(tempfile.gettempdir(),
+                                                    f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
     while os.path.exists(config.database_archive_filepath):
-        config.database_archive_filepath = os.path.join(tempfile.gettempdir(), 'ocdskingfisherarchive' +
-                                                        str(random.randint(0, 100000000))+'.sqlite')
+        config.database_archive_filepath = os.path.join(tempfile.gettempdir(),
+                                                        f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
 
     database_archive = DataBaseArchive(config)
 

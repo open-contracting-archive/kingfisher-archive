@@ -118,15 +118,15 @@ class Collection:
         if self.scrapy_log_file_name:
             things_to_add.append(self.scrapy_log_file_name)
 
-        command1 = 'tar -cf ' + filename + ' ' + ' '.join(things_to_add)
+        command1 = f'tar -cf {filename} ' + ' '.join(things_to_add)
         return1 = os.system(command1)
         if return1 != 0:
-            raise Exception(command1 + ' Got Return ' + str(return1))
+            raise Exception(f'{command1} Got Return {return1}')
 
-        command2 = 'lz4 ' + filename + ' ' + filename+'.lz4'
+        command2 = f'lz4 {filename} {filename}.lz4'
         return2 = os.system(command2)
         if return2 != 0:
-            raise Exception(command2 + ' Got Return ' + str(return2))
+            raise Exception(f'{command2} Got Return {return2}')
 
         os.unlink(filename)
 
@@ -140,17 +140,17 @@ class Collection:
             # We use os.system here so we know the exact command so we can set up sudo correctly
             return1 = os.system('sudo -u ocdskfs /bin/rm -rf '+self._get_data_dir_name())
             if return1 != 0:
-                raise Exception('delete_data_files Got Return ' + str(return1))
+                raise Exception(f'delete_data_files Got Return {return1}')
 
     def delete_log_files(self):
         if self.scrapy_log_file_name and os.path.isfile(self.scrapy_log_file_name):
             # We use os.system here so we know the exact command so we can set up sudo correctly
-            return1 = os.system('sudo -u ocdskfs /bin/rm -f ' + self.scrapy_log_file_name)
+            return1 = os.system(f'sudo -u ocdskfs /bin/rm -f {self.scrapy_log_file_name}')
             if return1 != 0:
-                raise Exception('delete_log_files Got Return ' + str(return1))
-            if os.path.isfile(self.scrapy_log_file_name + '.stats'):
-                return2 = os.system('sudo -u ocdskfs /bin/rm -f ' + self.scrapy_log_file_name + '.stats')
+                raise Exception(f'delete_log_files Got Return {return1}')
+            if os.path.isfile(f'{self.scrapy_log_file_name}.stats'):
+                return2 = os.system(f'sudo -u ocdskfs /bin/rm -f {self.scrapy_log_file_name}.stats')
                 if return2 != 0:
-                    raise Exception('delete_log_files (.stats file) Got Return ' + str(return2))
+                    raise Exception(f'delete_log_files (.stats file) Got Return {return2}')
             self._cached_scrapy_log_file_name = None
             self._cached_scrapy_log_file = None
