@@ -95,7 +95,7 @@ class Archive:
         last_archived_collection = self._get_last_archived_collection(collection)
         if last_archived_collection:
             self.logger.debug(
-                'Found an archive exists with earlier year/month: %s/%s', 
+                'Found an archive exists with earlier year/month: %s/%s',
                 last_archived_collection.year,
                 last_archived_collection.month,
             )
