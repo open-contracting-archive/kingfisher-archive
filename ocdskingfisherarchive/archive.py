@@ -1,20 +1,39 @@
 import logging
 import os
+
+import psycopg2
+
 from ocdskingfisherarchive.archived_collection import ArchivedCollection
+from ocdskingfisherarchive.collection import Collection
 
 
 class Archive:
-
-    def __init__(self, database_archive, database_process, s3):
+    def __init__(self, database_archive, s3, database_connection_parameters, data_directory='', logs_directory=''):
         self.database_archive = database_archive
-        self.database_process = database_process
         self.s3 = s3
+        self.database_connection_parameters = database_connection_parameters
+        self.data_directory = data_directory
+        self.logs_directory = logs_directory
+
         self.logger = logging.getLogger('ocdskingfisher.archive')
 
     def process(self, dry_run=False):
-        collections = self.database_process.get_collections_to_consider_archiving()
+        collections = self.get_collections_to_consider_archiving()
         for collection in collections:
             self.process_collection(collection, dry_run)
+
+    def get_collections_to_consider_archiving(self):
+        connection = psycopg2.connect(**self.database_connection_parameters)
+        cursor = connection.cursor()
+
+        sql = "SELECT id, source_id, data_version  FROM collection " \
+              "WHERE sample IS FALSE AND store_end_at IS NOT NULL AND transform_type = '' AND deleted_at IS NULL " \
+              "ORDER BY id ASC"
+        collections = []
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            collections.append(Collection(row[0], row[1], row[2], self.data_directory, self.logs_directory))
+        return collections
 
     def process_collection(self, collection, dry_run=False):
         self.logger.info('Processing collection %s', collection.database_id)
