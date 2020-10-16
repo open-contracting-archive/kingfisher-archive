@@ -3,7 +3,6 @@ import datetime
 from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.archived_collection import ArchivedCollection
 from ocdskingfisherarchive.collection import Collection
-from ocdskingfisherarchive.config import Config
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 
