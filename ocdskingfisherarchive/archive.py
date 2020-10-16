@@ -5,13 +5,21 @@ import psycopg2
 
 from ocdskingfisherarchive.archived_collection import ArchivedCollection
 from ocdskingfisherarchive.collection import Collection
+from ocdskingfisherarchive.database_archive import DataBaseArchive
+from ocdskingfisherarchive.s3 import S3
 
 
 class Archive:
-    def __init__(self, database_archive, s3, database_connection_parameters, data_directory='', logs_directory=''):
-        self.database_archive = database_archive
-        self.s3 = s3
-        self.database_connection_parameters = database_connection_parameters
+    def __init__(self, archive_db_params, bucket_name, process_db_params, data_directory='', logs_directory=''):
+        if archive_db_params:
+            self.database_archive = DataBaseArchive(archive_db_params)
+        else:
+            self.database_archive = None
+        if bucket_name:
+            self.s3 = S3(bucket_name)
+        else:
+            self.s3 = None
+        self.process_db_params = process_db_params
         self.data_directory = data_directory
         self.logs_directory = logs_directory
 
@@ -23,7 +31,7 @@ class Archive:
             self.process_collection(collection, dry_run)
 
     def get_collections_to_consider_archiving(self):
-        connection = psycopg2.connect(**self.database_connection_parameters)
+        connection = psycopg2.connect(**self.process_db_params)
         cursor = connection.cursor()
 
         sql = "SELECT id, source_id, data_version  FROM collection " \

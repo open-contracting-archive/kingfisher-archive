@@ -9,8 +9,6 @@ import sentry_sdk
 
 from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.config import Config
-from ocdskingfisherarchive.database_archive import DataBaseArchive
-from ocdskingfisherarchive.s3 import S3
 
 config = Config()
 config.load_user_config()
@@ -29,11 +27,8 @@ def cli():
 def archive(dry_run):
     try:
         with pidfile.PIDFile():
-            database_archive = DataBaseArchive(config.database_archive_filepath)
-            s3 = S3(config.s3_bucket_name)
-            archive_worker = Archive(database_archive, s3, config.get_database_connection_params(),
-                                     config.data_directory, config.logs_directory)
-            archive_worker.process(dry_run)
+            Archive(config.database_archive_filepath, config.s3_bucket_name, config.get_database_connection_params(),
+                    config.data_directory, config.logs_directory).process(dry_run)
     except pidfile.AlreadyRunningError:
         print('Already running.')
 
