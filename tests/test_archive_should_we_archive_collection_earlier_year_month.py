@@ -14,12 +14,12 @@ def test_backup():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection({'data_md5': 'oeu7394ud48h', 'data_size': 123456}, 2020, 9)
 
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 386306
     collection.get_data_files_exist = lambda: True
@@ -41,7 +41,7 @@ def test_backup_zero_errors_slightly_bigger_size():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection(
@@ -50,7 +50,7 @@ def test_backup_zero_errors_slightly_bigger_size():
             9
         )
 
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 123457
     collection.get_data_files_exist = lambda: True
@@ -70,12 +70,12 @@ def test_same_md5():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection({'data_md5': 'eo39tj38jm', 'data_size': 123456}, 2020, 1)
 
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 386306
     collection.get_data_files_exist = lambda: True
@@ -95,12 +95,12 @@ def test_size_not_50_percent_more():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection({'data_md5': 'oeu7394ud48h', 'data_size': 123456}, 2020, 1)
 
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 133456
     collection.get_data_files_exist = lambda: True
@@ -120,7 +120,7 @@ def test_less_errors():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection(
@@ -128,7 +128,7 @@ def test_less_errors():
             2020,
             9
         )
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 123456
     collection.get_data_files_exist = lambda: True
@@ -149,7 +149,7 @@ def test_less_errors_but_smaller_size():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
         lambda c: ArchivedCollection(
@@ -157,7 +157,7 @@ def test_less_errors_but_smaller_size():
             2020,
             9
         )
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_md5_of_data_folder = lambda: 'eo39tj38jm'
     collection.get_size_of_data_folder = lambda: 100456
     collection.get_data_files_exist = lambda: True

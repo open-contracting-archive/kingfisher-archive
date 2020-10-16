@@ -17,11 +17,6 @@ get_s3_data_directory = [
 )
 def test_get_s3_directory(source_id, data_version, expected_output):
     config = Config()
-    collection = Collection(
-        config=config,
-        database_id=1,
-        source_id=source_id,
-        data_version=data_version,
-    )
+    collection = Collection(1, source_id, data_version)
 
     assert expected_output == collection.get_s3_directory()

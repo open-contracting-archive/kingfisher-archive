@@ -5,8 +5,7 @@ from ocdskingfisherarchive.archived_collection import ArchivedCollection
 
 class Archive:
 
-    def __init__(self, config, database_archive, database_process, s3):
-        self.config = config
+    def __init__(self, database_archive, database_process, s3):
         self.database_archive = database_archive
         self.database_process = database_process
         self.s3 = s3

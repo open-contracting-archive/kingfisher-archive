@@ -5,10 +5,9 @@ from ocdskingfisherarchive.collection import Collection
 
 class DataBaseProcess:
 
-    def __init__(self, config):
-        self.connection = psycopg2.connect(**config.get_database_connection_params())
+    def __init__(self, database_connection_parameters):
+        self.connection = psycopg2.connect(**database_connection_parameters)
         self.cursor = self.connection.cursor()
-        self.config = config
 
     def get_collections_to_consider_archiving(self):
         sql = "SELECT id, source_id, data_version  FROM collection " \
@@ -17,12 +16,5 @@ class DataBaseProcess:
         collections = []
         self.cursor.execute(sql)
         for row in self.cursor.fetchall():
-            collections.append(
-                Collection(
-                    config=self.config,
-                    database_id=row[0],
-                    source_id=row[1],
-                    data_version=row[2],
-                )
-            )
+            collections.append(Collection(row[0], row[1], row[2], self.data_directory,, self.logs_directory))
         return collections

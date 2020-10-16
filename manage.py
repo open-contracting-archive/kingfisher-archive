@@ -30,10 +30,11 @@ def cli():
 def archive(dry_run):
     try:
         with pidfile.PIDFile():
-            database_archive = DataBaseArchive(config)
-            database_process = DataBaseProcess(config)
-            s3 = S3(config)
-            archive_worker = Archive(config, database_archive, database_process, s3)
+            database_archive = DataBaseArchive(config.database_archive_filepath)
+            database_process = DataBaseProcess(config.get_database_connection_params(), config.data_directory,
+                                               config.logs_directory)
+            s3 = S3(config.s3_bucket_name)
+            archive_worker = Archive(database_archive, database_process, s3)
             archive_worker.process(dry_run)
     except pidfile.AlreadyRunningError:
         print('Already running.')

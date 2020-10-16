@@ -6,9 +6,9 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 
 class Collection:
-
-    def __init__(self, config, database_id, source_id, data_version):
-        self.config = config
+    def __init__(self, database_id, source_id, data_version, data_directory='', logs_directory=''):
+        self.data_directory = data_directory
+        self.logs_directory = logs_directory
         self.database_id = database_id
         self.source_id = source_id
         self.data_version = data_version
@@ -19,7 +19,7 @@ class Collection:
         self._cached_scrapy_log_file = None
 
     def _get_data_dir_name(self):
-        return os.path.join(self.config.data_directory, self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
+        return os.path.join(self.data_directory, self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
 
     def write_meta_data_file(self):
         data = {
@@ -77,7 +77,7 @@ class Collection:
         if self._cached_scrapy_log_file_name is not None:
             return
 
-        dir_to_search = os.path.join(self.config.logs_directory, self.source_id)
+        dir_to_search = os.path.join(self.logs_directory, self.source_id)
         if not os.path.isdir(dir_to_search):
             return
         for filename in os.listdir(dir_to_search):

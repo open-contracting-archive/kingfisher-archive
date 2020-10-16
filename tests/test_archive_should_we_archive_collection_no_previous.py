@@ -13,11 +13,11 @@ def test_no_previous():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_data_files_exist = lambda: True
     collection._cached_scrapy_log_file_name = 'test.log'
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
@@ -35,11 +35,11 @@ def test_no_previous_subset():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_data_files_exist = lambda: True
     collection._cached_scrapy_log_file_name = 'test.log'
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
@@ -57,11 +57,11 @@ def test_no_data_files():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_data_files_exist = lambda: False
     collection._cached_scrapy_log_file_name = 'test.log'
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
@@ -79,11 +79,11 @@ def test_scrapy_log_file_says_not_finished():
     database_process = None
     s3 = None
 
-    archive = Archive(config, database_archive, database_process, s3)
+    archive = Archive(database_archive, database_process, s3)
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
-    collection = Collection(config, 1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 00))
     collection.get_data_files_exist = lambda: True
     collection._cached_scrapy_log_file_name = 'test.log'
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')

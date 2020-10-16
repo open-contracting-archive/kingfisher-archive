@@ -2,10 +2,8 @@ import sqlite3
 
 
 class DataBaseArchive:
-
-    def __init__(self, config):
-        self.config = config
-        self.conn = sqlite3.connect(config.database_archive_filepath)
+    def __init__(self, database):
+        self.conn = sqlite3.connect(database)
         self.cursor = self.conn.cursor()
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='collections'")

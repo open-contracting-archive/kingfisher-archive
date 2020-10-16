@@ -14,7 +14,7 @@ def test_get_and_set():
         config.database_archive_filepath = os.path.join(tempfile.gettempdir(),
                                                         f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
 
-    database_archive = DataBaseArchive(config)
+    database_archive = DataBaseArchive(config.database_archive_filepath)
 
     # get something that doesn't exist
     assert 'UNKNOWN' == database_archive.get_state_of_collection_id(1)
