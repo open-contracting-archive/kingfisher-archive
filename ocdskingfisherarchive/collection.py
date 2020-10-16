@@ -19,7 +19,7 @@ class Collection:
         self._cached_scrapy_log_file = None
 
     def _get_data_dir_name(self):
-        return os.path.join(self.config.directory_data, self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
+        return os.path.join(self.config.data_directory, self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
 
     def write_meta_data_file(self):
         data = {
@@ -77,7 +77,7 @@ class Collection:
         if self._cached_scrapy_log_file_name is not None:
             return
 
-        dir_to_search = os.path.join(self.config.directory_logs, self.source_id)
+        dir_to_search = os.path.join(self.config.logs_directory, self.source_id)
         if not os.path.isdir(dir_to_search):
             return
         for filename in os.listdir(dir_to_search):

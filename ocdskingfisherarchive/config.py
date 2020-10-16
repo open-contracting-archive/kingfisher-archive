@@ -19,8 +19,8 @@ class Config:
         self.database_name = ''
         self.database_password = ''
 
-        self.directory_data = None
-        self.directory_logs = None
+        self.data_directory = None
+        self.logs_directory = None
 
         self.database_archive_filepath = None
 
@@ -80,8 +80,8 @@ class Config:
 
         self.database_archive_filepath = config.get('DBARCHIVE', 'FILEPATH')
 
-        self.directory_data = config.get('DIRECTORIES', 'DATA')
-        self.directory_logs = config.get('DIRECTORIES', 'LOGS')
+        self.data_directory = config.get('DIRECTORIES', 'DATA')
+        self.logs_directory = config.get('DIRECTORIES', 'LOGS')
 
         self.s3_bucket_name = config.get('S3', 'BUCKETNAME')
 
