@@ -1,7 +1,7 @@
 from ocdskingfisherarchive.archived_collection import _find_latest_year_month_to_load
 
 
-def test_find_latest_year_month_to_load__same_year():
+def test_find_latest_year_month_to_load_same_year():
     data = {
         2020: {1: True}
     }
@@ -10,7 +10,7 @@ def test_find_latest_year_month_to_load__same_year():
     assert month == 1
 
 
-def test_find_latest_year_month_to_load__last_year():
+def test_find_latest_year_month_to_load_last_year():
     data = {
         2020: {1: True}
     }
@@ -19,7 +19,7 @@ def test_find_latest_year_month_to_load__last_year():
     assert month == 1
 
 
-def test_find_latest_year_month_to_load__not_found():
+def test_find_latest_year_month_to_load_not_found():
     data = {
         2020: {1: True}
     }
