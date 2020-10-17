@@ -19,7 +19,7 @@ def test_no_previous():
     collection._cached_scrapy_log_file._spider_arguments = {}
     collection._cached_scrapy_log_file.is_finished = lambda: True
 
-    assert archive.should_we_archive_collection(collection) is True
+    assert archive.should_we_archive_collection(collection)
 
 
 def test_no_previous_subset():
@@ -36,7 +36,7 @@ def test_no_previous_subset():
     collection._cached_scrapy_log_file._spider_arguments = {'sample': 'true'}
     collection._cached_scrapy_log_file.is_finished = lambda: True
 
-    assert archive.should_we_archive_collection(collection) is False
+    assert not archive.should_we_archive_collection(collection)
 
 
 def test_no_data_files():
@@ -53,7 +53,7 @@ def test_no_data_files():
     collection._cached_scrapy_log_file._spider_arguments = {}
     collection._cached_scrapy_log_file.is_finished = lambda: True
 
-    assert archive.should_we_archive_collection(collection) is False
+    assert not archive.should_we_archive_collection(collection)
 
 
 def test_scrapy_log_file_says_not_finished():
@@ -70,4 +70,4 @@ def test_scrapy_log_file_says_not_finished():
     collection._cached_scrapy_log_file._spider_arguments = {}
     collection._cached_scrapy_log_file.is_finished = lambda: False
 
-    assert archive.should_we_archive_collection(collection) is False
+    assert not archive.should_we_archive_collection(collection)
