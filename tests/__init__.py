@@ -5,6 +5,7 @@ from os import getenv
 from dotenv import load_dotenv
 
 from ocdskingfisherarchive.archive import Archive
+from ocdskingfisherarchive.archived_collection import ArchivedCollection
 from ocdskingfisherarchive.collection import Collection
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
@@ -15,14 +16,23 @@ def log_file_path(filename):
     return os.path.join('tests', 'logs', filename)
 
 
-def archive_fixture():
-    return Archive(
+def archive_fixture(*, exact=None, last=None):
+    if exact is not None:
+        exact = ArchivedCollection(*exact)
+    if last is not None:
+        last = ArchivedCollection(*last)
+
+    archive = Archive(
         getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
         os.path.join('tests', 'data'),
         os.path.join('tests', 'logs'),
         'db.sqlite3',
         getenv('KINGFISHER_ARCHIVE_DATABASE_URL'),
     )
+    archive._get_exact_archived_collection = lambda c: exact
+    archive._get_last_archived_collection = lambda c: last
+
+    return archive
 
 
 def collection_fixture(*, md5='eo39tj38jm', size=186306, data_exists=True, errors_count=0, spider_arguments=None,

@@ -10,6 +10,4 @@ from ocdskingfisherarchive.collection import Collection
     ('test', datetime.datetime(2020, 11, 1, 12, 0), 'test/2020/11'),
 ])
 def test_get_s3_directory(source_id, data_version, expected_output):
-    collection = Collection(1, source_id, data_version)
-
-    assert collection.get_s3_directory() == expected_output
+    assert Collection(1, source_id, data_version).get_s3_directory() == expected_output

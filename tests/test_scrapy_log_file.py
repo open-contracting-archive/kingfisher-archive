@@ -16,9 +16,7 @@ from tests import log_file_path
     (datetime.datetime(2020, 9, 2, 7, 12, 4), False),
 ])
 def test_does_match_date_version(datetime, expected):
-    scrapy_log_file = ScrapyLogFile(log_file_path('log1.log'))
-
-    assert scrapy_log_file.does_match_date_version(datetime) is expected
+    assert ScrapyLogFile(log_file_path('log1.log')).does_match_date_version(datetime) is expected
 
 
 def test_errors_sent_to_process_count():
