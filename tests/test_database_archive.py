@@ -2,19 +2,16 @@ import os
 import random
 import tempfile
 
-from ocdskingfisherarchive.config import Config
 from ocdskingfisherarchive.database_archive import DataBaseArchive
 
 
 def test_get_and_set():
-    config = Config()
-    config.database_archive_filepath = os.path.join(tempfile.gettempdir(),
-                                                    f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
-    while os.path.exists(config.database_archive_filepath):
-        config.database_archive_filepath = os.path.join(tempfile.gettempdir(),
-                                                        f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
+    database_file = os.path.join(tempfile.gettempdir(), f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
+    while os.path.exists(database_file):
+        database_file = os.path.join(tempfile.gettempdir(),
+                                     f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
 
-    database_archive = DataBaseArchive(config.database_archive_filepath)
+    database_archive = DataBaseArchive(database_file)
 
     # get something that doesn't exist
     assert 'UNKNOWN' == database_archive.get_state_of_collection_id(1)

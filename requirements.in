@@ -1,7 +1,6 @@
 boto3
 click
 logparser
-pgpasslib
 psycopg2
 python-dotenv
 python-pidfile

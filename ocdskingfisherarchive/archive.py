@@ -107,8 +107,8 @@ class Archive:
                 return False
 
             # Otherwise, Backup
-            logger.debug('Archiving because an archive exists with same year/month and we can not find a good '
-                              'reason to not archive')
+            logger.debug('Archiving because an archive exists with same year/month and we can not find a good reason '
+                         'to not archive')
             return True
 
         # Is an earlier collection archived for source?
@@ -127,8 +127,8 @@ class Archive:
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
             if collection.get_size_of_data_folder() >= last_archived_collection.get_data_size() * 1.5:
-                logger.debug('Archiving because an archive exists with older year/month and this collection has '
-                                  '50% more size')
+                logger.debug('Archiving because an archive exists with older year/month and this collection has 50% '
+                             'more size')
                 return True
 
             # Clean: If the local directory has fewer or same errors, and greater or equal bytes,
@@ -137,8 +137,8 @@ class Archive:
             if collection.has_errors_count() and last_archived_collection.has_errors_count() and \
                     collection.get_errors_count() <= last_archived_collection.get_errors_count() and \
                     collection.get_size_of_data_folder() >= last_archived_collection.get_data_size():
-                logger.debug('Archiving because an archive exists with older year/month and local collection '
-                                  'has fewer or equal errors and greater or equal size')
+                logger.debug('Archiving because an archive exists with older year/month and local collection has '
+                             'fewer or equal errors and greater or equal size')
                 return True
 
             # Otherwise, do not backup

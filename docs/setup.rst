@@ -3,90 +3,45 @@ Setup
 
 As presently written, the script needs to be run by a user that has:
 
--  Access to the ``collection`` table managed by Kingfisher Process (e.g. with the ``.pgpass`` file)
+-  Access to the ``collection`` table managed by Kingfisher Process
 -  Permission to read and delete the data and log files written by Kingfisher Collect (with sudo access under a user called ``ocdskfs``)
 -  Read & Write access to a S3 bucket to hold the archives
 
 One install of Kingfisher should back up to one S3 bucket only. There are algorithms to decide whether to back something up based on what has already been backed up, and these may get confused if 2 Kingfisher installs try to back up to the same S3 bucket.
 
-Config File
------------
+Configuration
+-------------
 
-The config file should be placed at ``~/.config/ocdskingfisher-archive/config.ini``.
+The application can be configured using environment variables, or a ``.env`` file.
 
-Download the sample main configuration file:
+The relevant environment variables are:
 
-.. code-block:: shell-session
+KINGFISHER_ARCHIVE_BUCKET_NAME
+  The Amazon S3 bucket name 
+KINGFISHER_ARCHIVE_DATA_DIRECTORY
+  Kingfisher Collect's FILES_STORE directory, e.g. ``scrapyd/data``
+KINGFISHER_ARCHIVE_LOGS_DIRECTORY
+  Kingfisher Collect's project directory within Scrapyd's logs_dir directory, e.g. ``scrapyd/logs/kingfisher``
+KINGFISHER_ARCHIVE_DATABASE_FILE
+  The SQLite database for caching the local state (defaults to db.sqlite3)
+KINGFISHER_ARCHIVE_DATABASE_URL
+  Kingfisher Process' database URL
+SENTRY_DSN
+  Sentry.io's Data Source Name (DSN) (optional)
 
-   curl https://raw.githubusercontent.com/open-contracting/kingfisher-archive/master/samples/config.ini -o ~/.config/ocdskingfisher-archive/config.ini
+As linked from :doc:`s3`, you can also set:
 
-PostgreSQL
-~~~~~~~~~~
+AWS_ACCESS_KEY_ID
+  The Amazon user's access key ID
+AWS_SECRET_ACCESS_KEY
+  The Amazon user's secret access key
 
-Configure the database connection settings:
-
-.. code-block:: ini
-
-   [DBHOST]
-   HOSTNAME = localhost
-   PORT = 5432
-   USERNAME = ocdskingfisher
-   PASSWORD = 
-   DBNAME = ocdskingfisher
-
-If you prefer not to store the password in config.ini, you can use the PostgreSQL Password File, ``~/.pgpass``, which overrides any password in config.ini.
-
-AWS S3
-~~~~~~
-
-The bucket name should be set here.
-
-.. code-block:: ini
-
-   [S3]
-   BUCKETNAME = backups-go-here
-
-For setting access credentials, see a later section.
-
-Directories on disk
-~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: ini
-
-   [DIRECTORIES]
-   DATA = /scrapyd/data
-   LOGS = /scrapyd/logs
-
-Note these should be directories that directly contain directories with names of sources/spiders. On your system there may be a directory for the name of the project in Scrapyd. If so, that should be included in these paths.
-
-For instance, if you have log files like ``/scrapyd/logs/kingfisher/scotland/3487b29602b311ebaad50c9d92c523cb.log``, the path you set here should include ``kingfisher``.
-
-Archives database
-~~~~~~~~~~~~~~~~~
-
-Archive has it’s own database; one sqlite file. This should be the full path including file name to that file.
-
-.. code-block:: ini
-
-   [DBARCHIVE]
-   FILEPATH = ~/kingfisher-archive-database.sqlite
-
-You do not need to create it yourself; it will be created if it does not exist.
-
-Sentry (optional)
-~~~~~~~~~~~~~~~~~
-
-.. code-block:: ini
-
-   [SENTRY]
-   DSN = https://<key>@sentry.io/<project>
-
-Python Logging Config File (optional)
--------------------------------------
+Logging configuration (optional)
+--------------------------------
 
 This should be placed at ``~/.config/ocdskingfisher-archive/logging.json``.
 
-It’s contents should be standard Python logging configuration in JSON - for more see https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
+Its contents should be standard Python logging configuration in JSON - for more see https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
 
 To download the default configuration:
 
