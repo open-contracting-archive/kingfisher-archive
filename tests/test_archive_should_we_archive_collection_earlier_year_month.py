@@ -7,7 +7,7 @@ from tests import default_archive
 
 
 def test_backup():
-    """" This source was archived before this month. We should archive. """
+    """ This source was archived before this month. We should archive. """
     archive = default_archive()
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
@@ -27,7 +27,7 @@ def test_backup():
 
 
 def test_backup_zero_errors_slightly_bigger_size():
-    """" This source was archived before this month.
+    """ This source was archived before this month.
     Both collections have zero errors, but local is slightly bigger (not 50% bigger)
     We should archive. """
     archive = default_archive()
@@ -53,7 +53,7 @@ def test_backup_zero_errors_slightly_bigger_size():
 
 
 def test_same_md5():
-    """" This source was archived before this month.  MD5 is the same so don't back up.  """
+    """ This source was archived before this month.  MD5 is the same so don't back up.  """
     archive = default_archive()
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
@@ -73,7 +73,7 @@ def test_same_md5():
 
 
 def test_size_not_50_percent_more():
-    """" This source was archived before this month.  The size is slightly larger but not 50% so don't back up."""
+    """ This source was archived before this month.  The size is slightly larger but not 50% so don't back up."""
     archive = default_archive()
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
@@ -93,7 +93,7 @@ def test_size_not_50_percent_more():
 
 
 def test_less_errors():
-    """" This source was archived before this month.  Local Collection has less errors, so backup.  """
+    """ This source was archived before this month.  Local Collection has less errors, so backup.  """
     archive = default_archive()
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = \
