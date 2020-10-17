@@ -1,13 +1,13 @@
 import datetime
 
-from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.collection import Collection
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
+from tests import default_archive
 
 
 def test_no_previous():
     """" No Previous collections have been archived. We should archive. """
-    archive = Archive(None, None, None)
+    archive = default_archive()
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
@@ -24,7 +24,7 @@ def test_no_previous():
 
 def test_no_previous_subset():
     """" No Previous collections have been archived. But this is a subset, so we should not archive. """
-    archive = Archive(None, None, None)
+    archive = default_archive()
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
@@ -41,7 +41,7 @@ def test_no_previous_subset():
 
 def test_no_data_files():
     """" No Previous collections have been archived. But there are no data files, so we should not archive. """
-    archive = Archive(None, None, None)
+    archive = default_archive()
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 
@@ -58,7 +58,7 @@ def test_no_data_files():
 
 def test_scrapy_log_file_says_not_finished():
     """" Scrapy log says it is not finished so should not archive """
-    archive = Archive(None, None, None)
+    archive = default_archive()
     archive._get_exact_archived_collection = lambda c: None
     archive._get_last_archived_collection = lambda c: None
 

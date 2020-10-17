@@ -41,7 +41,7 @@ def archive(bucket_name, data_directory, logs_directory, database_file, database
     """
     try:
         with pidfile.PIDFile():
-            Archive(database_file, bucket_name, database_url, data_directory, logs_directory).process(dry_run)
+            Archive(bucket_name, data_directory, logs_directory, database_file, database_url).process(dry_run)
     except pidfile.AlreadyRunningError:
         print('Already running.')
 

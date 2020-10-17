@@ -1,6 +1,7 @@
 import logging
 import os
 
+import dj_database_url
 import psycopg2
 
 from ocdskingfisherarchive.archived_collection import ArchivedCollection
@@ -12,18 +13,12 @@ logger = logging.getLogger('ocdskingfisher.archive')
 
 
 class Archive:
-    def __init__(self, archive_db_params, bucket_name, process_db_params, data_directory='', logs_directory=''):
-        if archive_db_params:
-            self.database_archive = DataBaseArchive(archive_db_params)
-        else:
-            self.database_archive = None
-        if bucket_name:
-            self.s3 = S3(bucket_name)
-        else:
-            self.s3 = None
-        self.process_db_params = process_db_params
+    def __init__(self, bucket_name, data_directory, logs_directory, database_file, database_url):
+        self.s3 = S3(bucket_name)
         self.data_directory = data_directory
         self.logs_directory = logs_directory
+        self.database_archive = DataBaseArchive(database_file)
+        self.database_url = database_url
 
     def process(self, dry_run=False):
         collections = self.get_collections_to_consider_archiving()
@@ -31,7 +26,7 @@ class Archive:
             self.process_collection(collection, dry_run)
 
     def get_collections_to_consider_archiving(self):
-        connection = psycopg2.connect(**self.process_db_params)
+        connection = psycopg2.connect(dj_database_url.parse(self.database_url))
         cursor = connection.cursor()
 
         sql = "SELECT id, source_id, data_version  FROM collection " \
