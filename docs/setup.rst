@@ -4,7 +4,7 @@ Setup
 As presently written, the script needs to be run by a user that has:
 
 -  Access to the ``collection`` table managed by Kingfisher Process
--  Permission to read and delete the data and log files written by Kingfisher Collect (with sudo access under a user called ``ocdskfs``)
+-  Permission to read and delete the data and log files written by Kingfisher Collect
 -  Read & Write access to a S3 bucket to hold the archives
 
 One install of Kingfisher should back up to one S3 bucket only. There are algorithms to decide whether to back something up based on what has already been backed up, and these may get confused if 2 Kingfisher installs try to back up to the same S3 bucket.

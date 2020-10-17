@@ -64,7 +64,7 @@ class Archive:
             return False
 
         # Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
-        if collection.is_subset():
+        if collection.scrapy_log_file and collection.scrapy_log_file.is_subset():
             logger.debug('Skipping %s because collection is a subset', collection.database_id)
             return False
 
@@ -79,7 +79,7 @@ class Archive:
         exact_archived_collection = self._get_exact_archived_collection(collection)
         if exact_archived_collection:
             # If checksums identical, leave it
-            if exact_archived_collection.get_data_md5() == collection.get_md5_of_data_folder():
+            if exact_archived_collection.get_data_md5() == collection.local_directory_md5:
                 logger.debug('Skipping %s because an archive exists for same period and same MD5',
                              collection.database_id)
                 return False
@@ -93,7 +93,7 @@ class Archive:
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
-            if collection.get_size_of_data_folder() <= exact_archived_collection.get_data_size():
+            if collection.local_directory_bytes <= exact_archived_collection.get_data_size():
                 logger.debug('Skipping %s because an archive exists for same period and same or larger size',
                              collection.database_id)
                 return False
@@ -107,13 +107,13 @@ class Archive:
         last = self._get_last_archived_collection(collection)
         if last:
             # If checksums identical, leave it
-            if last.get_data_md5() == collection.get_md5_of_data_folder():
+            if last.get_data_md5() == collection.local_directory_md5:
                 logger.debug('Skipping %s because an archive exists from earlier period (%s/%s) and same MD5',
                              collection.database_id, last.year, last.month)
                 return False
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
-            if collection.get_size_of_data_folder() >= last.get_data_size() * 1.5:
+            if collection.local_directory_bytes >= last.get_data_size() * 1.5:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
                             'has 50%% more size', collection.database_id, last.year, last.month)
                 return True
@@ -123,7 +123,7 @@ class Archive:
             # (But we may not have an errors count for one of the things we are comparing)
             if collection.has_errors_count() and last.has_errors_count() and \
                     collection.get_errors_count() <= last.get_errors_count() and \
-                    collection.get_size_of_data_folder() >= last.get_data_size():
+                    collection.local_directory_bytes >= last.get_data_size():
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
                             'has fewer or equal errors and greater or equal size', collection.database_id, last.year,
                             last.month)
@@ -144,32 +144,26 @@ class Archive:
         return ArchivedCollection.load_latest(self.s3, collection.source_id, collection.data_version)
 
     def archive_collection(self, collection):
-        # Get data file
         data_file_name = collection.write_data_file()
-
-        # Get metadata file
         meta_file_name = collection.write_meta_data_file()
 
         # Upload to staging
-        s3_directory = collection.get_s3_directory()
-        self.s3.upload_file_to_staging(meta_file_name, f'{s3_directory}/metadata.json')
-        self.s3.upload_file_to_staging(data_file_name, f'{s3_directory}/data.tar.lz4')
+        self.s3.upload_file_to_staging(meta_file_name, f'{collection.remote_directory}/metadata.json')
+        self.s3.upload_file_to_staging(data_file_name, f'{collection.remote_directory}/data.tar.lz4')
 
         # Move files in S3
-        self.s3.move_file_from_staging_to_real(f'{s3_directory}/metadata.json')
-        self.s3.move_file_from_staging_to_real(f'{s3_directory}/data.tar.lz4')
+        self.s3.move_file_from_staging_to_real(f'{collection.remote_directory}/metadata.json')
+        self.s3.move_file_from_staging_to_real(f'{collection.remote_directory}/data.tar.lz4')
 
         # Delete staging files in S3
-        self.s3.remove_staging_file(f'{s3_directory}/metadata.json')
-        self.s3.remove_staging_file(f'{s3_directory}/data.tar.lz4')
+        self.s3.remove_staging_file(f'{collection.remote_directory}/metadata.json')
+        self.s3.remove_staging_file(f'{collection.remote_directory}/data.tar.lz4')
 
-        # Delete local files we made
+        # Cleanup
         os.unlink(meta_file_name)
         os.unlink(data_file_name)
-
-        # Delete data files
-        collection.delete_data_files()
-
-        # Delete log files
+        if os.path.isdir(collection.local_directory):
+            shutil.rmtree(collection.local_directory)
         collection.delete_log_files()
+
         logger.info('Archived %s', collection.database_id)

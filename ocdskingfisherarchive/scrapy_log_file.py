@@ -5,8 +5,8 @@ from logparser import parse
 
 
 class ScrapyLogFile():
-    def __init__(self, file_name):
-        self._file_name = file_name
+    def __init__(self, name):
+        self.name = name
         # We lazy-parse any data we need
         # This may be called on a directory of very big logs and we want it to be efficient.
         # None means not parsed
@@ -17,7 +17,7 @@ class ScrapyLogFile():
     # Logparser Processing
 
     def _process_logparser(self):
-        with open(self._file_name) as fp:
+        with open(self.name) as fp:
             text = fp.read()
         # If you pass headlines=0, taillines=0 the returned dict has all the raw lag data in, which may be very large
         # So we request 1 line for each even tho we don't need it
@@ -46,7 +46,7 @@ class ScrapyLogFile():
         self._spider_arguments = {}
         spider_arguments_search_string = '] INFO: Spider arguments: '
         data_block_content_string = ''
-        with open(self._file_name) as fp:
+        with open(self.name) as fp:
             while True:
                 line = fp.readline()
                 if not line:
