@@ -1,8 +1,8 @@
-click
-python-dotenv
-python-pidfile
 boto3
+click
+logparser
 pgpasslib
 psycopg2
-logparser
+python-dotenv
+python-pidfile
 sentry-sdk
