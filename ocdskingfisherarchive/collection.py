@@ -32,7 +32,6 @@ class Collection:
             'database_id': self.database_id,
             'data_md5': self.local_directory_md5,
             'data_size': self.local_directory_bytes,
-            'scrapy_log_file_found': self.has_errors_count(),
             'errors_count': self.errors_count,
         }
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')

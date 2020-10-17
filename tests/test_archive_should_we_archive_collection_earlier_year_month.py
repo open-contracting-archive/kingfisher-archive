@@ -19,7 +19,7 @@ def test_backup_zero_errors_slightly_bigger_size(caplog):
     50% bigger). We should archive.
     """
     archive = archive_fixture(last=(
-        {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 0, 'scrapy_log_file_found': True}, 2020, 9
+        {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 0}, 2020, 9
     ))
     collection = collection_fixture(size=123457)
 
@@ -56,7 +56,7 @@ def test_less_errors(caplog):
     This source was archived before this month. Local collection has fewer errors, so backup.
     """
     archive = archive_fixture(last=(
-        {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'scrapy_log_file_found': True, 'errors_count': 1}, 2020, 9
+        {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 1}, 2020, 9
     ))
     collection = collection_fixture(size=123456)
 
@@ -70,7 +70,7 @@ def test_less_errors_but_smaller_size(caplog):
     This source was archived before this month. Local collection has fewer errors but is smaller size, so don't backup.
     """
     archive = archive_fixture(last=(
-        {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'scrapy_log_file_found': True, 'errors_count': 1}, 2020, 9
+        {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 1}, 2020, 9
     ))
     collection = collection_fixture(size=100456)
 

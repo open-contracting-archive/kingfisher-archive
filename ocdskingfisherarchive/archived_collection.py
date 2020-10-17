@@ -56,7 +56,7 @@ class ArchivedCollection:
         return self.metadata and self.metadata.get('data_size')
 
     def has_errors_count(self):
-        return self.metadata and self.metadata.get('scrapy_log_file_found')
+        return self.metadata and self.metadata.get('errors_count') is not None
 
     @property
     def errors_count(self):

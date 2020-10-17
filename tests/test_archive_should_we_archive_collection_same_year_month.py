@@ -36,7 +36,7 @@ def test_more_errors():
     This source was archived this year/month. Local Collection has more errors, so don't backup.
     """
     archive = archive_fixture(exact=(
-        {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'scrapy_log_file_found': True, 'errors_count': 0}, 2020, 9
+        {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 0}, 2020, 9
     ))
     collection = collection_fixture(size=186306, errors_count=1)
 
