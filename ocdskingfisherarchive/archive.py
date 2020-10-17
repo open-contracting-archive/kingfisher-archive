@@ -39,12 +39,10 @@ class Archive:
         return collections
 
     def process_collection(self, collection, dry_run=False):
-        logger.info('Processing collection %s', collection.database_id)
-
         # Check local database
         current_state = self.database_archive.get_state_of_collection_id(collection.database_id)
         if current_state != 'UNKNOWN':
-            logger.debug('Ignoring; Local state is %s', current_state)
+            logger.debug('Ignoring %s; Local state is %s', collection.database_id, current_state)
             return
 
         # TODO If not archiving, still delete local files after 90 days
@@ -61,140 +59,117 @@ class Archive:
             self.database_archive.set_state_of_collection_id(collection.database_id, 'DO NOT ARCHIVE')
 
     def should_we_archive_collection(self, collection):
-        logger.info('Checking if we should archive collection %s', collection.database_id)
-
         if not collection.get_data_files_exist():
-            logger.debug('Not archiving because data files do not exist')
+            logger.debug('Skipping %s because data files do not exist', collection.database_id)
             return False
 
         # Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
         if collection.is_subset():
-            logger.debug('Not archiving because collection is a subset')
+            logger.debug('Skipping %s because collection is a subset', collection.database_id)
             return False
 
         # If not finished, don't archive
         # (Note if loaded from Process database we check this there;
         #  but we may load from other places in the future so check again)
         if collection.scrapy_log_file and not collection.scrapy_log_file.is_finished():
-            logger.debug('Not archiving because Scrapy log file says it is not finished')
+            logger.debug('Skipping %s because Scrapy log file says it is not finished', collection.database_id)
             return False
 
         # Is there already a collection archived for source / year / month?
         exact_archived_collection = self._get_exact_archived_collection(collection)
         if exact_archived_collection:
-            logger.debug('Found an archive exists with same year/month')
-
             # If checksums identical, leave it
             if exact_archived_collection.get_data_md5() == collection.get_md5_of_data_folder():
-                logger.debug('Not archiving because an archive exists with same year/month and same MD5')
+                logger.debug('Skipping %s because an archive exists for same period and same MD5',
+                             collection.database_id)
                 return False
 
             # If the local directory has more errors, leave it
             # (But we may not have an errors count for one of the things we are comparing)
             if collection.has_errors_count() and exact_archived_collection.has_errors_count() and \
                     collection.get_errors_count() > exact_archived_collection.get_errors_count():
-                logger.debug('Not archiving because an archive exists with fewer errors')
+                logger.debug('Skipping %s because an archive exists for same period and fewer errors',
+                             collection.database_id)
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
             if collection.get_size_of_data_folder() <= exact_archived_collection.get_data_size():
-                logger.debug('Not archiving because an archive exists with same year/month and same or larger size')
+                logger.debug('Skipping %s because an archive exists for same period and same or larger size',
+                             collection.database_id)
                 return False
 
             # Otherwise, Backup
-            logger.debug('Archiving because an archive exists with same year/month and we can not find a good reason '
-                         'to not archive')
+            logger.info('Archiving %s because an archive exists for same period and we can not find a good reason to '
+                        'not archive', collection.database_id)
             return True
 
         # Is an earlier collection archived for source?
-        last_archived_collection = self._get_last_archived_collection(collection)
-        if last_archived_collection:
-            logger.debug(
-                'Found an archive exists with earlier year/month: %s/%s',
-                last_archived_collection.year,
-                last_archived_collection.month,
-            )
-
+        last = self._get_last_archived_collection(collection)
+        if last:
             # If checksums identical, leave it
-            if last_archived_collection.get_data_md5() == collection.get_md5_of_data_folder():
-                logger.debug('Not archiving because an archive exists with older year/month and same MD5')
+            if last.get_data_md5() == collection.get_md5_of_data_folder():
+                logger.debug('Skipping %s because an archive exists from earlier period (%s/%s) and same MD5',
+                             collection.database_id, last.year, last.month)
                 return False
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
-            if collection.get_size_of_data_folder() >= last_archived_collection.get_data_size() * 1.5:
-                logger.debug('Archiving because an archive exists with older year/month and this collection has 50% '
-                             'more size')
+            if collection.get_size_of_data_folder() >= last.get_data_size() * 1.5:
+                logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
+                            'has 50%% more size', collection.database_id, last.year, last.month)
                 return True
 
             # Clean: If the local directory has fewer or same errors, and greater or equal bytes,
             # replace the remote directory.
             # (But we may not have an errors count for one of the things we are comparing)
-            if collection.has_errors_count() and last_archived_collection.has_errors_count() and \
-                    collection.get_errors_count() <= last_archived_collection.get_errors_count() and \
-                    collection.get_size_of_data_folder() >= last_archived_collection.get_data_size():
-                logger.debug('Archiving because an archive exists with older year/month and local collection has '
-                             'fewer or equal errors and greater or equal size')
+            if collection.has_errors_count() and last.has_errors_count() and \
+                    collection.get_errors_count() <= last.get_errors_count() and \
+                    collection.get_size_of_data_folder() >= last.get_data_size():
+                logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
+                            'has fewer or equal errors and greater or equal size', collection.database_id, last.year,
+                            last.month)
                 return True
 
             # Otherwise, do not backup
-            logger.debug('Not archiving because an older archive exists and we can not find a good reason to backup')
+            logger.debug('Skipping %s because an archive exists from earlier period (%s/%s) and we can not find a '
+                         'good reason to backup', collection.database_id, last.year, last.month)
             return False
 
-        logger.debug('Archiving - no current or previous archives found')
+        logger.info('Archiving %s because no current or previous archives found', collection.database_id)
         return True
 
     def _get_exact_archived_collection(self, collection):
-        # This is a separate method for mocking during testing
-        return ArchivedCollection.load_exact(
-            s3=self.s3,
-            source_id=collection.source_id,
-            data_version=collection.data_version
-        )
+        return ArchivedCollection.load_exact(self.s3, collection.source_id, collection.data_version)
 
     def _get_last_archived_collection(self, collection):
-        # This is a separate method for mocking during testing
-        return ArchivedCollection.load_latest(
-            s3=self.s3,
-            source_id=collection.source_id,
-            data_version=collection.data_version
-        )
+        return ArchivedCollection.load_latest(self.s3, collection.source_id, collection.data_version)
 
     def archive_collection(self, collection):
-        logger.info('Archiving collection %s', collection.database_id)
-
-        # Get Data file
-        logger.debug('Getting Data File')
+        # Get data file
         data_file_name = collection.write_data_file()
 
-        # Get Metadata file
-        logger.debug('Getting MetaData File')
+        # Get metadata file
         meta_file_name = collection.write_meta_data_file()
 
         # Upload to staging
-        logger.debug('Upload to Staging')
         s3_directory = collection.get_s3_directory()
         self.s3.upload_file_to_staging(meta_file_name, f'{s3_directory}/metadata.json')
         self.s3.upload_file_to_staging(data_file_name, f'{s3_directory}/data.tar.lz4')
 
         # Move files in S3
-        logger.debug('Move files in S3')
         self.s3.move_file_from_staging_to_real(f'{s3_directory}/metadata.json')
         self.s3.move_file_from_staging_to_real(f'{s3_directory}/data.tar.lz4')
 
-        # Delete Staging Files in S3
-        logger.debug('Delete Staging files in S3')
+        # Delete staging files in S3
         self.s3.remove_staging_file(f'{s3_directory}/metadata.json')
         self.s3.remove_staging_file(f'{s3_directory}/data.tar.lz4')
 
         # Delete local files we made
-        logger.debug('Delete local files we made')
         os.unlink(meta_file_name)
         os.unlink(data_file_name)
 
         # Delete data files
-        logger.debug('Delete data files')
         collection.delete_data_files()
 
         # Delete log files
-        logger.debug('Delete log files')
         collection.delete_log_files()
+        logger.info('Archived %s', collection.database_id)
