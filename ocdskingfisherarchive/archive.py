@@ -79,7 +79,7 @@ class Archive:
         exact_archived_collection = self._get_exact_archived_collection(collection)
         if exact_archived_collection:
             # If checksums identical, leave it
-            if exact_archived_collection.get_data_md5() == collection.local_directory_md5:
+            if exact_archived_collection.data_md5 == collection.local_directory_md5:
                 logger.debug('Skipping %s because an archive exists for same period and same MD5',
                              collection.database_id)
                 return False
@@ -87,13 +87,13 @@ class Archive:
             # If the local directory has more errors, leave it
             # (But we may not have an errors count for one of the things we are comparing)
             if collection.has_errors_count() and exact_archived_collection.has_errors_count() and \
-                    collection.get_errors_count() > exact_archived_collection.get_errors_count():
+                    collection.errors_count > exact_archived_collection.errors_count:
                 logger.debug('Skipping %s because an archive exists for same period and fewer errors',
                              collection.database_id)
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
-            if collection.local_directory_bytes <= exact_archived_collection.get_data_size():
+            if collection.local_directory_bytes <= exact_archived_collection.data_size:
                 logger.debug('Skipping %s because an archive exists for same period and same or larger size',
                              collection.database_id)
                 return False
@@ -107,13 +107,13 @@ class Archive:
         last = self._get_last_archived_collection(collection)
         if last:
             # If checksums identical, leave it
-            if last.get_data_md5() == collection.local_directory_md5:
+            if last.data_md5 == collection.local_directory_md5:
                 logger.debug('Skipping %s because an archive exists from earlier period (%s/%s) and same MD5',
                              collection.database_id, last.year, last.month)
                 return False
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
-            if collection.local_directory_bytes >= last.get_data_size() * 1.5:
+            if collection.local_directory_bytes >= last.data_size * 1.5:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
                             'has 50%% more size', collection.database_id, last.year, last.month)
                 return True
@@ -122,8 +122,8 @@ class Archive:
             # replace the remote directory.
             # (But we may not have an errors count for one of the things we are comparing)
             if collection.has_errors_count() and last.has_errors_count() and \
-                    collection.get_errors_count() <= last.get_errors_count() and \
-                    collection.local_directory_bytes >= last.get_data_size():
+                    collection.errors_count <= last.errors_count and \
+                    collection.local_directory_bytes >= last.data_size:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
                             'has fewer or equal errors and greater or equal size', collection.database_id, last.year,
                             last.month)

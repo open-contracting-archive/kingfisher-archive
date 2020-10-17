@@ -42,19 +42,22 @@ class ArchivedCollection:
             os.unlink(filename)
             return archived_collection
 
-    def __init__(self, data, year, month):
-        self._data = data
+    def __init__(self, metadata, year, month):
+        self.metadata = metadata
         self.year = year
         self.month = month
 
-    def get_data_md5(self):
-        return self._data and self._data.get('data_md5')
+    @property
+    def data_md5(self):
+        return self.metadata and self.metadata.get('data_md5')
 
-    def get_data_size(self):
-        return self._data and self._data.get('data_size')
+    @property
+    def data_size(self):
+        return self.metadata and self.metadata.get('data_size')
 
     def has_errors_count(self):
-        return self._data and self._data.get('scrapy_log_file_found')
+        return self.metadata and self.metadata.get('scrapy_log_file_found')
 
-    def get_errors_count(self):
-        return self._data and self._data.get('errors_count')
+    @property
+    def errors_count(self):
+        return self.metadata and self.metadata.get('errors_count')

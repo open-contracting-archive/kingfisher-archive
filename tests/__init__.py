@@ -48,8 +48,8 @@ def collection_fixture(*, md5='eo39tj38jm', size=186306, data_exists=True, error
         spider_arguments = {}
 
     collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 0))
-    collection.local_directory_md5 = lambda: md5
-    collection.local_directory_bytes = lambda: size
+    collection._data_md5 = md5
+    collection._data_size = size
     collection.get_data_files_exist = lambda: data_exists
     collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
     collection._cached_scrapy_log_file._errors_sent_to_process_count = errors_count
