@@ -1,18 +1,21 @@
+import datetime
 import os.path
 from os import getenv
 
 from dotenv import load_dotenv
 
 from ocdskingfisherarchive.archive import Archive
+from ocdskingfisherarchive.collection import Collection
+from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
+
+load_dotenv()
 
 
-def path(filename):
+def log_file_path(filename):
     return os.path.join('tests', 'logs', filename)
 
 
-def default_archive():
-    load_dotenv()
-
+def archive_fixture():
     return Archive(
         getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
         os.path.join('tests', 'data'),
@@ -20,3 +23,21 @@ def default_archive():
         'db.sqlite3',
         getenv('KINGFISHER_ARCHIVE_DATABASE_URL'),
     )
+
+
+def collection_fixture(*, md5='eo39tj38jm', size=186306, data_exists=True, errors_count=0, spider_arguments=None,
+                       is_finished=True):
+    if spider_arguments is None:
+        spider_arguments = {}
+
+    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 0))
+    collection.get_md5_of_data_folder = lambda: md5
+    collection.get_size_of_data_folder = lambda: size
+    collection.get_data_files_exist = lambda: data_exists
+    collection._cached_scrapy_log_file_name = 'test.log'
+    collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
+    collection._cached_scrapy_log_file._errors_sent_to_process_count = errors_count
+    collection._cached_scrapy_log_file._spider_arguments = spider_arguments
+    collection._cached_scrapy_log_file.is_finished = lambda: is_finished
+
+    return collection

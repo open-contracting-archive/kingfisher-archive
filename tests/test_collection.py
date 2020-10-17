@@ -4,7 +4,8 @@ import pytest
 
 from ocdskingfisherarchive.collection import Collection
 
-@pytest.mark.parametrize('source_id, data_version, expected_output',[
+
+@pytest.mark.parametrize('source_id, data_version, expected_output', [
     ('test', datetime.datetime(2020, 9, 1, 12, 0), 'test/2020/09'),
     ('test', datetime.datetime(2020, 11, 1, 12, 0), 'test/2020/11'),
 ])
