@@ -9,8 +9,59 @@ As presently written, the script needs to be run by a user that has:
 
 One install of Kingfisher should back up to one S3 bucket only. There are algorithms to decide whether to back something up based on what has already been backed up, and these may get confused if 2 Kingfisher installs try to back up to the same S3 bucket.
 
-Configuration
--------------
+Amazon S3
+---------
+
+Create a bucket
+~~~~~~~~~~~~~~~
+
+#. Open the `S3 dashboard <https://s3.console.aws.amazon.com/s3/home>`__
+#. Click the *Create bucket* button
+
+   #. Set *Bucket name*
+   #. Click the *Create* button
+
+Create a policy
+~~~~~~~~~~~~~~~
+
+#. Open the `IAM dashboard <https://console.aws.amazon.com/iam/home>`__
+#. Click *Policies*
+#. Click the *Create policy* button
+
+   #. Click *Choose a service*
+   #. Filter for and click *S3*
+   #. Filter for and check *List Bucket*, *GetObject*, *PutObject* and *DeleteObject*
+   #. Expand *Resources*
+   #. Click *Add ARN* next to *bucket*
+   #. Set *Bucket name* to the bucket created earlier
+   #. Click the *Add* button
+   #. Click *Add ARN* next to *object*
+   #. Set *Bucket name* to the bucket created earlier
+   #. Check *Any* next to *Object name*
+   #. Click the *Review policy* button
+   #. Set *Name*
+   #. Click the *Create policy* button
+
+Create a user
+~~~~~~~~~~~~~
+
+#. Open the `IAM dashboard <https://console.aws.amazon.com/iam/home>`__
+#. Click *Users*
+#. Click the *Add user* button
+
+   #. Set *User name*
+   #. Check *Programmatic access* next to *Access type*
+   #. Click the *Next: Permissions* button
+   #. Click the *Attach existing policies directly* panel
+   #. Filter for and check the policy created earlier
+   #. Click the *Next: Tags* button
+   #. Click the *Next: Review* button
+   #. Click the *Create user* button
+
+#. Copy the access key ID and secret access key
+
+Kingfisher Archive
+------------------
 
 The application can be configured using environment variables, or a ``.env`` file.
 
@@ -28,16 +79,28 @@ KINGFISHER_ARCHIVE_DATABASE_URL
   Kingfisher Process' database URL
 SENTRY_DSN
   Sentry.io's Data Source Name (DSN) (optional)
-
-As linked from :doc:`s3`, you can also set:
-
 AWS_ACCESS_KEY_ID
   The Amazon user's access key ID
 AWS_SECRET_ACCESS_KEY
   The Amazon user's secret access key
 
-Logging configuration (optional)
---------------------------------
+The ``.env`` file would look like:
+
+.. code-block:: none
+
+   KINGFISHER_ARCHIVE_BUCKET_NAME=my-bucket
+   KINGFISHER_ARCHIVE_DATA_DIRECTORY=scrapyd/data
+   KINGFISHER_ARCHIVE_LOGS_DIRECTORY=scrapyd/logs/kingfisher
+   KINGFISHER_ARCHIVE_DATABASE_FILE=/home/my-user/db.sqlite3
+   KINGFISHER_ARCHIVE_DATABASE_URL=postgresql:///my-database
+   SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+   AWS_ACCESS_KEY_ID=xxx
+   AWS_SECRET_ACCESS_KEY=xxx
+
+Alternatively, you can set the AWS credentials in a `~/.aws/config file <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html>`__.
+
+Logging (optional)
+~~~~~~~~~~~~~~~~~~
 
 This should be placed at ``~/.config/ocdskingfisher-archive/logging.json``.
 

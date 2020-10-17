@@ -6,5 +6,4 @@ Kingfisher Archive
 .. toctree::
 
    setup
-   s3
    use
