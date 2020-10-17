@@ -7,7 +7,7 @@ from ocdskingfisherarchive.archive import Archive
 
 
 def path(filename):
-    return os.path.join('tests', 'fixtures', filename)
+    return os.path.join('tests', 'logs', filename)
 
 
 def default_archive():
@@ -15,8 +15,8 @@ def default_archive():
 
     return Archive(
         getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
-        getenv('KINGFISHER_ARCHIVE_DATA_DIRECTORY'),
-        getenv('KINGFISHER_ARCHIVE_LOGS_DIRECTORY'),
+        os.path.join('tests', 'data'),
+        os.path.join('tests', 'logs'),
         'db.sqlite3',
         getenv('KINGFISHER_ARCHIVE_DATABASE_URL'),
     )
