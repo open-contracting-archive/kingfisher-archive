@@ -21,7 +21,7 @@ def test_does_match_date_version():
 
 def test_errors_sent_to_process_count():
     scrapy_log_file = ScrapyLogFile(path('log1.log'))
-    assert 1 == scrapy_log_file.get_errors_sent_to_process_count()
+    assert scrapy_log_file.get_errors_sent_to_process_count() == 1
 
 
 def test_is_subset_1():

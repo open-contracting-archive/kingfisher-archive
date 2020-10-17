@@ -14,18 +14,18 @@ def test_get_and_set():
     database_archive = DataBaseArchive(database_file)
 
     # get something that doesn't exist
-    assert 'UNKNOWN' == database_archive.get_state_of_collection_id(1)
+    assert database_archive.get_state_of_collection_id(1) == 'UNKNOWN'
 
     # Set
     database_archive.set_state_of_collection_id(1, 'CATS')
-    assert 'CATS' == database_archive.get_state_of_collection_id(1)
+    assert database_archive.get_state_of_collection_id(1) == 'CATS'
 
     # Get
-    assert 'CATS' == database_archive.get_state_of_collection_id(1)
+    assert database_archive.get_state_of_collection_id(1) == 'CATS'
 
     # Set again (to make sure replace works)
     database_archive.set_state_of_collection_id(1, 'DOGS')
-    assert 'DOGS' == database_archive.get_state_of_collection_id(1)
+    assert database_archive.get_state_of_collection_id(1) == 'DOGS'
 
     # Get
-    assert 'DOGS' == database_archive.get_state_of_collection_id(1)
+    assert database_archive.get_state_of_collection_id(1) == 'DOGS'
