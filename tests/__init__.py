@@ -12,6 +12,13 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 load_dotenv()
 
 
+def assert_log(caplog, levelname, message):
+    assert len(caplog.records) == 1
+    assert caplog.records[0].name == 'ocdskingfisher.archive'
+    assert caplog.records[0].levelname == levelname, f'{caplog.records[0].levelname!r} == {levelname!r}'
+    assert caplog.records[0].message == message, f'{caplog.records[0].message!r} == {message!r}'
+
+
 def log_file_path(filename):
     return os.path.join('tests', 'logs', filename)
 
