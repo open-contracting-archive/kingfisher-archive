@@ -102,9 +102,7 @@ Alternatively, you can set the AWS credentials in a `~/.aws/config file <https:/
 Logging (optional)
 ~~~~~~~~~~~~~~~~~~
 
-This should be placed at ``~/.config/ocdskingfisher-archive/logging.json``.
-
-Its contents should be standard Python logging configuration in JSON - for more see https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
+Logging is configured using `Python's logging configuration dictionary schema <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`__ at ``~/.config/ocdskingfisher-archive/logging.json``.
 
 To download the default configuration:
 
