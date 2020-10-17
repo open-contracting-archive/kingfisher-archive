@@ -1,4 +1,5 @@
 click
+python-dotenv
 python-pidfile
 boto3
 pgpasslib

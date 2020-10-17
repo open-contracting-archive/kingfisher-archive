@@ -16,6 +16,7 @@ psutil==5.7.2             # via python-pidfile
 psycopg2==2.8.6           # via -r requirements.in
 ptyprocess==0.6.0         # via pexpect
 python-dateutil==2.8.1    # via botocore
+python-dotenv==0.14.0     # via -r requirements.in
 python-pidfile==3.0.0     # via -r requirements.in
 s3transfer==0.3.3         # via boto3
 sentry-sdk==0.17.7        # via -r requirements.in

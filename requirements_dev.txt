@@ -37,6 +37,7 @@ pyparsing==2.4.7          # via packaging
 pytest-cov==2.10.1        # via -r requirements_dev.in
 pytest==6.0.2             # via -r requirements_dev.in, pytest-cov
 python-dateutil==2.8.1    # via -r requirements.txt, botocore
+python-dotenv==0.14.0     # via -r requirements.txt
 python-pidfile==3.0.0     # via -r requirements.txt
 requests==2.24.0          # via coveralls
 s3transfer==0.3.3         # via -r requirements.txt, boto3
