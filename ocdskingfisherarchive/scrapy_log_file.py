@@ -38,8 +38,10 @@ class ScrapyLogFile():
     # Line By Line Processing
 
     def _process_line_by_line(self):
-        """Process log file line by line (Do not load all at once to keep memory use down!).
-        Look for and cache in object variables: error count and spider arguments."""
+        """
+        Process log file line by line (Do not load all at once to keep memory use down!). Look for and cache in object
+        variables: error count and spider arguments.
+        """
         self._errors_sent_to_process_count = 0
         self._spider_arguments = {}
         spider_arguments_search_string = '] INFO: Spider arguments: '

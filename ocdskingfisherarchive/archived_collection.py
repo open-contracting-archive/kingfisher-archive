@@ -17,12 +17,16 @@ def _find_latest_year_month_to_load(data, year, month):
 class ArchivedCollection:
     @staticmethod
     def load_exact(s3, source_id, data_version):
-        """Loads an archive from S3 for source && exact year/month, if it exists"""
+        """
+        Loads an archive from S3 for source && exact year/month, if it exists.
+        """
         return ArchivedCollection._load(s3, source_id, data_version.year, data_version.month)
 
     @staticmethod
     def load_latest(s3, source_id, data_version):
-        """Loads an archive from S3 for source && the latest year/month up to the one passed, if any exist"""
+        """
+        Loads an archive from S3 for source && the latest year/month up to the one passed, if any exist.
+        """
         data = s3.get_years_and_months_for_source(source_id)
         year, month = _find_latest_year_month_to_load(data, data_version.year, data_version.month)
         if year and month:

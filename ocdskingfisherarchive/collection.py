@@ -104,9 +104,7 @@ class Collection:
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')
         os.close(file_descriptor)
 
-        things_to_add = [
-            self._get_data_dir_name()
-        ]
+        things_to_add = [self._get_data_dir_name()]
 
         if self.scrapy_log_file_name:
             things_to_add.append(self.scrapy_log_file_name)
