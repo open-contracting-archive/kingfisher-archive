@@ -63,6 +63,10 @@ class Archive:
             logger.info('Skipping %s because data files do not exist', collection.database_id)
             return False
 
+        if not collection.scrapy_log_file:
+            logger.info('Skipping %s because log file does not exist', collection.database_id)
+            return False
+
         # Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
         if collection.scrapy_log_file and collection.scrapy_log_file.is_subset():
             logger.info('Skipping %s because collection is a subset', collection.database_id)
