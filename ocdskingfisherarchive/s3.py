@@ -4,7 +4,9 @@ from contextlib import contextmanager
 
 import boto3
 from botocore.exceptions import ClientError
+from dotenv import load_dotenv
 
+load_dotenv()
 client = boto3.client('s3')
 logger = logging.getLogger('ocdskingfisher.archive')
 

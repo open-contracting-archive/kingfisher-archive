@@ -1,10 +1,11 @@
 import logging
 import os
+import shutil
 
 import dj_database_url
 import psycopg2
 
-from ocdskingfisherarchive.archived_collection import ArchivedCollection
+import ocdskingfisherarchive.archived_collection  # Import the module so that its methods are easier to patch in tests
 from ocdskingfisherarchive.collection import Collection
 from ocdskingfisherarchive.database_archive import DataBaseArchive
 from ocdskingfisherarchive.s3 import S3
@@ -42,7 +43,7 @@ class Archive:
         # Check local database
         current_state = self.database_archive.get_state_of_collection_id(collection.database_id)
         if current_state != 'UNKNOWN':
-            logger.debug('Ignoring %s; Local state is %s', collection.database_id, current_state)
+            logger.info('Ignoring %s; Local state is %s', collection.database_id, current_state)
             return
 
         # TODO If not archiving, still delete local files after 90 days
@@ -60,42 +61,43 @@ class Archive:
 
     def should_we_archive_collection(self, collection):
         if not collection.get_data_files_exist():
-            logger.debug('Skipping %s because data files do not exist', collection.database_id)
+            logger.info('Skipping %s because data files do not exist', collection.database_id)
             return False
 
         # Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
         if collection.scrapy_log_file and collection.scrapy_log_file.is_subset():
-            logger.debug('Skipping %s because collection is a subset', collection.database_id)
+            logger.info('Skipping %s because collection is a subset', collection.database_id)
             return False
 
         # If not finished, don't archive
         # (Note if loaded from Process database we check this there;
         #  but we may load from other places in the future so check again)
         if collection.scrapy_log_file and not collection.scrapy_log_file.is_finished():
-            logger.debug('Skipping %s because Scrapy log file says it is not finished', collection.database_id)
+            logger.info('Skipping %s because Scrapy log file says it is not finished', collection.database_id)
             return False
 
         # Is there already a collection archived for source / year / month?
-        exact_archived_collection = self._get_exact_archived_collection(collection)
+        exact_archived_collection = ocdskingfisherarchive.archived_collection.load_exact(self.s3, collection.source_id,
+                                                                                         collection.data_version)
         if exact_archived_collection:
             # If checksums identical, leave it
             if exact_archived_collection.data_md5 == collection.local_directory_md5:
-                logger.debug('Skipping %s because an archive exists for same period and same MD5',
-                             collection.database_id)
+                logger.info('Skipping %s because an archive exists for same period and same MD5',
+                            collection.database_id)
                 return False
 
             # If the local directory has more errors, leave it
             # (But we may not have an errors count for one of the things we are comparing)
             if collection.has_errors_count() and exact_archived_collection.has_errors_count() and \
                     collection.errors_count > exact_archived_collection.errors_count:
-                logger.debug('Skipping %s because an archive exists for same period and fewer errors',
-                             collection.database_id)
+                logger.info('Skipping %s because an archive exists for same period and fewer errors',
+                            collection.database_id)
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
             if collection.local_directory_bytes <= exact_archived_collection.data_size:
-                logger.debug('Skipping %s because an archive exists for same period and same or larger size',
-                             collection.database_id)
+                logger.info('Skipping %s because an archive exists for same period and same or larger size',
+                            collection.database_id)
                 return False
 
             # Otherwise, Backup
@@ -104,12 +106,13 @@ class Archive:
             return True
 
         # Is an earlier collection archived for source?
-        last = self._get_last_archived_collection(collection)
+        last = ocdskingfisherarchive.archived_collection.load_latest(self.s3, collection.source_id,
+                                                                     collection.data_version)
         if last:
             # If checksums identical, leave it
             if last.data_md5 == collection.local_directory_md5:
-                logger.debug('Skipping %s because an archive exists from earlier period (%s/%s) and same MD5',
-                             collection.database_id, last.year, last.month)
+                logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and same MD5',
+                            collection.database_id, last.year, last.month)
                 return False
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
@@ -130,18 +133,12 @@ class Archive:
                 return True
 
             # Otherwise, do not backup
-            logger.debug('Skipping %s because an archive exists from earlier period (%s/%s) and we can not find a '
-                         'good reason to backup', collection.database_id, last.year, last.month)
+            logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and we can not find a '
+                        'good reason to backup', collection.database_id, last.year, last.month)
             return False
 
         logger.info('Archiving %s because no current or previous archives found', collection.database_id)
         return True
-
-    def _get_exact_archived_collection(self, collection):
-        return ArchivedCollection.load_exact(self.s3, collection.source_id, collection.data_version)
-
-    def _get_last_archived_collection(self, collection):
-        return ArchivedCollection.load_latest(self.s3, collection.source_id, collection.data_version)
 
     def archive_collection(self, collection):
         data_file_name = collection.write_data_file()

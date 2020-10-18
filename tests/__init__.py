@@ -2,33 +2,16 @@ import datetime
 import os.path
 from os import getenv
 
-from dotenv import load_dotenv
-
 from ocdskingfisherarchive.archive import Archive
-from ocdskingfisherarchive.archived_collection import ArchivedCollection
 from ocdskingfisherarchive.collection import Collection
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
-
-load_dotenv()
-
-
-def assert_log(caplog, levelname, message):
-    assert len(caplog.records) == 1
-    assert caplog.records[0].name == 'ocdskingfisher.archive'
-    assert caplog.records[0].levelname == levelname, f'{caplog.records[0].levelname!r} == {levelname!r}'
-    assert caplog.records[0].message == message, f'{caplog.records[0].message!r} == {message!r}'
 
 
 def log_file_path(filename):
     return os.path.join('tests', 'logs', filename)
 
 
-def archive_fixture(*, exact=None, last=None):
-    if exact is not None:
-        exact = ArchivedCollection(*exact)
-    if last is not None:
-        last = ArchivedCollection(*last)
-
+def archive_fixture():
     archive = Archive(
         getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
         os.path.join('tests', 'data'),
@@ -36,8 +19,6 @@ def archive_fixture(*, exact=None, last=None):
         'db.sqlite3',
         getenv('KINGFISHER_ARCHIVE_DATABASE_URL'),
     )
-    archive._get_exact_archived_collection = lambda c: exact
-    archive._get_last_archived_collection = lambda c: last
 
     return archive
 
