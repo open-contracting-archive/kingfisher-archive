@@ -84,7 +84,8 @@ class ScrapyLogFile():
                     except ValueError:
                         pass
 
-    def get_errors_sent_to_process_count(self):
+    @property
+    def errors_count(self):
         if self._errors_sent_to_process_count is None:
             self._process_line_by_line()
         return self._errors_sent_to_process_count

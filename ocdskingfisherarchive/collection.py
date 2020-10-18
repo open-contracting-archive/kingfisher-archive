@@ -31,7 +31,7 @@ class Collection:
             'database_id': self.database_id,
             'data_md5': self.local_directory_md5,
             'data_size': self.local_directory_bytes,
-            'errors_count': self.errors_count,
+            'errors_count': self.scrapy_log_file.errors_count,
         }
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
         with open(filename, 'w') as file:
@@ -81,13 +81,6 @@ class Collection:
                     self._cached_scrapy_log_file = slf
 
         return self._cached_scrapy_log_file
-
-    def has_errors_count(self):
-        return bool(self.scrapy_log_file)
-
-    @property
-    def errors_count(self):
-        return self.scrapy_log_file and self.scrapy_log_file.get_errors_sent_to_process_count()
 
     def write_data_file(self):
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')

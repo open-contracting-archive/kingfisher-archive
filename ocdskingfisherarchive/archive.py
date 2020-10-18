@@ -86,8 +86,8 @@ class Archive:
 
             # If the local directory has more errors, leave it
             # (But we may not have an errors count for one of the things we are comparing)
-            if collection.has_errors_count() and remote_metadata['errors_count'] is not None and \
-                    collection.errors_count > remote_metadata['errors_count']:
+            if collection.scrapy_log_file and remote_metadata['errors_count'] is not None and \
+                    collection.scrapy_log_file.errors_count > remote_metadata['errors_count']:
                 logger.info('Skipping %s because an archive exists for same period and fewer errors',
                             collection.database_id)
                 return False
@@ -121,8 +121,8 @@ class Archive:
             # Clean: If the local directory has fewer or same errors, and greater or equal bytes,
             # replace the remote directory.
             # (But we may not have an errors count for one of the things we are comparing)
-            if collection.has_errors_count() and remote_metadata['errors_count'] is not None and \
-                    collection.errors_count <= remote_metadata['errors_count'] and \
+            if collection.scrapy_log_file and remote_metadata['errors_count'] is not None and \
+                    collection.scrapy_log_file.errors_count <= remote_metadata['errors_count'] and \
                     collection.local_directory_bytes >= remote_metadata['data_size']:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
                             'has fewer or equal errors and greater or equal size', collection.database_id, year, month)

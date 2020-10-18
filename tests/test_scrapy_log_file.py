@@ -19,8 +19,8 @@ def test_does_match_date_version(datetime, expected):
     assert ScrapyLogFile(log_file_path('log1.log')).does_match_date_version(datetime) is expected
 
 
-def test_errors_sent_to_process_count():
-    assert ScrapyLogFile(log_file_path('log1.log')).get_errors_sent_to_process_count() == 1
+def test_errors_count():
+    assert ScrapyLogFile(log_file_path('log1.log')).errors_count == 1
 
 
 @pytest.mark.parametrize('filename, expected', [
