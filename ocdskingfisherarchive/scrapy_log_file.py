@@ -1,10 +1,21 @@
 import ast
 import datetime
+import os
 
 from logparser import parse
 
 
 class ScrapyLogFile():
+    @classmethod
+    def find(cls, logs_directory, source_id, data_version):
+        source_directory = os.path.join(logs_directory, source_id)
+        if os.path.isdir(source_directory):
+            for filename in os.listdir(source_directory):
+                if filename.endswith(".log"):
+                    scrapy_log_file = ScrapyLogFile(os.path.join(source_directory, filename))
+                    if scrapy_log_file.does_match_date_version(data_version):
+                        return scrapy_log_file
+
     def __init__(self, name):
         self.name = name
         # We lazy-parse any data we need

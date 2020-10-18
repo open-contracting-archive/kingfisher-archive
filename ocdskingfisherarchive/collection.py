@@ -12,11 +12,11 @@ class Collection:
         self.source_id = source_id
         self.data_version = data_version
         self.data_directory = data_directory
-        self.logs_directory = logs_directory
+
+        self.scrapy_log_file = ScrapyLogFile.find(logs_directory, source_id, data_version)
 
         self._data_md5 = None
         self._data_size = None
-        self._cached_scrapy_log_file = None
 
     @property
     def local_directory(self):
@@ -64,23 +64,6 @@ class Collection:
 
     def get_data_files_exist(self):
         return os.path.isdir(self.local_directory)
-
-    @property
-    def scrapy_log_file(self):
-        if self._cached_scrapy_log_file is not None:
-            return self._cached_scrapy_log_file
-
-        dir_to_search = os.path.join(self.logs_directory, self.source_id)
-        if not os.path.isdir(dir_to_search):
-            return
-
-        for filename in os.listdir(dir_to_search):
-            if filename.endswith(".log"):
-                slf = ScrapyLogFile(os.path.join(dir_to_search, filename))
-                if slf.does_match_date_version(self.data_version):
-                    self._cached_scrapy_log_file = slf
-
-        return self._cached_scrapy_log_file
 
     def write_data_file(self):
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')

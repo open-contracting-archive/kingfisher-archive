@@ -32,9 +32,9 @@ def collection_fixture(*, md5='eo39tj38jm', size=186306, data_exists=True, error
     collection._data_md5 = md5
     collection._data_size = size
     collection.get_data_files_exist = lambda: data_exists
-    collection._cached_scrapy_log_file = ScrapyLogFile('test.log')
-    collection._cached_scrapy_log_file._errors_sent_to_process_count = errors_count
-    collection._cached_scrapy_log_file._spider_arguments = spider_arguments
-    collection._cached_scrapy_log_file.is_finished = lambda: is_finished
+    collection.scrapy_log_file = ScrapyLogFile('test.log')
+    collection.scrapy_log_file._errors_sent_to_process_count = errors_count
+    collection.scrapy_log_file._spider_arguments = spider_arguments
+    collection.scrapy_log_file.is_finished = lambda: is_finished
 
     return collection
