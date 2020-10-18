@@ -83,7 +83,7 @@ class Archive:
         remote_metadata = self.s3.load_exact(collection.source_id, collection.data_version)
         if remote_metadata:
             # If checksums identical, leave it
-            if remote_metadata['data_md5'] == collection.local_directory_md5:
+            if remote_metadata['data_md5'] == collection.data_md5:
                 logger.info('Skipping %s because an archive exists for same period and same MD5',
                             collection.database_id)
                 return False
@@ -97,7 +97,7 @@ class Archive:
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
-            if collection.local_directory_bytes <= remote_metadata['data_size']:
+            if collection.data_size <= remote_metadata['data_size']:
                 logger.info('Skipping %s because an archive exists for same period and same or larger size',
                             collection.database_id)
                 return False
@@ -111,13 +111,13 @@ class Archive:
         remote_metadata, year, month = self.s3.load_latest(collection.source_id, collection.data_version)
         if remote_metadata:
             # If checksums identical, leave it
-            if remote_metadata['data_md5'] == collection.local_directory_md5:
+            if remote_metadata['data_md5'] == collection.data_md5:
                 logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and same MD5',
                             collection.database_id, year, month)
                 return False
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
-            if collection.local_directory_bytes >= remote_metadata['data_size'] * 1.5:
+            if collection.data_size >= remote_metadata['data_size'] * 1.5:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
                             'has 50%% more size', collection.database_id, year, month)
                 return True
@@ -127,7 +127,7 @@ class Archive:
             # (But we may not have an errors count for one of the things we are comparing)
             if remote_metadata['errors_count'] is not None and \
                     collection.scrapy_log_file.errors_count <= remote_metadata['errors_count'] and \
-                    collection.local_directory_bytes >= remote_metadata['data_size']:
+                    collection.data_size >= remote_metadata['data_size']:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
                             'has fewer or equal errors and greater or equal size', collection.database_id, year, month)
                 return True
@@ -161,7 +161,7 @@ class Archive:
         # Cleanup
         os.unlink(meta_file_name)
         os.unlink(data_file_name)
-        shutil.rmtree(collection.local_directory)
+        shutil.rmtree(collection.directory)
         collection.scrapy_log_file.delete()
 
         logger.info('Archived %s', collection.database_id)
