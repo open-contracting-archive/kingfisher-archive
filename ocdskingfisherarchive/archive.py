@@ -144,17 +144,19 @@ class Archive:
         data_file_name = collection.write_data_file()
         meta_file_name = collection.write_meta_data_file()
 
+        remote_directory = f'{collection.source_id}/{collection.data_version.year}/{collection.data_version.month:02d}'
+
         # Upload to staging
-        self.s3.upload_file_to_staging(meta_file_name, f'{collection.remote_directory}/metadata.json')
-        self.s3.upload_file_to_staging(data_file_name, f'{collection.remote_directory}/data.tar.lz4')
+        self.s3.upload_file_to_staging(meta_file_name, f'{remote_directory}/metadata.json')
+        self.s3.upload_file_to_staging(data_file_name, f'{remote_directory}/data.tar.lz4')
 
         # Move files in S3
-        self.s3.move_file_from_staging_to_real(f'{collection.remote_directory}/metadata.json')
-        self.s3.move_file_from_staging_to_real(f'{collection.remote_directory}/data.tar.lz4')
+        self.s3.move_file_from_staging_to_real(f'{remote_directory}/metadata.json')
+        self.s3.move_file_from_staging_to_real(f'{remote_directory}/data.tar.lz4')
 
         # Delete staging files in S3
-        self.s3.remove_staging_file(f'{collection.remote_directory}/metadata.json')
-        self.s3.remove_staging_file(f'{collection.remote_directory}/data.tar.lz4')
+        self.s3.remove_staging_file(f'{remote_directory}/metadata.json')
+        self.s3.remove_staging_file(f'{remote_directory}/data.tar.lz4')
 
         # Cleanup
         os.unlink(meta_file_name)

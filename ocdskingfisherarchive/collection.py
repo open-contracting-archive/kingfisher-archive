@@ -23,10 +23,6 @@ class Collection:
         return os.path.join(self.data_directory, self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
 
     @property
-    def remote_directory(self):
-        return f'{self.source_id}/{self.data_version.year}/{self.data_version.month:02d}'
-
-    @property
     def local_directory_md5(self):
         if self._data_md5 is not None:
             return self._data_md5
