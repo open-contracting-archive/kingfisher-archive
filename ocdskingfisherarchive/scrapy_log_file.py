@@ -14,6 +14,12 @@ class ScrapyLogFile():
         self._errors_sent_to_process_count = None
         self._spider_arguments = None
 
+    def delete(self):
+        if os.path.isfile(self.name):
+            os.remove(self.name)
+            if os.path.isfile(f'{self.name}.stats'):
+                os.remove(f'{self.name}.stats')
+
     # Logparser Processing
 
     def _process_logparser(self):

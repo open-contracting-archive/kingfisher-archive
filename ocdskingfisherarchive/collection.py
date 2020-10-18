@@ -103,10 +103,3 @@ class Collection:
         os.unlink(filename)
 
         return f'{filename}.lz4'
-
-    def delete_log_files(self):
-        if self.scrapy_log_file and os.path.isfile(self.scrapy_log_file.name):
-            os.remove(self.scrapy_log_file.name)
-            if os.path.isfile(f'{self.scrapy_log_file.name}.stats'):
-                os.remove(f'{self.scrapy_log_file.name}.stats')
-            self._cached_scrapy_log_file = None
