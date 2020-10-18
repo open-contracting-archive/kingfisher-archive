@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 import tempfile
 from contextlib import contextmanager
 
@@ -6,9 +8,23 @@ import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
+from ocdskingfisherarchive.archived_collection import ArchivedCollection
+
 load_dotenv()
 client = boto3.client('s3')
 logger = logging.getLogger('ocdskingfisher.archive')
+
+
+def _find_latest_year_month_to_load(data, year, month):
+    while year > 2010:
+        if data.get(year, {}).get(month):
+            return year, month
+        if month > 1:
+            month = month - 1
+        else:
+            year = year - 1
+            month = 12
+    return None, None
 
 
 @contextmanager
@@ -23,6 +39,30 @@ def _try(s3):
 class S3:
     def __init__(self, bucket_name):
         self.bucket_name = bucket_name
+
+    def load_exact(self, source_id, data_version):
+        """
+        Loads an archive from S3 for source && exact year/month, if it exists.
+        """
+        return self._load(source_id, data_version.year, data_version.month)
+
+    def load_latest(self, source_id, data_version):
+        """
+        Loads an archive from S3 for source && the latest year/month up to the one passed, if any exist.
+        """
+        data = self.get_years_and_months_for_source(source_id)
+        year, month = _find_latest_year_month_to_load(data, data_version.year, data_version.month)
+        if year and month:
+            return self._load(source_id, year, month)
+
+    def _load(self, source_id, year, month):
+        remote_filename = f'{source_id}/{year}/{month:02d}/metadata.json'
+        filename = self.get_file(remote_filename)
+        if filename:
+            with open(filename) as fp:
+                archived_collection = ArchivedCollection(json.load(fp), year, month)
+            os.unlink(filename)
+            return archived_collection
 
     def upload_file_to_staging(self, local_file_name, remote_file_name):
         with _try(self):

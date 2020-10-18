@@ -1,6 +1,6 @@
 import pytest
 
-from ocdskingfisherarchive.archived_collection import _find_latest_year_month_to_load
+from ocdskingfisherarchive.s3 import _find_latest_year_month_to_load
 
 
 @pytest.mark.parametrize('year, expected_year, expected_month', [

@@ -7,7 +7,7 @@ from ocdskingfisherarchive.archived_collection import ArchivedCollection
 from tests import archive_fixture, collection_fixture
 
 
-@patch('ocdskingfisherarchive.archived_collection.load_exact', return_value=None)
+@patch('ocdskingfisherarchive.s3.S3.load_exact', return_value=None)
 class EarlierPeriod(unittest.TestCase):
     def assert_log(self, levelname, message):
         assert len(self.caplog.records) == 1
@@ -19,7 +19,7 @@ class EarlierPeriod(unittest.TestCase):
     def fixtures(self, caplog):
         self.caplog = caplog
 
-    @patch('ocdskingfisherarchive.archived_collection.load_latest')
+    @patch('ocdskingfisherarchive.s3.S3.load_latest')
     def test_backup(self, load_latest, load_exact):
         """
         This source was archived before this month. We should archive.
@@ -32,7 +32,7 @@ class EarlierPeriod(unittest.TestCase):
         self.assert_log('INFO', 'Archiving 1 because an archive exists from earlier period (2020/9) and local '
                                 'collection has 50% more size')
 
-    @patch('ocdskingfisherarchive.archived_collection.load_latest')
+    @patch('ocdskingfisherarchive.s3.S3.load_latest')
     def test_backup_zero_errors_slightly_bigger_size(self, load_latest, load_exact):
         """
         This source was archived before this month. Both collections have zero errors, but local is slightly bigger
@@ -48,7 +48,7 @@ class EarlierPeriod(unittest.TestCase):
         self.assert_log('INFO', 'Archiving 1 because an archive exists from earlier period (2020/9) and local '
                                 'collection has fewer or equal errors and greater or equal size')
 
-    @patch('ocdskingfisherarchive.archived_collection.load_latest')
+    @patch('ocdskingfisherarchive.s3.S3.load_latest')
     def test_same_md5(self, load_latest, load_exact):
         """
         This source was archived before this month. MD5 is the same so don't back up.
@@ -60,7 +60,7 @@ class EarlierPeriod(unittest.TestCase):
         assert not archive.should_we_archive_collection(collection)
         self.assert_log('INFO', 'Skipping 1 because an archive exists from earlier period (2020/1) and same MD5')
 
-    @patch('ocdskingfisherarchive.archived_collection.load_latest')
+    @patch('ocdskingfisherarchive.s3.S3.load_latest')
     def test_size_not_50_percent_more(self, load_latest, load_exact):
         """
         This source was archived before this month. The size is slightly larger but not 50% so don't back up.
@@ -73,7 +73,7 @@ class EarlierPeriod(unittest.TestCase):
         self.assert_log('INFO', 'Skipping 1 because an archive exists from earlier period (2020/1) and we can not '
                                 'find a good reason to backup')
 
-    @patch('ocdskingfisherarchive.archived_collection.load_latest')
+    @patch('ocdskingfisherarchive.s3.S3.load_latest')
     def test_less_errors(self, load_latest, load_exact):
         """
         This source was archived before this month. Local collection has fewer errors, so backup.
@@ -88,7 +88,7 @@ class EarlierPeriod(unittest.TestCase):
         self.assert_log('INFO', 'Archiving 1 because an archive exists from earlier period (2020/9) and local '
                                 'collection has fewer or equal errors and greater or equal size')
 
-    @patch('ocdskingfisherarchive.archived_collection.load_latest')
+    @patch('ocdskingfisherarchive.s3.S3.load_latest')
     def test_less_errors_but_smaller_size(self, load_latest, load_exact):
         """
         This source was archived before this month. Local collection has fewer errors but is smaller size, so don't

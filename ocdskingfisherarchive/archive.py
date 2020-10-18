@@ -5,7 +5,6 @@ import shutil
 import dj_database_url
 import psycopg2
 
-import ocdskingfisherarchive.archived_collection  # Import the module so that its methods are easier to patch in tests
 from ocdskingfisherarchive.collection import Collection
 from ocdskingfisherarchive.database_archive import DataBaseArchive
 from ocdskingfisherarchive.s3 import S3
@@ -77,8 +76,7 @@ class Archive:
             return False
 
         # Is there already a collection archived for source / year / month?
-        exact_archived_collection = ocdskingfisherarchive.archived_collection.load_exact(self.s3, collection.source_id,
-                                                                                         collection.data_version)
+        exact_archived_collection = self.s3.load_exact(collection.source_id, collection.data_version)
         if exact_archived_collection:
             # If checksums identical, leave it
             if exact_archived_collection.data_md5 == collection.local_directory_md5:
@@ -106,8 +104,7 @@ class Archive:
             return True
 
         # Is an earlier collection archived for source?
-        last = ocdskingfisherarchive.archived_collection.load_latest(self.s3, collection.source_id,
-                                                                     collection.data_version)
+        last = self.s3.load_latest(collection.source_id, collection.data_version)
         if last:
             # If checksums identical, leave it
             if last.data_md5 == collection.local_directory_md5:
