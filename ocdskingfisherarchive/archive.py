@@ -159,8 +159,7 @@ class Archive:
         # Cleanup
         os.unlink(meta_file_name)
         os.unlink(data_file_name)
-        if os.path.isdir(collection.local_directory):
-            shutil.rmtree(collection.local_directory)
+        shutil.rmtree(collection.local_directory)
         collection.scrapy_log_file.delete()
 
         logger.info('Archived %s', collection.database_id)
