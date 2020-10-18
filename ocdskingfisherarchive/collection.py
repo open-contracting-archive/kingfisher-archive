@@ -26,19 +26,6 @@ class Collection:
     def remote_directory(self):
         return f'{self.source_id}/{self.data_version.year}/{self.data_version.month:02d}'
 
-    def write_meta_data_file(self):
-        data = {
-            'database_id': self.database_id,
-            'data_md5': self.local_directory_md5,
-            'data_size': self.local_directory_bytes,
-            'errors_count': self.scrapy_log_file.errors_count,
-        }
-        file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
-        with open(filename, 'w') as file:
-            json.dump(data, file, indent=2)
-        os.close(file_descriptor)
-        return filename
-
     @property
     def local_directory_md5(self):
         if self._data_md5 is not None:
@@ -64,6 +51,19 @@ class Collection:
 
     def get_data_files_exist(self):
         return os.path.isdir(self.local_directory)
+
+    def write_meta_data_file(self):
+        data = {
+            'database_id': self.database_id,
+            'data_md5': self.local_directory_md5,
+            'data_size': self.local_directory_bytes,
+            'errors_count': self.scrapy_log_file.errors_count,
+        }
+        file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
+        with open(filename, 'w') as file:
+            json.dump(data, file, indent=2)
+        os.close(file_descriptor)
+        return filename
 
     def write_data_file(self):
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')
