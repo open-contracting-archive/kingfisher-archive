@@ -76,24 +76,24 @@ class Archive:
             return False
 
         # Is there already a collection archived for source / year / month?
-        exact_archived_collection = self.s3.load_exact(collection.source_id, collection.data_version)
-        if exact_archived_collection:
+        remote_metadata = self.s3.load_exact(collection.source_id, collection.data_version)
+        if remote_metadata:
             # If checksums identical, leave it
-            if exact_archived_collection.data_md5 == collection.local_directory_md5:
+            if remote_metadata['data_md5'] == collection.local_directory_md5:
                 logger.info('Skipping %s because an archive exists for same period and same MD5',
                             collection.database_id)
                 return False
 
             # If the local directory has more errors, leave it
             # (But we may not have an errors count for one of the things we are comparing)
-            if collection.has_errors_count() and exact_archived_collection.has_errors_count() and \
-                    collection.errors_count > exact_archived_collection.errors_count:
+            if collection.has_errors_count() and remote_metadata['errors_count'] is not None and \
+                    collection.errors_count > remote_metadata['errors_count']:
                 logger.info('Skipping %s because an archive exists for same period and fewer errors',
                             collection.database_id)
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
-            if collection.local_directory_bytes <= exact_archived_collection.data_size:
+            if collection.local_directory_bytes <= remote_metadata['data_size']:
                 logger.info('Skipping %s because an archive exists for same period and same or larger size',
                             collection.database_id)
                 return False
@@ -104,34 +104,33 @@ class Archive:
             return True
 
         # Is an earlier collection archived for source?
-        last = self.s3.load_latest(collection.source_id, collection.data_version)
-        if last:
+        remote_metadata, year, month = self.s3.load_latest(collection.source_id, collection.data_version)
+        if remote_metadata:
             # If checksums identical, leave it
-            if last.data_md5 == collection.local_directory_md5:
+            if remote_metadata['data_md5'] == collection.local_directory_md5:
                 logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and same MD5',
-                            collection.database_id, last.year, last.month)
+                            collection.database_id, year, month)
                 return False
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
-            if collection.local_directory_bytes >= last.data_size * 1.5:
+            if collection.local_directory_bytes >= remote_metadata['data_size'] * 1.5:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
-                            'has 50%% more size', collection.database_id, last.year, last.month)
+                            'has 50%% more size', collection.database_id, year, month)
                 return True
 
             # Clean: If the local directory has fewer or same errors, and greater or equal bytes,
             # replace the remote directory.
             # (But we may not have an errors count for one of the things we are comparing)
-            if collection.has_errors_count() and last.has_errors_count() and \
-                    collection.errors_count <= last.errors_count and \
-                    collection.local_directory_bytes >= last.data_size:
+            if collection.has_errors_count() and remote_metadata['errors_count'] is not None and \
+                    collection.errors_count <= remote_metadata['errors_count'] and \
+                    collection.local_directory_bytes >= remote_metadata['data_size']:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
-                            'has fewer or equal errors and greater or equal size', collection.database_id, last.year,
-                            last.month)
+                            'has fewer or equal errors and greater or equal size', collection.database_id, year, month)
                 return True
 
             # Otherwise, do not backup
             logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and we can not find a '
-                        'good reason to backup', collection.database_id, last.year, last.month)
+                        'good reason to backup', collection.database_id, year, month)
             return False
 
         logger.info('Archiving %s because no current or previous archives found', collection.database_id)

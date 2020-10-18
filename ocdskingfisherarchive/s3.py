@@ -8,8 +8,6 @@ import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
-from ocdskingfisherarchive.archived_collection import ArchivedCollection
-
 load_dotenv()
 client = boto3.client('s3')
 logger = logging.getLogger('ocdskingfisher.archive')
@@ -53,16 +51,17 @@ class S3:
         data = self.get_years_and_months_for_source(source_id)
         year, month = _find_latest_year_month_to_load(data, data_version.year, data_version.month)
         if year and month:
-            return self._load(source_id, year, month)
+            return self._load(source_id, year, month), year, month
+        return None, None, None
 
     def _load(self, source_id, year, month):
         remote_filename = f'{source_id}/{year}/{month:02d}/metadata.json'
         filename = self.get_file(remote_filename)
         if filename:
             with open(filename) as fp:
-                archived_collection = ArchivedCollection(json.load(fp), year, month)
+                metadata = json.load(fp)
             os.unlink(filename)
-            return archived_collection
+            return metadata
 
     def upload_file_to_staging(self, local_file_name, remote_file_name):
         with _try(self):

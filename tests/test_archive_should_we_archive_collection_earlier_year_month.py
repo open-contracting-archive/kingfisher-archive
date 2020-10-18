@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 import pytest
 
-from ocdskingfisherarchive.archived_collection import ArchivedCollection
 from tests import archive_fixture, collection_fixture
 
 
@@ -24,7 +23,7 @@ class EarlierPeriod(unittest.TestCase):
         """
         This source was archived before this month. We should archive.
         """
-        load_latest.return_value = ArchivedCollection({'data_md5': 'oeu7394ud48h', 'data_size': 123456}, 2020, 9)
+        load_latest.return_value = ({'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': None}, 2020, 9)
         archive = archive_fixture()
         collection = collection_fixture(size=386306)
 
@@ -38,9 +37,7 @@ class EarlierPeriod(unittest.TestCase):
         This source was archived before this month. Both collections have zero errors, but local is slightly bigger
         (not 50% bigger). We should archive.
         """
-        load_latest.return_value = ArchivedCollection(
-            {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 0}, 2020, 9
-        )
+        load_latest.return_value = ({'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 0}, 2020, 9)
         archive = archive_fixture()
         collection = collection_fixture(size=123457)
 
@@ -53,7 +50,7 @@ class EarlierPeriod(unittest.TestCase):
         """
         This source was archived before this month. MD5 is the same so don't back up.
         """
-        load_latest.return_value = ArchivedCollection({'data_md5': 'eo39tj38jm', 'data_size': 123456}, 2020, 1)
+        load_latest.return_value = ({'data_md5': 'eo39tj38jm', 'data_size': 123456, 'errors_count': None}, 2020, 1)
         archive = archive_fixture()
         collection = collection_fixture(size=386306)
 
@@ -65,7 +62,7 @@ class EarlierPeriod(unittest.TestCase):
         """
         This source was archived before this month. The size is slightly larger but not 50% so don't back up.
         """
-        load_latest.return_value = ArchivedCollection({'data_md5': 'oeu7394ud48h', 'data_size': 123456}, 2020, 1)
+        load_latest.return_value = ({'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': None}, 2020, 1)
         archive = archive_fixture()
         collection = collection_fixture(size=133456)
 
@@ -78,9 +75,7 @@ class EarlierPeriod(unittest.TestCase):
         """
         This source was archived before this month. Local collection has fewer errors, so backup.
         """
-        load_latest.return_value = ArchivedCollection(
-            {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 1}, 2020, 9
-        )
+        load_latest.return_value = ({'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 1}, 2020, 9)
         archive = archive_fixture()
         collection = collection_fixture(size=123456)
 
@@ -94,9 +89,7 @@ class EarlierPeriod(unittest.TestCase):
         This source was archived before this month. Local collection has fewer errors but is smaller size, so don't
         backup.
         """
-        load_latest.return_value = ArchivedCollection(
-            {'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 1}, 2020, 9
-        )
+        load_latest.return_value = ({'data_md5': 'oeu7394ud48h', 'data_size': 123456, 'errors_count': 1}, 2020, 9)
         archive = archive_fixture()
         collection = collection_fixture(size=100456)
 

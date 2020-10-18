@@ -4,7 +4,7 @@ from unittest.mock import patch
 from tests import archive_fixture, collection_fixture
 
 
-@patch('ocdskingfisherarchive.s3.S3.load_latest', return_value=None)
+@patch('ocdskingfisherarchive.s3.S3.load_latest', return_value=(None, None, None))
 @patch('ocdskingfisherarchive.s3.S3.load_exact', return_value=None)
 class NoPeriod(unittest.TestCase):
     def test_no_previous(self, load_exact, load_latest):
