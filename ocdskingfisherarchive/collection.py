@@ -86,9 +86,7 @@ class Collection:
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')
         os.close(file_descriptor)
 
-        things_to_add = [self.local_directory]
-        if self.scrapy_log_file:
-            things_to_add.append(self.scrapy_log_file.name)
+        things_to_add = [self.local_directory, self.scrapy_log_file.name]
 
         subprocess.run(['tar', '-cf', filename, *things_to_add], check=True)
         subprocess.run(['lz4', filename, '{filename}.lz4'], check=True)

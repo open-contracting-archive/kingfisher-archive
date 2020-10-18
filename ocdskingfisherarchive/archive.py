@@ -68,14 +68,14 @@ class Archive:
             return False
 
         # Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
-        if collection.scrapy_log_file and collection.scrapy_log_file.is_subset():
+        if collection.scrapy_log_file.is_subset():
             logger.info('Skipping %s because collection is a subset', collection.database_id)
             return False
 
         # If not finished, don't archive
         # (Note if loaded from Process database we check this there;
         #  but we may load from other places in the future so check again)
-        if collection.scrapy_log_file and not collection.scrapy_log_file.is_finished():
+        if not collection.scrapy_log_file.is_finished():
             logger.info('Skipping %s because Scrapy log file says it is not finished', collection.database_id)
             return False
 
@@ -90,7 +90,7 @@ class Archive:
 
             # If the local directory has more errors, leave it
             # (But we may not have an errors count for one of the things we are comparing)
-            if collection.scrapy_log_file and remote_metadata['errors_count'] is not None and \
+            if remote_metadata['errors_count'] is not None and \
                     collection.scrapy_log_file.errors_count > remote_metadata['errors_count']:
                 logger.info('Skipping %s because an archive exists for same period and fewer errors',
                             collection.database_id)
@@ -125,7 +125,7 @@ class Archive:
             # Clean: If the local directory has fewer or same errors, and greater or equal bytes,
             # replace the remote directory.
             # (But we may not have an errors count for one of the things we are comparing)
-            if collection.scrapy_log_file and remote_metadata['errors_count'] is not None and \
+            if remote_metadata['errors_count'] is not None and \
                     collection.scrapy_log_file.errors_count <= remote_metadata['errors_count'] and \
                     collection.local_directory_bytes >= remote_metadata['data_size']:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local collection '
@@ -161,7 +161,6 @@ class Archive:
         os.unlink(data_file_name)
         if os.path.isdir(collection.local_directory):
             shutil.rmtree(collection.local_directory)
-        if collection.scrapy_log_file:
-            collection.scrapy_log_file.delete()
+        collection.scrapy_log_file.delete()
 
         logger.info('Archived %s', collection.database_id)
