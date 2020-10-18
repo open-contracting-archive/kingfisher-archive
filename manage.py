@@ -43,7 +43,7 @@ def archive(bucket_name, data_directory, logs_directory, database_file, database
         with pidfile.PIDFile():
             Archive(bucket_name, data_directory, logs_directory, database_file, database_url).process(dry_run)
     except pidfile.AlreadyRunningError:
-        print('Already running.')
+        raise click.UsageError('Already running.')
 
 
 if __name__ == '__main__':
