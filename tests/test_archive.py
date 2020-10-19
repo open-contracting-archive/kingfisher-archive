@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import pytest
@@ -5,69 +6,115 @@ from botocore.exceptions import ClientError
 from botocore.stub import Stubber
 
 import ocdskingfisherarchive.s3
-from tests import archive, assert_log, collection, create_crawl_directory
+from tests import path
+from ocdskingfisherarchive.archive import Archive
+from ocdskingfisherarchive.collection import Collection
 
 # md5 tests/fixtures/data.json
 md5 = '815a9cd4ee14b875834cd019238a8705'
 size = 239
 
 
+def create_crawl_directory(tmpdir, data, log):
+    data_directory = tmpdir.mkdir('data')
+    spider_directory = data_directory.mkdir('scotland')
+
+    if data is not None:
+        crawl_directory = spider_directory.mkdir('20200902_052458')
+        for i, name in enumerate(data):
+            file = crawl_directory.join(f'{i}.json')
+            with open(path(name)) as f:
+                file.write(f.read())
+
+    logs_directory = tmpdir.mkdir('logs')
+    project_directory = logs_directory.mkdir('kingfisher')
+    spider_directory = project_directory.mkdir('scotland')
+
+    if log:
+        file = spider_directory.join('307e8331edc801c691e21690db130256.log')
+        with open(path(log)) as f:
+            file.write(f.read())
+
+
+def archive(tmpdir):
+    return Archive(
+        os.getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
+        tmpdir.join('data'),
+        tmpdir.join('logs', 'kingfisher'),
+        'db.sqlite3',
+        os.getenv('KINGFISHER_ARCHIVE_DATABASE_URL'),
+    )
+
+
+def collection(tmpdir):
+    return Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), tmpdir.join('data'),
+                      tmpdir.join('logs', 'kingfisher'))
+
+
+def assert_log(caplog, levelname, message):
+    assert len(caplog.records) == 1
+    assert caplog.records[0].name == 'ocdskingfisher.archive'
+    assert caplog.records[0].levelname == levelname, f'{caplog.records[0].levelname!r} == {levelname!r}'
+    assert caplog.records[0].message == message, f'{caplog.records[0].message!r} == {message!r}'
+
+
 @pytest.mark.parametrize('data_files, log_file, load_exact, load_latest, expected_return_value, message_log_message', [
     # No remote directory.
     (['data.json'], 'log_error1.log',
      None, (None, None, None),
-     True, 'Archiving 1 because no current or previous archives found'),
+     True, 'Archiving scotland/20200902_052458 because no current or previous archives found'),
     (['data.json'], 'log_sample1.log',
      None, (None, None, None),
-     False, 'Skipping 1 because collection is a subset'),
+     False, 'Skipping scotland/20200902_052458 because collection is a subset'),
     (None, 'log1.log',
      None, (None, None, None),
-     False, 'Skipping 1 because data files do not exist'),
+     False, 'Skipping scotland/20200902_052458 because data files do not exist'),
     (['data.json'], 'log_in_progress1.log',
      None, (None, None, None),
-     False, 'Skipping 1 because Scrapy log file says it is not finished'),
+     False, 'Skipping scotland/20200902_052458 because Scrapy log file says it is not finished'),
     (['data.json'], None,
      None, (None, None, None),
-     False, 'Skipping 1 because log file does not exist'),
+     False, 'Skipping scotland/20200902_052458 because log file does not exist'),
 
     # Same remote directory.
     (['data.json'], 'log_error1.log',
      {'data_md5': md5, 'data_size': size, 'errors_count': 1}, (None, None, None),
-     False, 'Skipping 1 because an archive exists for same period and same MD5'),
+     False, 'Skipping scotland/20200902_052458 because an archive exists for same period and same MD5'),
     (['data.json'], 'log_error1.log',
      {'data_md5': 'other', 'data_size': 1000000, 'errors_count': 1}, (None, None, None),
-     False, 'Skipping 1 because an archive exists for same period and same or larger size'),
+     False, 'Skipping scotland/20200902_052458 because an archive exists for same period and same or larger size'),
     (['data.json'], 'log_error1.log',
      {'data_md5': 'other', 'data_size': size, 'errors_count': 0}, (None, None, None),
-     False, 'Skipping 1 because an archive exists for same period and fewer errors'),
+     False, 'Skipping scotland/20200902_052458 because an archive exists for same period and fewer errors'),
     (['data.json'], 'log_error1.log',
      {'data_md5': 'other', 'data_size': size - 1, 'errors_count': 1}, (None, None, None),
-     True, 'Archiving 1 because an archive exists for same period and we can not find a good reason to not archive'),
+     True, 'Archiving scotland/20200902_052458 because an archive exists for same period and we can not find a good '
+           'reason to not archive'),
 
     # Earlier remote directory.
     (['data.json'], 'log_error1.log',
      None, ({'data_md5': md5, 'data_size': size, 'errors_count': 1}, 2020, 1),
-     False, 'Skipping 1 because an archive exists from earlier period (2020/1) and same MD5'),
+     False, 'Skipping scotland/20200902_052458 because an archive exists from earlier period (2020/1) and same MD5'),
     (['data.json'], 'log_error1.log',
      None, ({'data_md5': 'other', 'data_size': size - 1, 'errors_count': None}, 2020, 1),
-     False, 'Skipping 1 because an archive exists from earlier period (2020/1) and we can not find a good reason to '
-            'backup'),
+     False, 'Skipping scotland/20200902_052458 because an archive exists from earlier period (2020/1) and we can not '
+            'find a good reason to backup'),
     (['data.json'], 'log_error1.log',
      None, ({'data_md5': 'other', 'data_size': size - 1, 'errors_count': 1}, 2020, 9),
-     True, 'Archiving 1 because an archive exists from earlier period (2020/9) and local collection has fewer or '
-           'equal errors and greater or equal size'),
+     True, 'Archiving scotland/20200902_052458 because an archive exists from earlier period (2020/9) and local '
+           'collection has fewer or equal errors and greater or equal size'),
     (['data.json'], 'log_error1.log',
      None, ({'data_md5': 'other', 'data_size': 1, 'errors_count': 1}, 2020, 9),
-     True, 'Archiving 1 because an archive exists from earlier period (2020/9) and local collection has 50% more '
-           'size'),
+     True, 'Archiving scotland/20200902_052458 because an archive exists from earlier period (2020/9) and local '
+           'collection has 50% more size'),
     (['data.json'], 'log_error1.log',
      None, ({'data_md5': 'other', 'data_size': size, 'errors_count': 2}, 2020, 9),
-     True, 'Archiving 1 because an archive exists from earlier period (2020/9) and local collection has fewer or '
-           'equal errors and greater or equal size'),
+     True, 'Archiving scotland/20200902_052458 because an archive exists from earlier period (2020/9) and local '
+           'collection has fewer or equal errors and greater or equal size'),
     (['data.json'], 'log_error1.log',
      None, ({'data_md5': 'other', 'data_size': size + 1, 'errors_count': 2}, 2020, 9),
-     False, 'Skipping 1 because an archive exists from earlier period (2020/9) and we can not find a good reason to '
-            'backup'),
+     False, 'Skipping scotland/20200902_052458 because an archive exists from earlier period (2020/9) and we can not '
+            'find a good reason to backup'),
 ])
 def test_should_we_archive_collection(data_files, log_file, load_exact, load_latest, expected_return_value,
                                       message_log_message, tmpdir, caplog, monkeypatch):

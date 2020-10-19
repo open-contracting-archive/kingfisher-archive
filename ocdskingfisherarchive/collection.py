@@ -20,6 +20,9 @@ class Collection:
         self._data_md5 = None
         self._data_size = None
 
+    def __str__(self):
+        return os.path.join(self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
+
     @property
     def directory(self):
         return os.path.join(self.data_directory, self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
@@ -51,7 +54,6 @@ class Collection:
 
     def write_meta_data_file(self):
         data = {
-            'database_id': self.database_id,
             'data_md5': self.data_md5,
             'data_size': self.data_size,
             'errors_count': self.scrapy_log_file.errors_count,
