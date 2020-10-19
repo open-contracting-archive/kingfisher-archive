@@ -41,7 +41,7 @@ def archive(tmpdir):
         os.getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
         tmpdir.join('data'),
         tmpdir.join('logs', 'kingfisher'),
-        'db.sqlite3',
+        str(tmpdir.join('db.sqlite3')),
     )
 
 
@@ -169,6 +169,6 @@ def test_process_crawl(tmpdir, caplog, monkeypatch):
         for directory in dirs:
             directories.add(os.path.join(root_directory, directory))
 
-    assert not filenames
+    assert filenames == {'db.sqlite3'}
     assert directories == {'data', os.path.join('data', 'scotland'), 'logs', os.path.join('logs', 'kingfisher'),
                            os.path.join('logs', 'kingfisher', 'scotland')}
