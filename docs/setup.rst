@@ -23,7 +23,7 @@ On Ubuntu:
 
 .. code-block:: shell-session
 
-   apt-get install lz4
+   apt-get install liblz4-tool
 
 Amazon S3
 ---------
