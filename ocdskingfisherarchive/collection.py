@@ -49,9 +49,6 @@ class Collection:
                               for root, _, files in os.walk(self.directory) for file in files)
         return self._data_size
 
-    def get_data_files_exist(self):
-        return os.path.isdir(self.directory)
-
     def write_meta_data_file(self):
         data = {
             'database_id': self.database_id,

@@ -59,7 +59,7 @@ class Archive:
             self.database_archive.set_state_of_collection_id(collection.database_id, 'DO NOT ARCHIVE')
 
     def should_we_archive_collection(self, collection):
-        if not collection.get_data_files_exist():
+        if not os.path.isdir(collection.directory):
             logger.info('Skipping %s because data files do not exist', collection.database_id)
             return False
 
