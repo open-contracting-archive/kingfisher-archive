@@ -51,16 +51,6 @@ class ScrapyLogFile():
 
     # Logparser Processing
 
-    def _process_logparser(self):
-        """
-        Parses the log file with ``logparser``.
-        """
-        with open(self.name) as f:
-            text = f.read()
-
-        # `taillines=0` sets the 'tail' key to all lines, so we set it to 1.
-        self._logparser_data = parse(text, headlines=0, taillines=1)
-
     def match(self, data_version):
         """
         :returns: whether the crawl directory's name, parsed as a datetime, is less than 3 seconds after the log file's
@@ -83,7 +73,42 @@ class ScrapyLogFile():
 
         return self._logparser_data.get('finish_reason') == 'finished'
 
+    def _process_logparser(self):
+        """
+        Parses the log file with ``logparser``.
+        """
+        with open(self.name) as f:
+            text = f.read()
+
+        # `taillines=0` sets the 'tail' key to all lines, so we set it to 1.
+        self._logparser_data = parse(text, headlines=0, taillines=1)
+
     # Line By Line Processing
+
+    @property
+    def errors_count(self):
+        """
+        :returns: the number of retrieval errors, according to the log file
+        :rtype: int
+        """
+        if self._errors_count is None:
+            self._process_line_by_line()
+
+        return self._errors_count
+
+    def is_subset(self):
+        """
+        :returns: whether the crawl collected a subset of the dataset, according to the log file
+        :rtype: bool
+        """
+        if self._spider_arguments is None:
+            self._process_line_by_line()
+
+        return bool(
+            self._spider_arguments.get('sample') or
+            self._spider_arguments.get('from_date') or
+            self._spider_arguments.get('until_date')
+        )
 
     def _process_line_by_line(self):
         """
@@ -124,29 +149,3 @@ class ScrapyLogFile():
                         self._spider_arguments = ast.literal_eval(spider_arguments_data)
                     except ValueError:
                         pass
-
-    @property
-    def errors_count(self):
-        """
-        :returns: the number of retrieval errors, according to the log file
-        :rtype: int
-        """
-        if self._errors_count is None:
-            self._process_line_by_line()
-
-        return self._errors_count
-
-    def is_subset(self):
-        """
-        :returns: whether the crawl collected a subset of the dataset, according to the log file
-        :rtype: bool
-        """
-        if self._spider_arguments is None:
-            self._process_line_by_line()
-
-        # Older spider log files may not have this data, so make sure it can deal with that case.
-        return bool(
-            self._spider_arguments.get('sample') or
-            self._spider_arguments.get('from_date') or
-            self._spider_arguments.get('until_date')
-        )
