@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import json
 import os
@@ -11,20 +12,20 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 class Crawl:
     def __init__(self, source_id, data_version, data_directory='', logs_directory=''):
         self.source_id = source_id
-        self.data_version = data_version
+        self.data_version = datetime.datetime.strptime(data_version, '%Y%m%d_%H%M%S')
         self.data_directory = data_directory
 
-        self.scrapy_log_file = ScrapyLogFile.find(logs_directory, source_id, data_version)
+        self.scrapy_log_file = ScrapyLogFile.find(logs_directory, self.source_id, self.data_version)
 
         self._data_md5 = None
         self._data_size = None
 
     def __str__(self):
-        return os.path.join(self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
+        return os.path.join(self.source_id, self.data_version.strftime('%Y%m%d_%H%M%S'))
 
     @property
     def directory(self):
-        return os.path.join(self.data_directory, self.source_id, self.data_version.strftime("%Y%m%d_%H%M%S"))
+        return os.path.join(self.data_directory, self.source_id, self.data_version.strftime('%Y%m%d_%H%M%S'))
 
     @property
     def data_md5(self):

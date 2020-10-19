@@ -2,9 +2,6 @@ import logging
 import os
 import shutil
 
-import dj_database_url
-import psycopg2
-
 from ocdskingfisherarchive.crawl import Crawl
 from ocdskingfisherarchive.database_archive import DataBaseArchive
 from ocdskingfisherarchive.s3 import S3
@@ -13,30 +10,22 @@ logger = logging.getLogger('ocdskingfisher.archive')
 
 
 class Archive:
-    def __init__(self, bucket_name, data_directory, logs_directory, database_file, database_url):
+    def __init__(self, bucket_name, data_directory, logs_directory, database_file):
         self.s3 = S3(bucket_name)
         self.data_directory = data_directory
         self.logs_directory = logs_directory
         self.database_archive = DataBaseArchive(database_file)
-        self.database_url = database_url
 
     def process(self, dry_run=False):
-        crawls = self.get_crawls_to_consider_archiving()
-        for crawl in crawls:
+        for crawl in self.get_crawls_to_consider_archiving():
             self.process_crawl(crawl, dry_run)
 
     def get_crawls_to_consider_archiving(self):
-        connection = psycopg2.connect(dj_database_url.parse(self.database_url))
-        cursor = connection.cursor()
-
-        sql = "SELECT id, source_id, data_version  FROM collection " \
-              "WHERE sample IS FALSE AND store_end_at IS NOT NULL AND transform_type = '' AND deleted_at IS NULL " \
-              "ORDER BY id ASC"
-        collections = []
-        cursor.execute(sql)
-        for row in cursor.fetchall():
-            collections.append(Collection(row[0], row[1], row[2], self.data_directory, self.logs_directory))
-        return collections
+        for source_id in os.listdir(self.data_directory):
+            spider_directory = os.path.join(self.data_directory, source_id)
+            if os.path.isdir(spider_directory):
+                for data_version in os.listdir(spider_directory):
+                    yield Crawl(source_id, data_version, self.data_directory, self.logs_directory)
 
     def process_crawl(self, crawl, dry_run=False):
         # Check local database

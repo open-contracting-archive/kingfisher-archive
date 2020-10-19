@@ -3,7 +3,6 @@ Setup
 
 As presently written, the script needs to be run by a user that has:
 
--  Access to the ``collection`` table managed by Kingfisher Process
 -  Permission to read and delete the data and log files written by Kingfisher Collect
 -  Read & Write access to a S3 bucket to hold the archives
 
@@ -92,8 +91,6 @@ KINGFISHER_ARCHIVE_LOGS_DIRECTORY
   Kingfisher Collect's project directory within Scrapyd's logs_dir directory, e.g. ``scrapyd/logs/kingfisher``
 KINGFISHER_ARCHIVE_DATABASE_FILE
   The SQLite database for caching the local state (defaults to db.sqlite3)
-KINGFISHER_ARCHIVE_DATABASE_URL
-  Kingfisher Process' database URL
 SENTRY_DSN
   Sentry.io's Data Source Name (DSN) (optional)
 AWS_ACCESS_KEY_ID
@@ -109,7 +106,6 @@ The ``.env`` file would look like:
    KINGFISHER_ARCHIVE_DATA_DIRECTORY=scrapyd/data
    KINGFISHER_ARCHIVE_LOGS_DIRECTORY=scrapyd/logs/kingfisher
    KINGFISHER_ARCHIVE_DATABASE_FILE=/home/my-user/db.sqlite3
-   KINGFISHER_ARCHIVE_DATABASE_URL=postgresql:///my-database
    SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
    AWS_ACCESS_KEY_ID=xxx
    AWS_SECRET_ACCESS_KEY=xxx

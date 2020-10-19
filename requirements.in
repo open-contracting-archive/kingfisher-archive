@@ -1,8 +1,6 @@
 boto3
 click
-dj-database-url
 logparser
-psycopg2
 python-dotenv
 python-pidfile
 sentry-sdk

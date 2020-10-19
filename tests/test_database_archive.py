@@ -1,4 +1,3 @@
-import datetime
 import os
 import random
 import tempfile
@@ -14,7 +13,7 @@ def test_get_and_set():
                                      f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
 
     database_archive = DataBaseArchive(database_file)
-    crawl = Crawl('scotland', datetime.datetime(2020, 9, 2, 5, 24, 58))
+    crawl = Crawl('scotland', '20200902_052458')
 
     # get something that doesn't exist
     assert database_archive.get_state_of_crawl(crawl) == 'UNKNOWN'

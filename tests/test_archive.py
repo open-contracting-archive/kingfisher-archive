@@ -42,12 +42,11 @@ def archive(tmpdir):
         tmpdir.join('data'),
         tmpdir.join('logs', 'kingfisher'),
         'db.sqlite3',
-        os.getenv('KINGFISHER_ARCHIVE_DATABASE_URL'),
     )
 
 
 def crawl(tmpdir):
-    return Crawl('scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), tmpdir.join('data'),
+    return Crawl('scotland', '20200902_052458', tmpdir.join('data'),
                  tmpdir.join('logs', 'kingfisher'))
 
 
@@ -128,6 +127,17 @@ def test_should_we_archive_crawl(data_files, log_file, load_exact, load_latest, 
     assert actual_return_value is expected_return_value
 
 
+def test_get_crawls_to_consider_archiving(tmpdir, caplog, monkeypatch):
+    create_crawl_directory(tmpdir, ['data.json'], 'log_error1.log')
+
+    crawls = list(archive(tmpdir).get_crawls_to_consider_archiving())
+
+    assert len(crawls) == 1
+    assert crawls[0].source_id == 'scotland'
+    assert crawls[0].data_version == datetime.datetime(2020, 9, 2, 5, 24, 58)
+    assert crawls[0].data_directory == tmpdir.join('data')
+
+
 def test_process_crawl(tmpdir, caplog, monkeypatch):
     def download_fileobj(*args, **kwargs):
         raise ClientError(error_response={'Error': {'Code': '404'}}, operation_name='')
@@ -146,7 +156,7 @@ def test_process_crawl(tmpdir, caplog, monkeypatch):
     monkeypatch.setattr(stubber, 'list_objects_v2', list_objects_v2, raising=False)
     stubber.activate()
 
-    archive(tmpdir).process_crawl(crawl(tmpdir))
+    archive(tmpdir).process()
 
     stubber.assert_no_pending_responses()
 

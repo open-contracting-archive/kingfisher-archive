@@ -31,17 +31,15 @@ def cli():
               help="Kingfisher Collect's project directory within Scrapyd's logs_dir directory")
 @click.option('--database-file', default='db.sqlite3',
               help='The SQLite database for caching the local state (defaults to db.sqlite3)')
-@click.option('--database-url',
-              help="Kingfisher Process' database URL")
 @click.option('-n', '--dry-run', is_flag=True,
               help="Don't archive any files, just show whether they would be")
-def archive(bucket_name, data_directory, logs_directory, database_file, database_url, dry_run):
+def archive(bucket_name, data_directory, logs_directory, database_file, dry_run):
     """
     Archives data and log files written by Kingfisher Collect to Amazon S3.
     """
     try:
         with pidfile.PIDFile():
-            Archive(bucket_name, data_directory, logs_directory, database_file, database_url).process(dry_run)
+            Archive(bucket_name, data_directory, logs_directory, database_file).process(dry_run)
     except pidfile.AlreadyRunningError:
         raise click.UsageError('Already running.')
 
