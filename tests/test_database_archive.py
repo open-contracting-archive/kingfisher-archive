@@ -3,7 +3,7 @@ import random
 import tempfile
 
 from ocdskingfisherarchive.crawl import Crawl
-from ocdskingfisherarchive.database_archive import DataBaseArchive
+from ocdskingfisherarchive.database import Database
 
 
 def test_get_and_set():
@@ -12,22 +12,22 @@ def test_get_and_set():
         database_file = os.path.join(tempfile.gettempdir(),
                                      f'ocdskingfisherarchive{random.randint(0, 100000000)}.sqlite')
 
-    database_archive = DataBaseArchive(database_file)
+    database = Database(database_file)
     crawl = Crawl('scotland', '20200902_052458')
 
     # get something that doesn't exist
-    assert database_archive.get_state_of_crawl(crawl) == 'UNKNOWN'
+    assert database.get_state(crawl) == 'UNKNOWN'
 
     # Set
-    database_archive.set_state_of_crawl(crawl, 'CATS')
-    assert database_archive.get_state_of_crawl(crawl) == 'CATS'
+    database.set_state(crawl, 'CATS')
+    assert database.get_state(crawl) == 'CATS'
 
     # Get
-    assert database_archive.get_state_of_crawl(crawl) == 'CATS'
+    assert database.get_state(crawl) == 'CATS'
 
     # Set again (to make sure replace works)
-    database_archive.set_state_of_crawl(crawl, 'DOGS')
-    assert database_archive.get_state_of_crawl(crawl) == 'DOGS'
+    database.set_state(crawl, 'DOGS')
+    assert database.get_state(crawl) == 'DOGS'
 
     # Get
-    assert database_archive.get_state_of_crawl(crawl) == 'DOGS'
+    assert database.get_state(crawl) == 'DOGS'

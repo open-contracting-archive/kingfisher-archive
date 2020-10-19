@@ -3,7 +3,7 @@ import os
 import shutil
 
 from ocdskingfisherarchive.crawl import Crawl
-from ocdskingfisherarchive.database_archive import DataBaseArchive
+from ocdskingfisherarchive.database import Database
 from ocdskingfisherarchive.s3 import S3
 
 logger = logging.getLogger('ocdskingfisher.archive')
@@ -14,7 +14,7 @@ class Archive:
         self.s3 = S3(bucket_name)
         self.data_directory = data_directory
         self.logs_directory = logs_directory
-        self.database_archive = DataBaseArchive(database_file)
+        self.database = Database(database_file)
 
     def process(self, dry_run=False):
         for crawl in self.get_crawls_to_consider_archiving():
@@ -29,7 +29,7 @@ class Archive:
 
     def process_crawl(self, crawl, dry_run=False):
         # Check local database
-        current_state = self.database_archive.get_state_of_crawl(crawl)
+        current_state = self.database.get_state(crawl)
         if current_state != 'UNKNOWN':
             logger.info('Ignoring %s; Local state is %s', crawl, current_state)
             return
@@ -43,9 +43,9 @@ class Archive:
             print("Crawl %s result: %s", crawl, "Archive" if should_archive else "Skip")
         elif should_archive:
             self.archive_crawl(crawl)
-            self.database_archive.set_state_of_crawl(crawl, 'ARCHIVED')
+            self.database.set_state(crawl, 'ARCHIVED')
         else:
-            self.database_archive.set_state_of_crawl(crawl, 'DO NOT ARCHIVE')
+            self.database.set_state(crawl, 'DO NOT ARCHIVE')
 
     def should_we_archive_crawl(self, crawl):
         if not os.path.isdir(crawl.directory):
