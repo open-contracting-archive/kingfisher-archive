@@ -16,10 +16,7 @@ load_dotenv()
 
 @click.group()
 def cli():
-    logging_config_file_full_path = os.path.expanduser('~/.config/ocdskingfisher-archive/logging.json')
-    if os.path.isfile(logging_config_file_full_path):
-        with open(logging_config_file_full_path) as f:
-            logging.config.dictConfig(json.load(f))
+    pass
 
 
 @cli.command()
@@ -31,12 +28,18 @@ def cli():
               help="Kingfisher Collect's project directory within Scrapyd's logs_dir directory")
 @click.option('--database-file', default='db.sqlite3',
               help='The SQLite database for caching the local state (defaults to db.sqlite3)')
+@click.option('--logging-config-file',
+              help="A JSON file following Python's logging configuration dictionary schema")
 @click.option('-n', '--dry-run', is_flag=True,
               help="Don't archive any files, just show whether they would be")
-def archive(bucket_name, data_directory, logs_directory, database_file, dry_run):
+def archive(bucket_name, data_directory, logs_directory, database_file, logging_config_file, dry_run):
     """
     Archives data and log files written by Kingfisher Collect to Amazon S3.
     """
+    if logging_config_file:
+        with open(logging_config_file) as f:
+            logging.config.dictConfig(json.load(f))
+
     try:
         with pidfile.PIDFile():
             Archive(bucket_name, data_directory, logs_directory, database_file).process(dry_run)

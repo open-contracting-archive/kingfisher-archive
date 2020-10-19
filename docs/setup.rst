@@ -91,6 +91,8 @@ KINGFISHER_ARCHIVE_LOGS_DIRECTORY
   Kingfisher Collect's project directory within Scrapyd's logs_dir directory, e.g. ``scrapyd/logs/kingfisher``
 KINGFISHER_ARCHIVE_DATABASE_FILE
   The SQLite database for caching the local state (defaults to db.sqlite3)
+KINGFISHER_ARCHIVE_LOGGING_CONFIG_FILE
+  A JSON file following `Python's logging configuration dictionary schema <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`__
 SENTRY_DSN
   Sentry.io's Data Source Name (DSN) (optional)
 AWS_ACCESS_KEY_ID
@@ -111,20 +113,3 @@ The ``.env`` file would look like:
    AWS_SECRET_ACCESS_KEY=xxx
 
 Alternatively, you can set the AWS credentials in a `~/.aws/config file <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html>`__.
-
-Logging (optional)
-~~~~~~~~~~~~~~~~~~
-
-Logging is configured using `Python's logging configuration dictionary schema <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`__ at ``~/.config/ocdskingfisher-archive/logging.json``.
-
-To download the default configuration:
-
-.. code-block:: shell-session
-
-   curl https://raw.githubusercontent.com/open-contracting/kingfisher-archive/master/samples/logging.json -o ~/.config/ocdskingfisher-archive/logging.json
-
-To download a different configuration that includes debug messages:
-
-.. code-block:: shell-session
-
-   curl https://raw.githubusercontent.com/open-contracting/kingfisher-archive/master/samples/logging-debug.json -o ~/.config/ocdskingfisher-archive/logging.json
