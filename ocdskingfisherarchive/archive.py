@@ -28,7 +28,6 @@ class Archive:
                     yield Crawl(source_id, data_version, self.data_directory, self.logs_directory)
 
     def process_crawl(self, crawl, dry_run=False):
-        # Check local database
         current_state = self.database.get_state(crawl)
         if current_state != 'UNKNOWN':
             logger.info('Ignoring %s; Local state is %s', crawl, current_state)
@@ -36,7 +35,6 @@ class Archive:
 
         # TODO If not archiving, still delete local files after 90 days
 
-        # Work out what to do, archive if we should
         should_archive = self.should_we_archive_crawl(crawl)
         if dry_run:
             logger.info("Crawl %s result: %s", crawl, "Archive" if should_archive else "Skip")
@@ -132,19 +130,15 @@ class Archive:
 
         remote_directory = f'{crawl.source_id}/{crawl.data_version.year}/{crawl.data_version.month:02d}'
 
-        # Upload to staging
         self.s3.upload_file_to_staging(meta_file_name, f'{remote_directory}/metadata.json')
         self.s3.upload_file_to_staging(data_file_name, f'{remote_directory}/data.tar.lz4')
 
-        # Move files in S3
         self.s3.move_file_from_staging_to_real(f'{remote_directory}/metadata.json')
         self.s3.move_file_from_staging_to_real(f'{remote_directory}/data.tar.lz4')
 
-        # Delete staging files in S3
         self.s3.remove_staging_file(f'{remote_directory}/metadata.json')
         self.s3.remove_staging_file(f'{remote_directory}/data.tar.lz4')
 
-        # Cleanup
         os.unlink(meta_file_name)
         os.unlink(data_file_name)
         shutil.rmtree(crawl.directory)

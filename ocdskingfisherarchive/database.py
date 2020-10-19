@@ -2,8 +2,8 @@ import sqlite3
 
 
 class Database:
-    def __init__(self, database):
-        self.conn = sqlite3.connect(database)
+    def __init__(self, filename):
+        self.conn = sqlite3.connect(filename)
         self.cursor = self.conn.cursor()
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='crawl'")
