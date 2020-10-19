@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import os
 
 import pytest
@@ -8,10 +9,12 @@ from botocore.stub import Stubber
 import ocdskingfisherarchive.s3
 from ocdskingfisherarchive.crawl import Crawl
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
-from tests import create_crawl_directory
+from tests import create_crawl_directory, path
 
-# md5 tests/fixtures/data.json
-md5 = '815a9cd4ee14b875834cd019238a8705'
+checksum = hashlib.blake2b()
+with open(path('data.json'), 'rb') as f:
+    checksum.update(f.read())
+checksum = checksum.hexdigest()
 size = 239
 
 
@@ -49,41 +52,42 @@ def assert_log(caplog, levelname, message):
 
     # Same remote directory.
     (['data.json'], 'log_error1.log',
-     {'data_md5': md5, 'data_size': size, 'errors_count': 1}, (None, None, None),
-     False, 'Skipping scotland/20200902_052458 because an archive exists for same period and same MD5'),
+     {'checksum': checksum, 'bytes': size, 'errors_count': 1}, (None, None, None),
+     False, 'Skipping scotland/20200902_052458 because an archive exists for same period and same checksum'),
     (['data.json'], 'log_error1.log',
-     {'data_md5': 'other', 'data_size': 1000000, 'errors_count': 1}, (None, None, None),
+     {'checksum': 'other', 'bytes': 1000000, 'errors_count': 1}, (None, None, None),
      False, 'Skipping scotland/20200902_052458 because an archive exists for same period and same or larger size'),
     (['data.json'], 'log_error1.log',
-     {'data_md5': 'other', 'data_size': size, 'errors_count': 0}, (None, None, None),
+     {'checksum': 'other', 'bytes': size, 'errors_count': 0}, (None, None, None),
      False, 'Skipping scotland/20200902_052458 because an archive exists for same period and fewer errors'),
     (['data.json'], 'log_error1.log',
-     {'data_md5': 'other', 'data_size': size - 1, 'errors_count': 1}, (None, None, None),
+     {'checksum': 'other', 'bytes': size - 1, 'errors_count': 1}, (None, None, None),
      True, 'Archiving scotland/20200902_052458 because an archive exists for same period and we can not find a good '
            'reason to not archive'),
 
     # Earlier remote directory.
     (['data.json'], 'log_error1.log',
-     None, ({'data_md5': md5, 'data_size': size, 'errors_count': 1}, 2020, 1),
-     False, 'Skipping scotland/20200902_052458 because an archive exists from earlier period (2020/1) and same MD5'),
+     None, ({'checksum': checksum, 'bytes': size, 'errors_count': 1}, 2020, 1),
+     False, 'Skipping scotland/20200902_052458 because an archive exists from earlier period (2020/1) and same '
+            'checksum'),
     (['data.json'], 'log_error1.log',
-     None, ({'data_md5': 'other', 'data_size': size - 1, 'errors_count': None}, 2020, 1),
+     None, ({'checksum': 'other', 'bytes': size - 1, 'errors_count': None}, 2020, 1),
      False, 'Skipping scotland/20200902_052458 because an archive exists from earlier period (2020/1) and we can not '
             'find a good reason to backup'),
     (['data.json'], 'log_error1.log',
-     None, ({'data_md5': 'other', 'data_size': size - 1, 'errors_count': 1}, 2020, 9),
+     None, ({'checksum': 'other', 'bytes': size - 1, 'errors_count': 1}, 2020, 9),
      True, 'Archiving scotland/20200902_052458 because an archive exists from earlier period (2020/9) and local '
            'crawl has fewer or equal errors and greater or equal size'),
     (['data.json'], 'log_error1.log',
-     None, ({'data_md5': 'other', 'data_size': 1, 'errors_count': 1}, 2020, 9),
+     None, ({'checksum': 'other', 'bytes': 1, 'errors_count': 1}, 2020, 9),
      True, 'Archiving scotland/20200902_052458 because an archive exists from earlier period (2020/9) and local '
            'crawl has 50% more size'),
     (['data.json'], 'log_error1.log',
-     None, ({'data_md5': 'other', 'data_size': size, 'errors_count': 2}, 2020, 9),
+     None, ({'checksum': 'other', 'bytes': size, 'errors_count': 2}, 2020, 9),
      True, 'Archiving scotland/20200902_052458 because an archive exists from earlier period (2020/9) and local '
            'crawl has fewer or equal errors and greater or equal size'),
     (['data.json'], 'log_error1.log',
-     None, ({'data_md5': 'other', 'data_size': size + 1, 'errors_count': 2}, 2020, 9),
+     None, ({'checksum': 'other', 'bytes': size + 1, 'errors_count': 2}, 2020, 9),
      False, 'Skipping scotland/20200902_052458 because an archive exists from earlier period (2020/9) and we can not '
             'find a good reason to backup'),
 ])

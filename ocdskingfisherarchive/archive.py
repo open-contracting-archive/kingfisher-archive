@@ -63,8 +63,8 @@ class Archive:
         remote_metadata = self.s3.load_exact(crawl.source_id, crawl.data_version)
         if remote_metadata:
             # If checksums identical, leave it
-            if remote_metadata['data_md5'] == crawl.data_md5:
-                logger.info('Skipping %s because an archive exists for same period and same MD5', crawl)
+            if remote_metadata['checksum'] == crawl.checksum:
+                logger.info('Skipping %s because an archive exists for same period and same checksum', crawl)
                 return False
 
             # If the local directory has more errors, leave it
@@ -75,7 +75,7 @@ class Archive:
                 return False
 
             # If the local directory has equal or fewer bytes, leave it
-            if crawl.data_size <= remote_metadata['data_size']:
+            if crawl.bytes <= remote_metadata['bytes']:
                 logger.info('Skipping %s because an archive exists for same period and same or larger size', crawl)
                 return False
 
@@ -88,13 +88,13 @@ class Archive:
         remote_metadata, year, month = self.s3.load_latest(crawl.source_id, crawl.data_version)
         if remote_metadata:
             # If checksums identical, leave it
-            if remote_metadata['data_md5'] == crawl.data_md5:
-                logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and same MD5',
+            if remote_metadata['checksum'] == crawl.checksum:
+                logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and same checksum',
                             crawl, year, month)
                 return False
 
             # Complete: If the local directory has 50% more bytes, replace the remote directory.
-            if crawl.data_size >= remote_metadata['data_size'] * 1.5:
+            if crawl.bytes >= remote_metadata['bytes'] * 1.5:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local crawl has '
                             '50%% more size', crawl, year, month)
                 return True
@@ -104,7 +104,7 @@ class Archive:
             # (But we may not have an errors count for one of the things we are comparing)
             if remote_metadata['errors_count'] is not None and \
                     crawl.scrapy_log_file.errors_count <= remote_metadata['errors_count'] and \
-                    crawl.data_size >= remote_metadata['data_size']:
+                    crawl.bytes >= remote_metadata['bytes']:
                 logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local crawl '
                             'has fewer or equal errors and greater or equal size', crawl, year, month)
                 return True

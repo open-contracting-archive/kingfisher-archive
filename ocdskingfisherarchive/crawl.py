@@ -12,6 +12,12 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 class Crawl:
     @classmethod
     def all(cls, data_directory, logs_directory):
+        """
+        Yields a :class:`~ocdskingfisherarchive.crawl.Crawl` instance for each crawl directory.
+
+        :param str data_directory: Kingfisher Collect's FILES_STORE directory
+        :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
+        """
         for source_id in os.listdir(data_directory):
             spider_directory = os.path.join(data_directory, source_id)
             if os.path.isdir(spider_directory):
@@ -23,6 +29,11 @@ class Crawl:
 
     @staticmethod
     def parse_data_version(directory):
+        """
+        :param str directory: a directory name in the format "YYMMDD_HHMMSS"
+        :returns: a datetime if the format is correct, otherwise ``None``
+        :rtype: datatime.datetime
+        """
         try:
             return datetime.datetime.strptime(directory, '%Y%m%d_%H%M%S')
         except ValueError:
@@ -34,45 +45,67 @@ class Crawl:
         self.data_version = data_version
         self.scrapy_log_file = scrapy_log_file
 
-        self._data_md5 = None
-        self._data_size = None
+        self._checksum = None
+        self._bytes = None
 
     def __str__(self):
+        """
+        :returns: the path to the crawl directory relative to the data directory
+        :rtype: str
+        """
         return os.path.join(self.source_id, self.data_version.strftime('%Y%m%d_%H%M%S'))
 
     @property
     def directory(self):
+        """
+        :returns: the full path to the crawl directory
+        :rtype: str
+        """
         return os.path.join(self.data_directory, self.source_id, self.data_version.strftime('%Y%m%d_%H%M%S'))
 
     @property
-    def data_md5(self):
-        if self._data_md5 is not None:
-            return self._data_md5
+    def checksum(self):
+        """
+        Returns the checksum of all data in the crawl directory.
 
-        md5sum = hashlib.md5()
+        To ensure a consistent checksum for a given directory, it processes sub-directories and files in alphabetical
+        order. It uses the BLAKE2 cryptographic hash function and reads files in chunks to limit use of memory.
+
+        :returns: the checksum of all data in the crawl directory
+        :rtype: str
+        """
+        if self._checksum is not None:
+            return self._checksum
+
+        h = hashlib.blake2b()
         for root, dirs, files in os.walk(self.directory):
             dirs.sort()
             for file in sorted(files):
                 with open(os.path.join(root, file), 'rb') as f:
                     for chunk in iter(partial(f.read, 8192), b''):
-                        md5sum.update(chunk)
+                        h.update(chunk)
+        self._checksum = h.hexdigest()
 
-        self._data_md5 = md5sum.hexdigest()
-        return self._data_md5
+        return self._checksum
 
     @property
-    def data_size(self):
-        if self._data_size is not None:
-            return self._data_size
+    def bytes(self):
+        """
+        :returns: the total size in bytes of all files in the crawl directory
+        :rtype: int
+        """
+        if self._bytes is not None:
+            return self._bytes
 
-        self._data_size = sum(os.path.getsize(os.path.join(root, file))
-                              for root, _, files in os.walk(self.directory) for file in files)
-        return self._data_size
+        self._bytes = sum(os.path.getsize(os.path.join(root, file))
+                          for root, _, files in os.walk(self.directory) for file in files)
+
+        return self._bytes
 
     def write_meta_data_file(self):
         data = {
-            'data_md5': self.data_md5,
-            'data_size': self.data_size,
+            'checksum': self.checksum,
+            'bytes': self.bytes,
             'errors_count': self.scrapy_log_file.errors_count,
         }
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
