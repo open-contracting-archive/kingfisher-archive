@@ -18,15 +18,15 @@ def cli():
 
 
 @cli.command()
-@click.option('-b', '--bucket-name',
+@click.option('-b', '--bucket-name', envvar='KINGFISHER_ARCHIVE_BUCKET_NAME',
               help='The Amazon S3 bucket name')
-@click.option('--data-directory',
+@click.option('--data-directory', envvar='KINGFISHER_ARCHIVE_DATA_DIRECTORY',
               help="Kingfisher Collect's FILES_STORE directory")
-@click.option('--logs-directory',
+@click.option('--logs-directory', envvar='KINGFISHER_ARCHIVE_LOGS_DIRECTORY',
               help="Kingfisher Collect's project directory within Scrapyd's logs_dir directory")
-@click.option('--database-file', default='db.sqlite3',
+@click.option('--database-file', default='db.sqlite3', envvar='KINGFISHER_ARCHIVE_DATABASE_FILE',
               help='The SQLite database for caching the local state (defaults to db.sqlite3)')
-@click.option('--logging-config-file',
+@click.option('--logging-config-file', envvar='KINGFISHER_ARCHIVE_LOGGING_CONFIG_FILE',
               help="A JSON file following Python's logging configuration dictionary schema")
 @click.option('-n', '--dry-run', is_flag=True,
               help="Don't archive any files, just show whether they would be")
@@ -57,4 +57,4 @@ def archive(bucket_name, data_directory, logs_directory, database_file, logging_
 if __name__ == '__main__':
     if 'SENTRY_DSN' in os.environ:
         sentry_sdk.init(dsn=os.getenv('SENTRY_DSN'))
-    cli(auto_envvar_prefix='KINGFISHER')
+    cli()
