@@ -40,7 +40,7 @@ class Archive:
 
     def process_collection(self, collection, dry_run=False):
         # Check local database
-        current_state = self.database_archive.get_state_of_collection_id(collection.database_id)
+        current_state = self.database_archive.get_state_of_crawl(collection)
         if current_state != 'UNKNOWN':
             logger.info('Ignoring %s; Local state is %s', collection, current_state)
             return
@@ -54,9 +54,9 @@ class Archive:
             print("Collection %s result: %s", collection, "Archive" if should_archive else "Skip")
         elif should_archive:
             self.archive_collection(collection)
-            self.database_archive.set_state_of_collection_id(collection.database_id, 'ARCHIVED')
+            self.database_archive.set_state_of_crawl(collection, 'ARCHIVED')
         else:
-            self.database_archive.set_state_of_collection_id(collection.database_id, 'DO NOT ARCHIVE')
+            self.database_archive.set_state_of_crawl(collection, 'DO NOT ARCHIVE')
 
     def should_we_archive_collection(self, collection):
         if not os.path.isdir(collection.directory):

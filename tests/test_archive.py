@@ -47,7 +47,7 @@ def archive(tmpdir):
 
 
 def collection(tmpdir):
-    return Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), tmpdir.join('data'),
+    return Collection('scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), tmpdir.join('data'),
                       tmpdir.join('logs', 'kingfisher'))
 
 

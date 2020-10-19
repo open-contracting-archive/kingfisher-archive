@@ -9,8 +9,7 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 
 class Collection:
-    def __init__(self, database_id, source_id, data_version, data_directory='', logs_directory=''):
-        self.database_id = database_id
+    def __init__(self, source_id, data_version, data_directory='', logs_directory=''):
         self.source_id = source_id
         self.data_version = data_version
         self.data_directory = data_directory
