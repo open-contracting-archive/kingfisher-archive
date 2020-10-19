@@ -8,7 +8,7 @@ from functools import partial
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 
-class Collection:
+class Crawl:
     def __init__(self, source_id, data_version, data_directory='', logs_directory=''):
         self.source_id = source_id
         self.data_version = data_version
