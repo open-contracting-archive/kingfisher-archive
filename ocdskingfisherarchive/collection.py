@@ -1,7 +1,9 @@
+import hashlib
 import json
 import os
 import subprocess
 import tempfile
+from functools import partial
 
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
@@ -27,12 +29,15 @@ class Collection:
         if self._data_md5 is not None:
             return self._data_md5
 
-        cmd = 'find ' + self.directory + \
-              ' -type f -exec md5sum {} + | awk \'{print $1}\' | sort | md5sum | awk \'{print $1}\''
+        md5sum = hashlib.md5()
+        for root, dirs, files in os.walk(self.directory):
+            dirs.sort()
+            for file in sorted(files):
+                with open(os.path.join(root, file), 'rb') as f:
+                    for chunk in iter(partial(f.read, 8192), b''):
+                        md5sum.update(chunk)
 
-        output = subprocess.check_output(cmd, universal_newlines=True, shell=True)
-
-        self._data_md5 = output.strip()
+        self._data_md5 = md5sum.hexdigest()
         return self._data_md5
 
     @property
@@ -40,9 +45,8 @@ class Collection:
         if self._data_size is not None:
             return self._data_size
 
-        output = subprocess.check_output(['du', '-sb', self.directory], universal_newlines=True)
-
-        self._data_size = int(output.split('\t')[0])
+        self._data_size = sum(os.path.getsize(os.path.join(root, file))
+                              for root, _, files in os.walk(self.directory) for file in files)
         return self._data_size
 
     def get_data_files_exist(self):
