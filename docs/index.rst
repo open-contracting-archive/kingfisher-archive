@@ -7,3 +7,4 @@ Kingfisher Archive
 
    setup
    use
+   formats
