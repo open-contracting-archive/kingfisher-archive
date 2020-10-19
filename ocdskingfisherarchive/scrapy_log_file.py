@@ -4,6 +4,9 @@ import os
 
 from logparser import parse
 
+# Kingfisher Collect logs an INFO message starting with "Spider arguments:".
+SPIDER_ARGUMENTS_SEARCH_STRING = ' INFO: Spider arguments: '
+
 
 class ScrapyLogFile():
     """
@@ -49,7 +52,7 @@ class ScrapyLogFile():
         if os.path.isfile(summary):
             os.remove(summary)
 
-    # Logparser Processing
+    # Logparser processing
 
     def match(self, data_version):
         """
@@ -83,7 +86,7 @@ class ScrapyLogFile():
         # `taillines=0` sets the 'tail' key to all lines, so we set it to 1.
         self._logparser_data = parse(text, headlines=0, taillines=1)
 
-    # Line By Line Processing
+    # Line-by-line processing
 
     @property
     def errors_count(self):
@@ -104,6 +107,7 @@ class ScrapyLogFile():
         if self._spider_arguments is None:
             self._process_line_by_line()
 
+        # See https://github.com/open-contracting/kingfisher-collect/issues/506
         return bool(
             self._spider_arguments.get('sample') or
             self._spider_arguments.get('from_date') or
@@ -111,41 +115,29 @@ class ScrapyLogFile():
         )
 
     def _process_line_by_line(self):
-        """
-        Process log file line by line. Look for and cache in object variables: error count and spider arguments.
-        """
         self._errors_count = 0
         self._spider_arguments = {}
-        spider_arguments_search_string = '] INFO: Spider arguments: '
-        data_block_content_string = ''
+
+        buf = []
         with open(self.name) as f:
-            while True:
-                line = f.readline()
-                if not line:
-                    break
-                # Looking for data blocks
-                if data_block_content_string or line.startswith('{'):
-                    data_block_content_string += line.strip()
-                if data_block_content_string and line.strip().endswith('}'):
-                    # Use of eval would parse the final block of "Dumping Scrapy stats" but
-                    # A) ast.literal_eval is safer
-                    # B) that is available in self.log_data / crawler_stats anyway
-                    # but does mean we need to ignore ValueError for when it crashes on that final block
+            for line in f:
+                if buf or line.startswith('{'):
+                    buf.append(line.rstrip())
+                if buf and buf[-1].endswith('}'):
                     try:
-                        data_block_content = ast.literal_eval(data_block_content_string)
-                        if 'errors' in data_block_content:
+                        # Scrapy logs items as dicts. FileError items, representing retrieval errors, are identified by
+                        # an 'errors' key. FileError items use only simple types, so `ast.literal_eval` can be used.
+                        item = ast.literal_eval(''.join(buf))
+                        if 'errors' in item:
                             self._errors_count += 1
                     except ValueError:
+                        # Scrapy dumps stats as a dict, which uses `datetime.datetime` types that can't be parsed with
+                        # `ast.literal_eval`.
                         pass
-                    data_block_content_string = ''
-                # Looking for Spider arguments
-                find_spider_arguments_search_string = line.find(spider_arguments_search_string)
-                if find_spider_arguments_search_string > -1:
-                    spider_arguments_data = \
-                        line[find_spider_arguments_search_string + len(spider_arguments_search_string):]
-                    try:
-                        # This data should only have strings, no datetimes
-                        # so we can use ast.literal_eval with no issues
-                        self._spider_arguments = ast.literal_eval(spider_arguments_data)
-                    except ValueError:
-                        pass
+                    buf = []
+
+                index = line.find(SPIDER_ARGUMENTS_SEARCH_STRING)
+                if index > -1:
+                    # `eval` is used, because the string can contain `datetime.date` and is written by trusted code in
+                    # Kingfisher Collect. Otherwise, we can modify the string so that `ast.literal_eval` can be used.
+                    self._spider_arguments = eval(line[index + len(SPIDER_ARGUMENTS_SEARCH_STRING):])
