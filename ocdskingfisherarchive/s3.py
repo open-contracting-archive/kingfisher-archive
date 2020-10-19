@@ -58,8 +58,8 @@ class S3:
         remote_filename = f'{source_id}/{year}/{month:02d}/metadata.json'
         filename = self.get_file(remote_filename)
         if filename:
-            with open(filename) as fp:
-                metadata = json.load(fp)
+            with open(filename) as f:
+                metadata = json.load(f)
             os.unlink(filename)
             return metadata
 

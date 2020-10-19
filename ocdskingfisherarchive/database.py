@@ -5,6 +5,7 @@ class Database:
     """
     A local database to track which crawl directories have been archived or skipped.
     """
+
     def __init__(self, filename):
         self.conn = sqlite3.connect(filename)
         self.cursor = self.conn.cursor()

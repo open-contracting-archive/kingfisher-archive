@@ -7,16 +7,16 @@ from tests import path
 
 
 @pytest.mark.parametrize('datetime, expected', [
-    # Exact
-    (datetime.datetime(2020, 9, 2, 5, 24, 58), True),
-    # Close
+    (datetime.datetime(2020, 9, 2, 5, 24, 55), False),
+    (datetime.datetime(2020, 9, 2, 5, 24, 56), False),
+    (datetime.datetime(2020, 9, 2, 5, 24, 57), False),
+    (datetime.datetime(2020, 9, 2, 5, 24, 58), True), # exact
     (datetime.datetime(2020, 9, 2, 5, 24, 59), True),
     (datetime.datetime(2020, 9, 2, 5, 25, 0), True),
-    # Not close
-    (datetime.datetime(2020, 9, 2, 7, 12, 4), False),
+    (datetime.datetime(2020, 9, 2, 5, 25, 1), False),
 ])
-def test_does_match_date_version(datetime, expected):
-    assert ScrapyLogFile(path('log_error1.log')).does_match_date_version(datetime) is expected
+def test_match(datetime, expected):
+    assert ScrapyLogFile(path('log_error1.log')).match(datetime) is expected
 
 
 def test_errors_count():

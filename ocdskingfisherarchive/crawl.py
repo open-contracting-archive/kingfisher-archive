@@ -10,6 +10,10 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 
 class Crawl:
+    """
+    A representation of a Kingfisher Process crawl.
+    """
+
     @classmethod
     def all(cls, data_directory, logs_directory):
         """
@@ -40,6 +44,12 @@ class Crawl:
             pass
 
     def __init__(self, data_directory, source_id, data_version, scrapy_log_file):
+        """
+        :param str data_directory: Kingfisher Collect's FILES_STORE directory
+        :param str source_id: the spider's name
+        :param str data_version: the crawl directory's name, parsed as a datetime
+        :param ocdskingfisherarchive.scrapy_log_file.ScrapyLogFile: the Scrapy log file
+        """
         self.data_directory = data_directory
         self.source_id = source_id
         self.data_version = data_version
