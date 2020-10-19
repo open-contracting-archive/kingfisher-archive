@@ -3,7 +3,7 @@ from ocdskingfisherarchive.database import Database
 
 
 def test_get_and_set(tmpdir):
-    database = Database(tmpdir.join('db.sqlite3'))
+    database = Database(str(tmpdir.join('db.sqlite3')))
     crawl = Crawl('scotland', '20200902_052458')
 
     assert database.get_state(crawl) == 'UNKNOWN'
