@@ -18,7 +18,8 @@ class Crawl:
                 for data_version in os.listdir(spider_directory):
                     data_version = cls.parse_data_version(data_version)
                     if data_version:
-                        yield cls(source_id, data_version, data_directory, logs_directory)
+                        scrapy_log_file = ScrapyLogFile.find(logs_directory, source_id, data_version)
+                        yield cls(data_directory, source_id, data_version, scrapy_log_file)
 
     @staticmethod
     def parse_data_version(directory):
@@ -27,12 +28,11 @@ class Crawl:
         except ValueError:
             pass
 
-    def __init__(self, source_id, data_version, data_directory='', logs_directory=''):
+    def __init__(self, data_directory, source_id, data_version, scrapy_log_file):
+        self.data_directory = data_directory
         self.source_id = source_id
         self.data_version = data_version
-        self.data_directory = data_directory
-
-        self.scrapy_log_file = ScrapyLogFile.find(logs_directory, self.source_id, self.data_version)
+        self.scrapy_log_file = scrapy_log_file
 
         self._data_md5 = None
         self._data_size = None
@@ -88,7 +88,7 @@ class Crawl:
         things_to_add = [self.directory, self.scrapy_log_file.name]
 
         subprocess.run(['tar', '-cf', filename, *things_to_add], check=True)
-        subprocess.run(['lz4', filename, f'{filename}.lz4'], check=True)
+        subprocess.run(['lz4', '--content-size', filename, f'{filename}.lz4'], check=True)
 
         os.unlink(filename)
 

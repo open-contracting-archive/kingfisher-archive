@@ -6,8 +6,8 @@ from botocore.exceptions import ClientError
 from botocore.stub import Stubber
 
 import ocdskingfisherarchive.s3
-from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.crawl import Crawl
+from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 from tests import create_crawl_directory
 
 # md5 tests/fixtures/data.json
@@ -15,18 +15,11 @@ md5 = '815a9cd4ee14b875834cd019238a8705'
 size = 239
 
 
-def archive(tmpdir):
-    return Archive(
-        os.getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
-        tmpdir.join('data'),
-        tmpdir.join('logs', 'kingfisher'),
-        str(tmpdir.join('db.sqlite3')),
-    )
-
-
 def crawl(tmpdir):
-    return Crawl('scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), tmpdir.join('data'),
-                 tmpdir.join('logs', 'kingfisher'))
+    source_id = 'scotland'
+    data_version = datetime.datetime(2020, 9, 2, 5, 24, 58)
+    scrapy_log_file = ScrapyLogFile.find(tmpdir.join('logs', 'kingfisher'), source_id, data_version)
+    return Crawl(tmpdir.join('data'), source_id, data_version, scrapy_log_file)
 
 
 def assert_log(caplog, levelname, message):
@@ -95,18 +88,18 @@ def assert_log(caplog, levelname, message):
             'find a good reason to backup'),
 ])
 def test_should_we_archive_crawl(data_files, log_file, load_exact, load_latest, expected_return_value,
-                                 message_log_message, tmpdir, caplog, monkeypatch):
+                                 message_log_message, archive, tmpdir, caplog, monkeypatch):
     monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_exact', lambda *args: load_exact)
     monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_latest', lambda *args: load_latest)
     create_crawl_directory(tmpdir, data_files, log_file)
 
-    actual_return_value = archive(tmpdir).should_we_archive_crawl(crawl(tmpdir))
+    actual_return_value = archive.should_we_archive_crawl(crawl(tmpdir))
 
     assert_log(caplog, 'INFO', message_log_message)
     assert actual_return_value is expected_return_value
 
 
-def test_process_crawl(tmpdir, caplog, monkeypatch):
+def test_process_crawl(archive, tmpdir, caplog, monkeypatch):
     def download_fileobj(*args, **kwargs):
         raise ClientError(error_response={'Error': {'Code': '404'}}, operation_name='')
 
@@ -124,7 +117,7 @@ def test_process_crawl(tmpdir, caplog, monkeypatch):
     monkeypatch.setattr(stubber, 'list_objects_v2', list_objects_v2, raising=False)
     stubber.activate()
 
-    archive(tmpdir).process()
+    archive.process()
 
     stubber.assert_no_pending_responses()
 
