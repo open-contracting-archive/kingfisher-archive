@@ -1,8 +1,10 @@
-from unittest.mock import patch
+import os
 
 import pytest
+from botocore.exceptions import ClientError
+from botocore.stub import Stubber
 
-from ocdskingfisherarchive.s3 import S3
+import ocdskingfisherarchive.s3
 from tests import archive, assert_log, collection, create_crawl_directory
 
 # md5 tests/fixtures/data.json
@@ -69,11 +71,47 @@ size = 239
 ])
 def test_should_we_archive_collection(data_files, log_file, load_exact, load_latest, expected_return_value,
                                       message_log_message, tmpdir, caplog, monkeypatch):
-    monkeypatch.setattr(S3, 'load_exact', lambda *args: load_exact)
-    monkeypatch.setattr(S3, 'load_latest', lambda *args: load_latest)
+    monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_exact', lambda *args: load_exact)
+    monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_latest', lambda *args: load_latest)
     create_crawl_directory(tmpdir, data_files, log_file)
 
     actual_return_value = archive(tmpdir).should_we_archive_collection(collection(tmpdir))
 
     assert_log(caplog, 'INFO', message_log_message)
     assert actual_return_value is expected_return_value
+
+
+def test_process_collection(tmpdir, caplog, monkeypatch):
+    def download_fileobj(*args, **kwargs):
+        raise ClientError(error_response={'Error': {'Code': '404'}}, operation_name='')
+
+    def list_objects_v2(*args, **kwargs):
+        return {'KeyCount': 0}
+
+    create_crawl_directory(tmpdir, ['data.json'], 'log_error1.log')
+
+    stubber = Stubber(ocdskingfisherarchive.s3.client)
+    monkeypatch.setattr(ocdskingfisherarchive.s3, 'client', stubber)
+    # See https://github.com/boto/botocore/issues/974
+    for method in ('upload_file', 'copy', 'delete_object'):
+        monkeypatch.setattr(stubber, method, lambda *args, **kwargs: None, raising=False)
+    monkeypatch.setattr(stubber, 'download_fileobj', download_fileobj, raising=False)
+    monkeypatch.setattr(stubber, 'list_objects_v2', list_objects_v2, raising=False)
+    stubber.activate()
+
+    archive(tmpdir).process_collection(collection(tmpdir))
+
+    stubber.assert_no_pending_responses()
+
+    directories = set()
+    filenames = set()
+    for root, dirs, files in os.walk(tmpdir):
+        root_directory = root[len(str(tmpdir)) + 1:]
+        for filename in files:
+            filenames.add(os.path.join(root_directory, filename))
+        for directory in dirs:
+            directories.add(os.path.join(root_directory, directory))
+
+    assert not filenames
+    assert directories == {'data', os.path.join('data', 'scotland'), 'logs', os.path.join('logs', 'kingfisher'),
+                           os.path.join('logs', 'kingfisher', 'scotland')}

@@ -72,7 +72,7 @@ class Collection:
         things_to_add = [self.directory, self.scrapy_log_file.name]
 
         subprocess.run(['tar', '-cf', filename, *things_to_add], check=True)
-        subprocess.run(['lz4', filename, '{filename}.lz4'], check=True)
+        subprocess.run(['lz4', filename, f'{filename}.lz4'], check=True)
 
         os.unlink(filename)
 

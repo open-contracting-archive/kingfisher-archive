@@ -1,9 +1,6 @@
 import datetime
 import os.path
-import unittest
 from os import getenv
-
-import pytest
 
 from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.collection import Collection

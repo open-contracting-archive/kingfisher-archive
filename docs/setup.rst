@@ -9,6 +9,23 @@ As presently written, the script needs to be run by a user that has:
 
 One install of Kingfisher should back up to one S3 bucket only. There are algorithms to decide whether to back something up based on what has already been backed up, and these may get confused if 2 Kingfisher installs try to back up to the same S3 bucket.
 
+Dependencies
+------------
+
+This application requires the ``lz4`` command.
+
+On macOS:
+
+.. code-block:: shell-session
+
+   brew install lz4
+
+On Ubuntu:
+
+.. code-block:: shell-session
+
+   apt-get install lz4
+
 Amazon S3
 ---------
 
