@@ -3,7 +3,7 @@ import datetime
 import pytest
 
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
-from tests import log_file_path
+from tests import path
 
 
 @pytest.mark.parametrize('datetime, expected', [
@@ -16,28 +16,28 @@ from tests import log_file_path
     (datetime.datetime(2020, 9, 2, 7, 12, 4), False),
 ])
 def test_does_match_date_version(datetime, expected):
-    assert ScrapyLogFile(log_file_path('log1.log')).does_match_date_version(datetime) is expected
+    assert ScrapyLogFile(path('log_error1.log')).does_match_date_version(datetime) is expected
 
 
 def test_errors_count():
-    assert ScrapyLogFile(log_file_path('log1.log')).errors_count == 1
+    assert ScrapyLogFile(path('log_error1.log')).errors_count == 1
 
 
 @pytest.mark.parametrize('filename, expected', [
-    ('log1.log', False),
+    ('log_error1.log', False),
     ('log_sample1.log', True),
     ('log_from_date1.log', True),
 ])
 def test_is_subset(filename, expected):
-    assert ScrapyLogFile(log_file_path(filename)).is_subset() is expected
+    assert ScrapyLogFile(path(filename)).is_subset() is expected
 
 
 @pytest.mark.parametrize('filename, expected', [
-    ('log1.log', True),
+    ('log_error1.log', True),
     ('log_sample1.log', True),
     ('log_from_date1.log', True),
     ('log_sigint1.log', False),
     ('log_in_progress1.log', False),
 ])
 def test_is_finished(filename, expected):
-    assert ScrapyLogFile(log_file_path(filename)).is_finished() is expected
+    assert ScrapyLogFile(path(filename)).is_finished() is expected

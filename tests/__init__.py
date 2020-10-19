@@ -1,40 +1,56 @@
 import datetime
 import os.path
+import unittest
 from os import getenv
+
+import pytest
 
 from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.collection import Collection
-from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 
-def log_file_path(filename):
-    return os.path.join('tests', 'logs', filename)
+def path(filename):
+    return os.path.join('tests', 'fixtures', filename)
 
 
-def archive_fixture():
-    archive = Archive(
+def create_crawl_directory(tmpdir, data, log):
+    data_directory = tmpdir.mkdir('data')
+    spider_directory = data_directory.mkdir('scotland')
+
+    if data is not None:
+        crawl_directory = spider_directory.mkdir('20200902_052458')
+        for i, name in enumerate(data):
+            file = crawl_directory.join(f'{i}.json')
+            with open(path(name)) as f:
+                file.write(f.read())
+
+    logs_directory = tmpdir.mkdir('logs')
+    project_directory = logs_directory.mkdir('kingfisher')
+    spider_directory = project_directory.mkdir('scotland')
+
+    if log:
+        file = spider_directory.join('307e8331edc801c691e21690db130256.log')
+        with open(path(log)) as f:
+            file.write(f.read())
+
+
+def archive(tmpdir):
+    return Archive(
         getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
-        os.path.join('tests', 'data'),
-        os.path.join('tests', 'logs'),
+        tmpdir.join('data'),
+        tmpdir.join('logs', 'kingfisher'),
         'db.sqlite3',
         getenv('KINGFISHER_ARCHIVE_DATABASE_URL'),
     )
 
-    return archive
+
+def collection(tmpdir):
+    return Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), tmpdir.join('data'),
+                      tmpdir.join('logs', 'kingfisher'))
 
 
-def collection_fixture(*, md5='eo39tj38jm', size=186306, data_exists=True, errors_count=0, spider_arguments=None,
-                       is_finished=True):
-    if spider_arguments is None:
-        spider_arguments = {}
-
-    collection = Collection(1, 'scotland', datetime.datetime(2020, 9, 2, 5, 25, 0))
-    collection._data_md5 = md5
-    collection._data_size = size
-    collection.get_data_files_exist = lambda: data_exists
-    collection.scrapy_log_file = ScrapyLogFile('test.log')
-    collection.scrapy_log_file._errors_sent_to_process_count = errors_count
-    collection.scrapy_log_file._spider_arguments = spider_arguments
-    collection.scrapy_log_file.is_finished = lambda: is_finished
-
-    return collection
+def assert_log(caplog, levelname, message):
+    assert len(caplog.records) == 1
+    assert caplog.records[0].name == 'ocdskingfisher.archive'
+    assert caplog.records[0].levelname == levelname, f'{caplog.records[0].levelname!r} == {levelname!r}'
+    assert caplog.records[0].message == message, f'{caplog.records[0].message!r} == {message!r}'

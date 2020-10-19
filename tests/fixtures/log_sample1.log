@@ -1,4 +1,4 @@
-2020-09-21 13:19:08 [scrapy.utils.log] INFO: Scrapy 1.8.0 started (bot: kingfisher_scrapy)
+2020-09-02 05:24:58 [scrapy.utils.log] INFO: Scrapy 1.8.0 started (bot: kingfisher_scrapy)
 2020-09-21 13:19:08 [scrapy.utils.log] INFO: Versions: lxml 4.4.2.0, libxml2 2.9.9, cssselect 1.1.0, parsel 1.5.2, w3lib 1.21.0, Twisted 20.3.0, Python 3.6.9 (default, Jul 17 2020, 12:50:27) - [GCC 8.4.0], pyOpenSSL 19.1.0 (OpenSSL 1.1.1d  10 Sep 2019), cryptography 2.8, Platform Linux-4.15.0-117-generic-x86_64-with-Ubuntu-18.04-bionic
 2020-09-21 13:19:08 [scrapy.crawler] INFO: Overridden settings: {'BOT_NAME': 'kingfisher_scrapy', 'COMMANDS_MODULE': 'kingfisher_scrapy.commands', 'CONCURRENT_REQUESTS': 32, 'CONCURRENT_REQUESTS_PER_DOMAIN': 2, 'DOWNLOAD_MAXSIZE': 4000000000, 'DOWNLOAD_TIMEOUT': 360, 'DOWNLOAD_WARNSIZE': 0, 'HTTPPROXY_ENABLED': False, 'LOG_FORMATTER': 'kingfisher_scrapy.log_formatter.KingfisherLogFormatter', 'NEWSPIDER_MODULE': 'kingfisher_scrapy.spiders', 'SPIDER_MODULES': ['kingfisher_scrapy.spiders'], 'USER_AGENT': 'kingfisher_scrapy (+http://www.open-contracting.org)'}
 2020-09-21 13:19:08 [scrapy.extensions.telnet] INFO: Telnet Password: xxxxxxxxxx
