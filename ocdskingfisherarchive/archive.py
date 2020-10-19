@@ -22,7 +22,7 @@ class Archive:
 
     def process_crawl(self, crawl, dry_run=False):
         current_state = self.database.get_state(crawl)
-        if current_state != 'UNKNOWN':
+        if current_state:
             logger.info('Ignoring %s; Local state is %s', crawl, current_state)
             return
 
@@ -36,7 +36,7 @@ class Archive:
             self.archive_crawl(crawl)
             self.database.set_state(crawl, 'ARCHIVED')
         else:
-            self.database.set_state(crawl, 'DO NOT ARCHIVE')
+            self.database.set_state(crawl, 'SKIPPED')
 
     def should_we_archive_crawl(self, crawl):
         if not os.path.isdir(crawl.directory):

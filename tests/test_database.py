@@ -8,7 +8,7 @@ def test_get_and_set(tmpdir):
     database = Database(str(tmpdir.join('db.sqlite3')))
     crawl = Crawl(tmpdir, 'scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), None)
 
-    assert database.get_state(crawl) == 'UNKNOWN'
+    assert database.get_state(crawl) is None
 
     # Set and get.
     database.set_state(crawl, 'CATS')
