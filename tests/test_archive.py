@@ -8,32 +8,11 @@ from botocore.stub import Stubber
 import ocdskingfisherarchive.s3
 from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.crawl import Crawl
-from tests import path
+from tests import create_crawl_directory
 
 # md5 tests/fixtures/data.json
 md5 = '815a9cd4ee14b875834cd019238a8705'
 size = 239
-
-
-def create_crawl_directory(tmpdir, data, log):
-    data_directory = tmpdir.mkdir('data')
-    spider_directory = data_directory.mkdir('scotland')
-
-    if data is not None:
-        crawl_directory = spider_directory.mkdir('20200902_052458')
-        for i, name in enumerate(data):
-            file = crawl_directory.join(f'{i}.json')
-            with open(path(name)) as f:
-                file.write(f.read())
-
-    logs_directory = tmpdir.mkdir('logs')
-    project_directory = logs_directory.mkdir('kingfisher')
-    spider_directory = project_directory.mkdir('scotland')
-
-    if log:
-        file = spider_directory.join('307e8331edc801c691e21690db130256.log')
-        with open(path(log)) as f:
-            file.write(f.read())
 
 
 def archive(tmpdir):
@@ -46,7 +25,7 @@ def archive(tmpdir):
 
 
 def crawl(tmpdir):
-    return Crawl('scotland', '20200902_052458', tmpdir.join('data'),
+    return Crawl('scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), tmpdir.join('data'),
                  tmpdir.join('logs', 'kingfisher'))
 
 
@@ -125,17 +104,6 @@ def test_should_we_archive_crawl(data_files, log_file, load_exact, load_latest, 
 
     assert_log(caplog, 'INFO', message_log_message)
     assert actual_return_value is expected_return_value
-
-
-def test_get_crawls_to_consider_archiving(tmpdir, caplog, monkeypatch):
-    create_crawl_directory(tmpdir, ['data.json'], 'log_error1.log')
-
-    crawls = list(archive(tmpdir).get_crawls_to_consider_archiving())
-
-    assert len(crawls) == 1
-    assert crawls[0].source_id == 'scotland'
-    assert crawls[0].data_version == datetime.datetime(2020, 9, 2, 5, 24, 58)
-    assert crawls[0].data_directory == tmpdir.join('data')
 
 
 def test_process_crawl(tmpdir, caplog, monkeypatch):

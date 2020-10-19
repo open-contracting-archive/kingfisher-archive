@@ -11,12 +11,10 @@ from dotenv import load_dotenv
 
 from ocdskingfisherarchive.archive import Archive
 
-load_dotenv()
-
 
 @click.group()
 def cli():
-    pass
+    load_dotenv()
 
 
 @cli.command()
@@ -39,6 +37,15 @@ def archive(bucket_name, data_directory, logs_directory, database_file, logging_
     if logging_config_file:
         with open(logging_config_file) as f:
             logging.config.dictConfig(json.load(f))
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    if not bucket_name:
+        raise click.UsageError('--bucket-name or KINGFISHER_ARCHIVE_BUCKET_NAME must be set')
+    if not data_directory:
+        raise click.UsageError('--data-directory or KINGFISHER_ARCHIVE_DATA_DIRECTORY must be set')
+    if not logs_directory:
+        raise click.UsageError('--logs-directory or KINGFISHER_ARCHIVE_LOGS_DIRECTORY must be set')
 
     try:
         with pidfile.PIDFile():
@@ -50,4 +57,4 @@ def archive(bucket_name, data_directory, logs_directory, database_file, logging_
 if __name__ == '__main__':
     if 'SENTRY_DSN' in os.environ:
         sentry_sdk.init(dsn=os.getenv('SENTRY_DSN'))
-    cli(auto_envvar_prefix='KINGFISHER_ARCHIVE')
+    cli(auto_envvar_prefix='KINGFISHER')

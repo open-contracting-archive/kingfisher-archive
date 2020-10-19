@@ -17,15 +17,8 @@ class Archive:
         self.database = Database(database_file)
 
     def process(self, dry_run=False):
-        for crawl in self.get_crawls_to_consider_archiving():
+        for crawl in Crawl.all(self.data_directory, self.logs_directory):
             self.process_crawl(crawl, dry_run)
-
-    def get_crawls_to_consider_archiving(self):
-        for source_id in os.listdir(self.data_directory):
-            spider_directory = os.path.join(self.data_directory, source_id)
-            if os.path.isdir(spider_directory):
-                for data_version in os.listdir(spider_directory):
-                    yield Crawl(source_id, data_version, self.data_directory, self.logs_directory)
 
     def process_crawl(self, crawl, dry_run=False):
         current_state = self.database.get_state(crawl)
@@ -37,8 +30,8 @@ class Archive:
 
         should_archive = self.should_we_archive_crawl(crawl)
         if dry_run:
-            logger.info("Crawl %s result: %s", crawl, "Archive" if should_archive else "Skip")
-            print("Crawl %s result: %s", crawl, "Archive" if should_archive else "Skip")
+            return
+
         elif should_archive:
             self.archive_crawl(crawl)
             self.database.set_state(crawl, 'ARCHIVED')

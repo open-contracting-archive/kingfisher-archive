@@ -10,9 +10,26 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 
 class Crawl:
+    @classmethod
+    def all(cls, data_directory, logs_directory):
+        for source_id in os.listdir(data_directory):
+            spider_directory = os.path.join(data_directory, source_id)
+            if os.path.isdir(spider_directory):
+                for data_version in os.listdir(spider_directory):
+                    data_version = cls.parse_data_version(data_version)
+                    if data_version:
+                        yield cls(source_id, data_version, data_directory, logs_directory)
+
+    @staticmethod
+    def parse_data_version(directory):
+        try:
+            return datetime.datetime.strptime(directory, '%Y%m%d_%H%M%S')
+        except ValueError:
+            pass
+
     def __init__(self, source_id, data_version, data_directory='', logs_directory=''):
         self.source_id = source_id
-        self.data_version = datetime.datetime.strptime(data_version, '%Y%m%d_%H%M%S')
+        self.data_version = data_version
         self.data_directory = data_directory
 
         self.scrapy_log_file = ScrapyLogFile.find(logs_directory, self.source_id, self.data_version)

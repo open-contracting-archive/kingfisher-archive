@@ -1,10 +1,12 @@
+import datetime
+
 from ocdskingfisherarchive.crawl import Crawl
 from ocdskingfisherarchive.database import Database
 
 
 def test_get_and_set(tmpdir):
     database = Database(str(tmpdir.join('db.sqlite3')))
-    crawl = Crawl('scotland', '20200902_052458')
+    crawl = Crawl('scotland', datetime.datetime(2020, 9, 2, 5, 24, 58))
 
     assert database.get_state(crawl) == 'UNKNOWN'
 
