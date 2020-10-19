@@ -6,9 +6,9 @@ from botocore.exceptions import ClientError
 from botocore.stub import Stubber
 
 import ocdskingfisherarchive.s3
-from tests import path
 from ocdskingfisherarchive.archive import Archive
 from ocdskingfisherarchive.crawl import Crawl
+from tests import path
 
 # md5 tests/fixtures/data.json
 md5 = '815a9cd4ee14b875834cd019238a8705'
