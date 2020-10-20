@@ -39,7 +39,7 @@ Restore
 
       tar xvf source.tar
 
-#. Load the files into Kingfisher Process
+#. Load the files into `Kingfisher Process <https://kingfisher-process.readthedocs.io/en/latest/>`__
 #. Delete the files, for example:
 
    .. code-block:: shell-session

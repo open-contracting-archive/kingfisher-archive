@@ -11,7 +11,7 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
 class Crawl:
     """
-    A representation of a Kingfisher Process crawl.
+    A representation of a Kingfisher Collect crawl.
     """
 
     @classmethod
