@@ -53,3 +53,8 @@ If you downloaded multiple archives for the same source, the above commands will
 .. note::
 
    Do not extract the files into Kingfisher Collect's ``FILES_STORE`` directory. Otherwise, they risk being archived again!
+
+Maintain
+--------
+
+If a spider is renamed in Kingfisher Collect, the corresponding directory on Amazon S3 should be renamed, for easier lookup.

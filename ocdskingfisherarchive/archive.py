@@ -146,8 +146,12 @@ class Archive:
         Performs the archival of the crawl.
 
         Creates data and metadata files, uploads them to the staging directory in the bucket, copies them to the final
-        directory in the bucket, and deletes them in the staging directory. (Since the presence of the final directory
-        is used to determine whether to archive, we limit the risk of an incomplete upload with this staged process.)
+        directory in the bucket, and deletes them in the staging directory.
+
+        -  The final directory follows the pattern ``source_id/YY/MM``. As such, if a new crawl better meets the
+           archival criteria than an old crawl in the same period, the old crawl's files are overwritten.
+        -  The presence of a final directory indicates the crawl has already been archived. Therefore, we limit the
+           risk of an incomplete upload using a staged process. (Leftover files indicate an incomplete upload.)
 
         Finally, it deletes the created files, the crawl's data directory, and the crawl's log file.
         """
