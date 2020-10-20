@@ -86,9 +86,9 @@ The relevant environment variables are:
 KINGFISHER_ARCHIVE_BUCKET_NAME
   The Amazon S3 bucket name 
 KINGFISHER_ARCHIVE_DATA_DIRECTORY
-  Kingfisher Collect's FILES_STORE directory, e.g. ``scrapyd/data``
+  Kingfisher Collect's ``FILES_STORE`` directory, e.g. ``scrapyd/data``
 KINGFISHER_ARCHIVE_LOGS_DIRECTORY
-  Kingfisher Collect's project directory within Scrapyd's logs_dir directory, e.g. ``scrapyd/logs/kingfisher``
+  Kingfisher Collect's project directory within Scrapyd's ``logs_dir`` directory, e.g. ``scrapyd/logs/kingfisher``
 KINGFISHER_ARCHIVE_CACHE_FILE
   The SQLite database for caching the local state (defaults to cache.sqlite3)
 KINGFISHER_ARCHIVE_LOGGING_CONFIG_FILE
