@@ -16,7 +16,7 @@ class ScrapyLogFile():
     @classmethod
     def find(cls, logs_directory, source_id, data_version):
         """
-        Finds and returns the log file for the given crawl.
+        Finds and returns the first matching log file for the given crawl.
 
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
         :param str source_id: the spider's name
@@ -26,7 +26,7 @@ class ScrapyLogFile():
         """
         source_directory = os.path.join(logs_directory, source_id)
         if os.path.isdir(source_directory):
-            for filename in os.listdir(source_directory):
+            for filename in sorted(os.listdir(source_directory)):
                 if filename.endswith(".log"):
                     scrapy_log_file = ScrapyLogFile(os.path.join(source_directory, filename))
                     if scrapy_log_file.match(data_version):
