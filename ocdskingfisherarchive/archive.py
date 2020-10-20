@@ -11,34 +11,60 @@ logger = logging.getLogger('ocdskingfisher.archive')
 
 class Archive:
     def __init__(self, bucket_name, data_directory, logs_directory, database_file):
+        """
+        :param str bucket_name: an Amazon S3 bucket name
+        :param str data_directory: Kingfisher Collect's FILES_STORE directory
+        :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
+        :param str database_file: the path to a local SQLite database
+        """
         self.s3 = S3(bucket_name)
         self.data_directory = data_directory
         self.logs_directory = logs_directory
         self.database = Database(database_file)
 
     def process(self, dry_run=False):
+        """
+        Runs the archival process.
+
+        :param bool dry_run: whether to modify the filesystem and the bucket
+        """
         for crawl in Crawl.all(self.data_directory, self.logs_directory):
             self.process_crawl(crawl, dry_run)
 
     def process_crawl(self, crawl, dry_run=False):
+        """
+        Runs the archival process for a single crawl.
+
+        If the local database indicates that the crawl was already processed, the process ends. Otherwise, the crawl is
+        archived if appropriate, and the local database is updated.
+
+        :param ocdskingfisherarchive.crawl.Crawl crawl: a crawl
+        :param bool dry_run: whether to modify the filesystem and the bucket
+        """
         current_state = self.database.get_state(crawl)
         if current_state:
-            logger.info('Ignoring %s; Local state is %s', crawl, current_state)
+            logger.info('Ignoring %s: previously %s', crawl, current_state)
             return
 
         # TODO If not archiving, still delete local files after 90 days
 
-        should_archive = self.should_we_archive_crawl(crawl)
+        should_archive = self.should_archive(crawl)
         if dry_run:
             return
 
         elif should_archive:
             self.archive_crawl(crawl)
-            self.database.set_state(crawl, 'ARCHIVED')
+            self.database.set_state(crawl, 'archived')
         else:
-            self.database.set_state(crawl, 'SKIPPED')
+            self.database.set_state(crawl, 'skipped')
 
-    def should_we_archive_crawl(self, crawl):
+    def should_archive(self, crawl):
+        """
+        Returns whether to archive the crawl.
+
+        :returns: whether to archive the crawl
+        :rtype: bool
+        """
         if not os.path.isdir(crawl.directory):
             logger.info('Skipping %s because data files do not exist', crawl)
             return False
@@ -118,6 +144,15 @@ class Archive:
         return True
 
     def archive_crawl(self, crawl):
+        """
+        Performs the archival of the crawl.
+
+        Creates data and metadata files, uploads them to the staging directory in the bucket, copies them to the final
+        directory in the bucket, and deletes them in the staging directory. (Since the presence of the final directory
+        is used to determine whether to archive, we limit the risk of an incomplete upload with this staged process.)
+
+        Finally, it deletes the created files, the crawl's data directory, and the crawl's log file.
+        """
         data_file_name = crawl.write_data_file()
         meta_file_name = crawl.write_meta_data_file()
 

@@ -91,13 +91,13 @@ def assert_log(caplog, levelname, message):
      False, 'Skipping scotland/20200902_052458 because an archive exists from earlier period (2020/9) and we can not '
             'find a good reason to backup'),
 ])
-def test_should_we_archive_crawl(data_files, log_file, load_exact, load_latest, expected_return_value,
-                                 message_log_message, archive, tmpdir, caplog, monkeypatch):
+def test_should_archive(data_files, log_file, load_exact, load_latest, expected_return_value, message_log_message,
+                        archive, tmpdir, caplog, monkeypatch):
     monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_exact', lambda *args: load_exact)
     monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_latest', lambda *args: load_latest)
     create_crawl_directory(tmpdir, data_files, log_file)
 
-    actual_return_value = archive.should_we_archive_crawl(crawl(tmpdir))
+    actual_return_value = archive.should_archive(crawl(tmpdir))
 
     assert_log(caplog, 'INFO', message_log_message)
     assert actual_return_value is expected_return_value
