@@ -1,9 +1,9 @@
 import sqlite3
 
 
-class Database:
+class Cache:
     """
-    A local database to track which crawl directories have been archived or skipped.
+    A cache of which crawl directories have been archived or skipped.
     """
 
     def __init__(self, filename):
@@ -15,7 +15,7 @@ class Database:
             self.cursor.execute("CREATE TABLE crawl (directory TEXT PRIMARY KEY NOT NULL, state TEXT NOT NULL)")
             self.conn.commit()
 
-    def get_state(self, crawl):
+    def get(self, crawl):
         """
         :param crawl: an instance of the :class:`~ocdskingfisherarchive.crawl.Crawl` class
         :returns: the state of the crawl directory, if any
@@ -26,7 +26,7 @@ class Database:
         if result:
             return result[0]
 
-    def set_state(self, crawl, state):
+    def set(self, crawl, state):
         """
         :param crawl: an instance of the :class:`~ocdskingfisherarchive.crawl.Crawl` class
         :param str state: the state to which to set the crawl directory

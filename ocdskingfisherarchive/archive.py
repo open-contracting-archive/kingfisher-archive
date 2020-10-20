@@ -3,24 +3,24 @@ import os
 import shutil
 
 from ocdskingfisherarchive.crawl import Crawl
-from ocdskingfisherarchive.database import Database
+from ocdskingfisherarchive.cache import Cache
 from ocdskingfisherarchive.s3 import S3
 
 logger = logging.getLogger('ocdskingfisher.archive')
 
 
 class Archive:
-    def __init__(self, bucket_name, data_directory, logs_directory, database_file):
+    def __init__(self, bucket_name, data_directory, logs_directory, cache_file):
         """
         :param str bucket_name: an Amazon S3 bucket name
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
-        :param str database_file: the path to a local SQLite database
+        :param str cache_file: the path to a SQLite database for caching the local state
         """
         self.s3 = S3(bucket_name)
         self.data_directory = data_directory
         self.logs_directory = logs_directory
-        self.database = Database(database_file)
+        self.cache = Cache(cache_file)
 
     def process(self, dry_run=False):
         """
@@ -35,15 +35,15 @@ class Archive:
         """
         Runs the archival process for a single crawl.
 
-        If the local database indicates that the crawl was already processed, the process ends. Otherwise, the crawl is
-        archived if appropriate, and the local database is updated.
+        If the cache indicates that the crawl was already processed, the process ends. Otherwise, the crawl is archived
+        if appropriate, and the cache is updated.
 
         :param ocdskingfisherarchive.crawl.Crawl crawl: a crawl
         :param bool dry_run: whether to modify the filesystem and the bucket
         """
-        current_state = self.database.get_state(crawl)
-        if current_state:
-            logger.info('Ignoring %s: previously %s', crawl, current_state)
+        state = self.cache.get(crawl)
+        if state:
+            logger.info('Ignoring %s: previously %s', crawl, state)
             return
 
         # TODO If not archiving, still delete local files after 90 days
@@ -54,9 +54,9 @@ class Archive:
 
         elif should_archive:
             self.archive_crawl(crawl)
-            self.database.set_state(crawl, 'archived')
+            self.cache.set(crawl, 'archived')
         else:
-            self.database.set_state(crawl, 'skipped')
+            self.cache.set(crawl, 'skipped')
 
     def should_archive(self, crawl):
         """
@@ -79,8 +79,6 @@ class Archive:
             return False
 
         # If not finished, don't archive
-        # (Note if loaded from Process database we check this there;
-        #  but we may load from other places in the future so check again)
         if not crawl.scrapy_log_file.is_finished():
             logger.info('Skipping %s because Scrapy log file says it is not finished', crawl)
             return False

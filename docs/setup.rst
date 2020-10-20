@@ -89,7 +89,7 @@ KINGFISHER_ARCHIVE_DATA_DIRECTORY
   Kingfisher Collect's FILES_STORE directory, e.g. ``scrapyd/data``
 KINGFISHER_ARCHIVE_LOGS_DIRECTORY
   Kingfisher Collect's project directory within Scrapyd's logs_dir directory, e.g. ``scrapyd/logs/kingfisher``
-KINGFISHER_ARCHIVE_DATABASE_FILE
+KINGFISHER_ARCHIVE_CACHE_FILE
   The SQLite database for caching the local state (defaults to db.sqlite3)
 KINGFISHER_ARCHIVE_LOGGING_CONFIG_FILE
   A JSON file following `Python's logging configuration dictionary schema <https://docs.python.org/3/library/logging.config.html#logging-config-dictschema>`__
@@ -107,7 +107,7 @@ The ``.env`` file would look like:
    KINGFISHER_ARCHIVE_BUCKET_NAME=my-bucket
    KINGFISHER_ARCHIVE_DATA_DIRECTORY=scrapyd/data
    KINGFISHER_ARCHIVE_LOGS_DIRECTORY=scrapyd/logs/kingfisher
-   KINGFISHER_ARCHIVE_DATABASE_FILE=/home/my-user/db.sqlite3
+   KINGFISHER_ARCHIVE_CACHE_FILE=/home/my-user/db.sqlite3
    SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
    AWS_ACCESS_KEY_ID=xxx
    AWS_SECRET_ACCESS_KEY=xxx

@@ -24,13 +24,13 @@ def cli():
               help="Kingfisher Collect's FILES_STORE directory")
 @click.option('--logs-directory', envvar='KINGFISHER_ARCHIVE_LOGS_DIRECTORY',
               help="Kingfisher Collect's project directory within Scrapyd's logs_dir directory")
-@click.option('--database-file', default='db.sqlite3', envvar='KINGFISHER_ARCHIVE_DATABASE_FILE',
+@click.option('--cache-file', default='db.sqlite3', envvar='KINGFISHER_ARCHIVE_CACHE_FILE',
               help='The SQLite database for caching the local state (defaults to db.sqlite3)')
 @click.option('--logging-config-file', envvar='KINGFISHER_ARCHIVE_LOGGING_CONFIG_FILE',
               help="A JSON file following Python's logging configuration dictionary schema")
 @click.option('-n', '--dry-run', is_flag=True,
               help="Don't archive any files, just show whether they would be")
-def archive(bucket_name, data_directory, logs_directory, database_file, logging_config_file, dry_run):
+def archive(bucket_name, data_directory, logs_directory, cache_file, logging_config_file, dry_run):
     """
     Archives data and log files written by Kingfisher Collect to Amazon S3.
     """
@@ -50,7 +50,7 @@ def archive(bucket_name, data_directory, logs_directory, database_file, logging_
     # We don't catch pidfile.AlreadyRunningError so that it can be raised to Sentry. If this error is raised by a cron
     # job, it points to either a very slow archival process, or to an unanticipated problem.
     with pidfile.PIDFile():
-        Archive(bucket_name, data_directory, logs_directory, database_file).process(dry_run)
+        Archive(bucket_name, data_directory, logs_directory, cache_file).process(dry_run)
 
 
 if __name__ == '__main__':
