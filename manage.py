@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import json
 import logging
 import logging.config
 import os
@@ -35,8 +34,7 @@ def archive(bucket_name, data_directory, logs_directory, cache_file, logging_con
     Archives data and log files written by Kingfisher Collect to Amazon S3.
     """
     if logging_config_file:
-        with open(logging_config_file) as f:
-            logging.config.dictConfig(json.load(f))
+        logging.config.fileConfig(logging_config_file)
     else:
         logging.basicConfig(level=logging.INFO)
 
