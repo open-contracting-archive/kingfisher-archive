@@ -2,8 +2,8 @@ import logging
 import os
 import shutil
 
-from ocdskingfisherarchive.crawl import Crawl
 from ocdskingfisherarchive.cache import Cache
+from ocdskingfisherarchive.crawl import Crawl
 from ocdskingfisherarchive.s3 import S3
 
 logger = logging.getLogger('ocdskingfisher.archive')

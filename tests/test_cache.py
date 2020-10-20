@@ -1,7 +1,7 @@
 import datetime
 
-from ocdskingfisherarchive.crawl import Crawl
 from ocdskingfisherarchive.cache import Cache
+from ocdskingfisherarchive.crawl import Crawl
 
 
 def test_get_and_set(tmpdir):
