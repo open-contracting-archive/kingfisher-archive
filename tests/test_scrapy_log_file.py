@@ -44,7 +44,7 @@ def test_find_not_directory(tmpdir):
     assert ScrapyLogFile.find(tmpdir, 'source_id', data_version) is None
 
 
-def test_find_not_extension(tmpdir):
+def test_find_bad_extension(tmpdir):
     directory = tmpdir.mkdir('source_id')
     file = directory.join('file.ext')
     file.write(message)
@@ -73,7 +73,7 @@ def test_delete(filenames, tmpdir):
     (datetime.datetime(2020, 9, 2, 5, 24, 55), False),
     (datetime.datetime(2020, 9, 2, 5, 24, 56), False),
     (datetime.datetime(2020, 9, 2, 5, 24, 57), False),
-    (datetime.datetime(2020, 9, 2, 5, 24, 58), True), # exact
+    (datetime.datetime(2020, 9, 2, 5, 24, 58), True),  # exact
     (datetime.datetime(2020, 9, 2, 5, 24, 59), True),
     (datetime.datetime(2020, 9, 2, 5, 25, 0), True),
     (datetime.datetime(2020, 9, 2, 5, 25, 1), False),
