@@ -8,10 +8,10 @@ def test_get_and_set(tmpdir):
     crawl = Crawl(tmpdir, 'scotland', datetime.datetime(2020, 9, 2, 5, 24, 58), None)
 
     # Initialize.
-    Cache(str(tmpdir.join('db.sqlite3')))
+    Cache(str(tmpdir.join('cache.sqlite3')))
 
     # Initialize existing.
-    cache = Cache(str(tmpdir.join('db.sqlite3')))
+    cache = Cache(str(tmpdir.join('cache.sqlite3')))
 
     # Get.
     assert cache.get(crawl) is None

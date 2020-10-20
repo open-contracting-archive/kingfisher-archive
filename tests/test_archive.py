@@ -134,6 +134,6 @@ def test_process_crawl(archive, tmpdir, caplog, monkeypatch):
         for directory in dirs:
             directories.add(os.path.join(root_directory, directory))
 
-    assert filenames == {'db.sqlite3'}
+    assert filenames == {'cache.sqlite3'}
     assert directories == {'data', os.path.join('data', 'scotland'), 'logs', os.path.join('logs', 'kingfisher'),
                            os.path.join('logs', 'kingfisher', 'scotland')}

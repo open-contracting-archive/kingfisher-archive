@@ -11,5 +11,5 @@ def archive(tmpdir):
         os.getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
         tmpdir.join('data'),
         tmpdir.join('logs', 'kingfisher'),
-        str(tmpdir.join('db.sqlite3')),
+        str(tmpdir.join('cache.sqlite3')),
     )

@@ -24,8 +24,8 @@ def cli():
               help="Kingfisher Collect's FILES_STORE directory")
 @click.option('--logs-directory', envvar='KINGFISHER_ARCHIVE_LOGS_DIRECTORY',
               help="Kingfisher Collect's project directory within Scrapyd's logs_dir directory")
-@click.option('--cache-file', default='db.sqlite3', envvar='KINGFISHER_ARCHIVE_CACHE_FILE',
-              help='The SQLite database for caching the local state (defaults to db.sqlite3)')
+@click.option('--cache-file', default='cache.sqlite3', envvar='KINGFISHER_ARCHIVE_CACHE_FILE',
+              help='The SQLite database for caching the local state (defaults to cache.sqlite3)')
 @click.option('--logging-config-file', envvar='KINGFISHER_ARCHIVE_LOGGING_CONFIG_FILE',
               help="A JSON file following Python's logging configuration dictionary schema")
 @click.option('-n', '--dry-run', is_flag=True,
