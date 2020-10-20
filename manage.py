@@ -47,11 +47,10 @@ def archive(bucket_name, data_directory, logs_directory, database_file, logging_
     if not logs_directory:
         raise click.UsageError('--logs-directory or KINGFISHER_ARCHIVE_LOGS_DIRECTORY must be set')
 
-    try:
-        with pidfile.PIDFile():
-            Archive(bucket_name, data_directory, logs_directory, database_file).process(dry_run)
-    except pidfile.AlreadyRunningError:
-        raise click.UsageError('Already running.')
+    # We don't catch pidfile.AlreadyRunningError so that it can be raised to Sentry. If this error is raised by a cron
+    # job, it points to either a very slow archival process, or to an unanticipated problem.
+    with pidfile.PIDFile():
+        Archive(bucket_name, data_directory, logs_directory, database_file).process(dry_run)
 
 
 if __name__ == '__main__':
