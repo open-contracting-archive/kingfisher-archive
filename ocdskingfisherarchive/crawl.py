@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 import subprocess
+import tarfile
 import tempfile
 from functools import partial
 
@@ -128,9 +129,10 @@ class Crawl:
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')
         os.close(file_descriptor)
 
-        things_to_add = [self.directory, self.scrapy_log_file.name]
+        with tarfile.open(filename, 'w') as tar:
+            tar.add(self.directory)
+            tar.add(self.scrapy_log_file)
 
-        subprocess.run(['tar', '-cf', filename, *things_to_add], check=True)
         subprocess.run(['lz4', '--content-size', filename, f'{filename}.lz4'], check=True)
 
         os.unlink(filename)
