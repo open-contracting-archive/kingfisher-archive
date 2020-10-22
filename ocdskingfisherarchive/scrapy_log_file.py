@@ -107,12 +107,9 @@ class ScrapyLogFile():
         if self._spider_arguments is None:
             self._process_line_by_line()
 
-        # See https://github.com/open-contracting/kingfisher-collect/issues/506
-        return bool(
-            self._spider_arguments.get('sample') or
-            self._spider_arguments.get('from_date') or
-            self._spider_arguments.get('until_date')
-        )
+        return any(self._spider_arguments.get(arg) for arg in (
+            'from_date', 'until_date', 'year', 'start_page', 'publisher', 'system', 'sample'
+        ))
 
     def _process_line_by_line(self):
         self._errors_count = 0
