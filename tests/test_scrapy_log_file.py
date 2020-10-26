@@ -83,6 +83,15 @@ def test_match(datetime, expected):
 
 
 @pytest.mark.parametrize('filename, expected', [
+    ('log_crawl_time_spider_argument.log', datetime.datetime(2020, 1, 1, 0, 0, 0)),
+    ('log_crawl_time_crawl_statistic.log', datetime.datetime(2020, 1, 1, 12, 34, 55)),
+    ('log_crawl_time_log_message.log', datetime.datetime(2020, 1, 1, 12, 34, 56)),
+])
+def test_crawl_time(filename, expected):
+    assert ScrapyLogFile(path(filename)).crawl_time == expected
+
+
+@pytest.mark.parametrize('filename, expected', [
     ('log_error1.log', True),
     ('log_sample1.log', True),
     ('log_from_date1.log', True),

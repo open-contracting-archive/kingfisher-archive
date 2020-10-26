@@ -1,6 +1,6 @@
 import ast
-import datetime
 import os
+import datetime
 
 from logparser import parse
 
@@ -38,7 +38,7 @@ class ScrapyLogFile():
         """
         self.name = name
 
-        self._logparser_data = None
+        self._logparser = None
         self._errors_count = None
         self._spider_arguments = None
 
@@ -54,37 +54,49 @@ class ScrapyLogFile():
 
     # Logparser processing
 
+    @property
+    def logparser(self):
+        """
+        :returns: the output of `logparser <https://pypi.org/project/logparser/>`__
+        :rtype: dict
+        """
+        if self._logparser is None:
+            with open(self.name) as f:
+                # `taillines=0` sets the 'tail' key to all lines, so we set it to 1.
+                self._logparser = parse(f.read(), headlines=0, taillines=1)
+
+        return self._logparser
+
     def match(self, data_version):
         """
         :returns: whether the crawl directory's name, parsed as a datetime, is less than 3 seconds after the log file's
                   start time
         :rtype: bool
         """
-        if self._logparser_data is None:
-            self._process_logparser()
+        return 0 <= data_version.timestamp() - self.crawl_time.timestamp() < 3
 
-        start_time = datetime.datetime.strptime(self._logparser_data['first_log_time'], '%Y-%m-%d %H:%M:%S')
-        return 0 <= data_version.timestamp() - start_time.timestamp() < 3
+    @property
+    def crawl_time(self):
+        """
+        Returns the crawl's start time, which in Kingfisher Collect is the ``crawl_time`` spider argument if set, and
+        the ``start_time`` crawl statistic otherwise. If neither is logged, returns the time of the first log message.
+
+        :returns: the crawl's start time
+        :rtype: datetime.datetime
+        """
+        crawl_time = self.spider_arguments.get('crawl_time')
+        if crawl_time:
+            return datetime.datetime.strptime(crawl_time, '%Y-%m-%dT%H:%M:%S')
+        if 'start_time' in self.logparser['crawler_stats']:
+            return eval(self.logparser['crawler_stats']['start_time']).replace(microsecond=0)
+        return datetime.datetime.fromtimestamp(self.logparser['first_log_timestamp'])
 
     def is_finished(self):
         """
         :returns: whether the crawl finished cleanly
         :rtype: bool
         """
-        if self._logparser_data is None:
-            self._process_logparser()
-
-        return self._logparser_data.get('finish_reason') == 'finished'
-
-    def _process_logparser(self):
-        """
-        Parses the log file with ``logparser``.
-        """
-        with open(self.name) as f:
-            text = f.read()
-
-        # `taillines=0` sets the 'tail' key to all lines, so we set it to 1.
-        self._logparser_data = parse(text, headlines=0, taillines=1)
+        return self.logparser.get('finish_reason') == 'finished'
 
     # Line-by-line processing
 
@@ -99,15 +111,23 @@ class ScrapyLogFile():
 
         return self._errors_count
 
+    @property
+    def spider_arguments(self):
+        """
+        :returns: the spider argument
+        :rtype: dict
+        """
+        if self._spider_arguments is None:
+            self._process_line_by_line()
+
+        return self._spider_arguments
+
     def is_subset(self):
         """
         :returns: whether the crawl collected a subset of the dataset, according to the log file
         :rtype: bool
         """
-        if self._spider_arguments is None:
-            self._process_line_by_line()
-
-        return any(self._spider_arguments.get(arg) for arg in (
+        return any(self.spider_arguments.get(arg) for arg in (
             'from_date', 'until_date', 'year', 'start_page', 'publisher', 'system', 'sample'
         ))
 

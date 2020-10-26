@@ -1,0 +1,3 @@
+2020-01-01 12:34:56 [test] INFO: Spider arguments: {'sample': None, 'note': None, 'from_date': None, 'until_date': None, 'crawl_time': '2020-01-01T00:00:00', 'keep_collection_open': None, 'package_pointer': None, 'release_pointer': None, 'truncate': None}
+2020-01-01 12:34:57 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'start_time': datetime.datetime(2020, 1, 1, 12, 34, 55, 123)}
