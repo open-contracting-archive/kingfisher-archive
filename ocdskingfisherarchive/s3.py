@@ -73,7 +73,10 @@ class S3:
             'Key': f'staging/{remote_file_name}',
         }
         with _try(self):
-            client.copy(copy_source, self.bucket_name, remote_file_name)
+            client.copy(copy_source, self.bucket_name, remote_file_name, ExtraArgs={
+                'MetadataDirective': 'COPY',
+                'StorageClass': 'STANDARD_IA',
+            })
 
     def remove_staging_file(self, remote_file_name):
         with _try(self):
