@@ -155,19 +155,23 @@ class Archive:
 
         Finally, it deletes the created files, the crawl's data directory, and the crawl's log file.
         """
-        data_file_name = crawl.write_data_file()
         meta_file_name = crawl.write_meta_data_file()
+        data_file_name = crawl.write_data_file()
 
         remote_directory = f'{crawl.source_id}/{crawl.data_version.year}/{crawl.data_version.month:02d}'
 
-        self.s3.upload_file_to_staging(meta_file_name, f'{remote_directory}/metadata.json')
-        self.s3.upload_file_to_staging(data_file_name, f'{remote_directory}/data.tar.lz4')
+        files = {
+            meta_file_name: f'{remote_directory}/metadata.json',
+            data_file_name: f'{remote_directory}/data.tar.lz4',
+            crawl.scrapy_log_file.name: f'{remote_directory}/scrapy.log',
+        }
 
-        self.s3.move_file_from_staging_to_real(f'{remote_directory}/metadata.json')
-        self.s3.move_file_from_staging_to_real(f'{remote_directory}/data.tar.lz4')
-
-        self.s3.remove_staging_file(f'{remote_directory}/metadata.json')
-        self.s3.remove_staging_file(f'{remote_directory}/data.tar.lz4')
+        for local, remote in files.items():
+            self.s3.upload_file_to_staging(local, remote)
+        for remote in files.values():
+            self.s3.move_file_from_staging_to_real(remote)
+        for remote in files.values():
+            self.s3.remove_staging_file(remote)
 
         os.unlink(meta_file_name)
         os.unlink(data_file_name)
