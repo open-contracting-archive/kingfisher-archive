@@ -1,11 +1,16 @@
 import ast
-import os
 import datetime
+import os
+import re
 
 from logparser import parse
+from logparser.common import DATETIME_PATTERN, Common
 
 # Kingfisher Collect logs an INFO message starting with "Spider arguments:".
 SPIDER_ARGUMENTS_SEARCH_STRING = ' INFO: Spider arguments: '
+
+# Hotfix: https://github.com/my8100/logparser/pull/19
+Common.SIGTERM_PATTERN = re.compile(r'^%s[ ].+?:[ ](Received[ ]SIG(?:BREAK|INT|TERM)([ ]twice)?),' % DATETIME_PATTERN)
 
 
 class ScrapyLogFile():
@@ -78,8 +83,8 @@ class ScrapyLogFile():
     @property
     def crawl_time(self):
         """
-        Returns the crawl's start time, which in Kingfisher Collect is the ``crawl_time`` spider argument if set, and
-        the ``start_time`` crawl statistic otherwise. If neither is logged, returns the time of the first log message.
+        Returns the ``crawl_time`` spider argument if set, or the ``start_time`` crawl statistic otherwise. If neither
+        is logged, returns the time of the first log message.
 
         :returns: the crawl's start time
         :rtype: datetime.datetime
@@ -93,10 +98,15 @@ class ScrapyLogFile():
 
     def is_finished(self):
         """
+        Returns whether the log file contains a "Spider closed (finished)" log message or a ``finish_reason`` crawl
+        statistic set to "finished".
+
         :returns: whether the crawl finished cleanly
         :rtype: bool
         """
-        return self.logparser.get('finish_reason') == 'finished'
+        # See https://kingfisher-collect.readthedocs.io/en/latest/logs.html#check-the-reason-for-closing-the-spider
+        # logparser's `finish_reason` is "N/A" for an unclean shutdown, because crawl statistics aren't logged.
+        return self.logparser['finish_reason'] == 'finished'
 
     # Line-by-line processing
 
