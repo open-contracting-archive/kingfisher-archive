@@ -131,7 +131,7 @@ class Crawl:
 
         with tarfile.open(filename, 'w') as tar:
             tar.add(self.directory)
-            tar.add(self.scrapy_log_file)
+            tar.add(self.scrapy_log_file.name)
 
         subprocess.run(['lz4', '--content-size', filename, f'{filename}.lz4'], check=True)
 
