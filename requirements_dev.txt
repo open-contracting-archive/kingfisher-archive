@@ -5,6 +5,7 @@
 #    pip-compile requirements_dev.in
 #
 attrs==20.2.0             # via pytest
+blake3==0.1.7             # via -r requirements.txt
 boto3==1.15.2             # via -r requirements.txt
 botocore==1.18.2          # via -r requirements.txt, boto3, s3transfer
 certifi==2020.6.20        # via -r requirements.txt, requests, sentry-sdk

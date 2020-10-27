@@ -1,8 +1,8 @@
 import datetime
-import hashlib
 import os
 
 import pytest
+from blake3 import blake3
 from botocore.exceptions import ClientError
 from botocore.stub import Stubber
 
@@ -11,9 +11,8 @@ from ocdskingfisherarchive.crawl import Crawl
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 from tests import create_crawl_directory, path
 
-checksum = hashlib.blake2b()
 with open(path('data.json'), 'rb') as f:
-    checksum.update(f.read())
+    checksum = blake3(f.read())
 checksum = checksum.hexdigest()
 size = 239
 

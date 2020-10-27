@@ -90,13 +90,13 @@ def test_checksum(tmpdir):
 
     crawl = Crawl(tmpdir, 'scotland', data_version, None)
 
-    assert crawl.checksum == '16a649df237c3facf5ccd3f3e9333711fbd66ffbd1d5674afe8a6dd63f18f90d9f1fa5cae142c82f08b17f28aa3650258777ab63a6a8ac63a14b208a5562e322'  # noqa: E501
+    assert crawl.checksum == 'e274ef4fcecec183c7f24da36f81de8d3d007fa97cc99fd3d12126261f90adc6'
 
 
 def test_checksum_empty(tmpdir):
     crawl = Crawl(tmpdir, 'scotland', data_version, None)
 
-    assert crawl.checksum == '786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce'  # noqa: E501
+    assert crawl.checksum == 'af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262'
 
 
 def test_bytes(tmpdir):

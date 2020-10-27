@@ -1,11 +1,12 @@
 import datetime
-import hashlib
 import json
 import os
 import subprocess
 import tarfile
 import tempfile
 from functools import partial
+
+from blake3 import blake3
 
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
@@ -89,7 +90,7 @@ class Crawl:
         Returns the checksum of all data in the crawl directory.
 
         To ensure a consistent checksum for a given directory, it processes sub-directories and files in alphabetical
-        order. It uses the BLAKE2 cryptographic hash function and reads files in chunks to limit use of memory.
+        order. It uses the BLAKE3 cryptographic hash function and reads files in chunks to limit use of memory.
 
         :returns: the checksum of all data in the crawl directory
         :rtype: str
@@ -97,14 +98,15 @@ class Crawl:
         if self._checksum is not None:
             return self._checksum
 
-        h = hashlib.blake2b()
+        hasher = blake3()
         for root, dirs, files in os.walk(self.directory):
             dirs.sort()
             for file in sorted(files):
                 with open(os.path.join(root, file), 'rb') as f:
+                    # See https://github.com/oconnor663/blake3-py/issues/14
                     for chunk in iter(partial(f.read, 8192), b''):
-                        h.update(chunk)
-        self._checksum = h.hexdigest()
+                        hasher.update(chunk)
+        self._checksum = hasher.hexdigest()
 
         return self._checksum
 
