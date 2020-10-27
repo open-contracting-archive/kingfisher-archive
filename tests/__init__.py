@@ -5,9 +5,9 @@ def path(filename):
     return os.path.join('tests', 'fixtures', filename)
 
 
-def create_crawl_directory(tmpdir, data, log):
+def create_crawl_directory(tmpdir, data, log, source_id='scotland'):
     data_directory = tmpdir.mkdir('data')
-    spider_directory = data_directory.mkdir('scotland')
+    spider_directory = data_directory.mkdir(source_id)
 
     if data is not None:
         crawl_directory = spider_directory.mkdir('20200902_052458')

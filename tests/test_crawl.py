@@ -26,14 +26,27 @@ def test_all_not_existing(tmpdir):
     assert list(Crawl.all(tmpdir, None)) == []
 
 
-def test_all_not_directory(tmpdir):
+def test_all_spider_file(tmpdir):
     file = tmpdir.join('source_id')
     file.write('content')
 
     assert list(Crawl.all(tmpdir, None)) == []
 
 
-def test_all_bad_format(tmpdir):
+def test_all_spider_sample(tmpdir):
+    create_crawl_directory(tmpdir, ['data.json'], 'log_error1.log', source_id='scotland_sample')
+
+    assert list(Crawl.all(tmpdir.join('data'), tmpdir.join('logs', 'kingfisher'))) == []
+
+
+def test_all_crawl_file(tmpdir):
+    file = tmpdir.mkdir('source_id').join('20200902_052458')
+    file.write('content')
+
+    assert list(Crawl.all(tmpdir, None)) == []
+
+
+def test_all_crawl_format(tmpdir):
     tmpdir.mkdir('source_id').mkdir('directory')
 
     assert list(Crawl.all(tmpdir, None)) == []

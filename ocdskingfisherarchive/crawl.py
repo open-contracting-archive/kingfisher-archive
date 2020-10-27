@@ -25,12 +25,21 @@ class Crawl:
         """
         for source_id in os.listdir(data_directory):
             spider_directory = os.path.join(data_directory, source_id)
-            if os.path.isdir(spider_directory):
-                for data_version in os.listdir(spider_directory):
-                    data_version = cls.parse_data_version(data_version)
-                    if data_version:
-                        scrapy_log_file = ScrapyLogFile.find(logs_directory, source_id, data_version)
-                        yield cls(data_directory, source_id, data_version, scrapy_log_file)
+            if not os.path.isdir(spider_directory):
+                continue
+            if source_id.endswith('_sample'):
+                continue
+
+            for data_version in os.listdir(spider_directory):
+                crawl_directory = os.path.join(spider_directory, data_version)
+                if not os.path.isdir(crawl_directory):
+                    continue
+                data_version = cls.parse_data_version(data_version)
+                if not data_version:
+                    continue
+
+                scrapy_log_file = ScrapyLogFile.find(logs_directory, source_id, data_version)
+                yield cls(data_directory, source_id, data_version, scrapy_log_file)
 
     @staticmethod
     def parse_data_version(directory):
