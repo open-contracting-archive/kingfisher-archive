@@ -104,7 +104,11 @@ class Crawl:
             for file in sorted(files):
                 with open(os.path.join(root, file), 'rb') as f:
                     # See https://github.com/oconnor663/blake3-py/issues/14
-                    for chunk in iter(partial(f.read, 8192), b''):
+                    # If hashing is the bottleneck, consider:
+                    # - Memory map all but the largest files
+                    # - Read large chunk with multithreading
+                    # - Call b3sum as subprocess
+                    for chunk in iter(partial(f.read, 16384), b''):
                         hasher.update(chunk)
         self._checksum = hasher.hexdigest()
 
