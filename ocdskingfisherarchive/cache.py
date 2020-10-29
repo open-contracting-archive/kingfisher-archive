@@ -6,9 +6,14 @@ class Cache:
     A cache of which crawl directories have been archived or skipped.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, expired=False):
+        """
+        :param str filename: the path to the SQLite database for caching the local state
+        :param bool expired: whether to ignore and overwrite existing rows in the SQLite database
+        """
         self.conn = sqlite3.connect(filename)
         self.cursor = self.conn.cursor()
+        self.expired = expired
 
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='crawl'")
         if not self.cursor.fetchone():
@@ -21,6 +26,9 @@ class Cache:
         :returns: the state of the crawl directory, if any
         :rtype: str
         """
+        if self.expired:
+            return
+
         self.cursor.execute("SELECT state FROM crawl WHERE directory = :directory", {'directory': crawl.directory})
         result = self.cursor.fetchone()
         if result:

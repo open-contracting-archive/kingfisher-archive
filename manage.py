@@ -29,6 +29,8 @@ def cli():
               help="A JSON file following Python's logging configuration dictionary schema")
 @click.option('-n', '--dry-run', is_flag=True,
               help="Don't archive any files, just show whether they would be")
+@click.option('--invalidate-cache', is_flag=True,
+              help="Ignore and overwrite existing rows in the SQLite database")
 def archive(bucket_name, data_directory, logs_directory, cache_file, logging_config_file, dry_run):
     """
     Archives data and log files written by Kingfisher Collect to Amazon S3.
@@ -48,7 +50,7 @@ def archive(bucket_name, data_directory, logs_directory, cache_file, logging_con
     # We don't catch pidfile.AlreadyRunningError so that it can be raised to Sentry. If this error is raised by a cron
     # job, it points to either a very slow archival process, or to an unanticipated problem.
     with pidfile.PIDFile():
-        Archive(bucket_name, data_directory, logs_directory, cache_file).process(dry_run)
+        Archive(bucket_name, data_directory, logs_directory, cache_file, invalidate_cache).process(dry_run)
 
 
 if __name__ == '__main__':

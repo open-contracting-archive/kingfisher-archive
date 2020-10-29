@@ -10,17 +10,18 @@ logger = logging.getLogger('ocdskingfisher.archive')
 
 
 class Archive:
-    def __init__(self, bucket_name, data_directory, logs_directory, cache_file):
+    def __init__(self, bucket_name, data_directory, logs_directory, cache_file, cached_expired=False):
         """
         :param str bucket_name: an Amazon S3 bucket name
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
         :param str cache_file: the path to a SQLite database for caching the local state
+        :param bool cached_expired: whether to ignore and overwrite existing rows in the SQLite database
         """
         self.s3 = S3(bucket_name)
         self.data_directory = data_directory
         self.logs_directory = logs_directory
-        self.cache = Cache(cache_file)
+        self.cache = Cache(cache_file, expired=cached_expired)
 
     def process(self, dry_run=False):
         """
