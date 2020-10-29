@@ -17,7 +17,6 @@ logger = logging.getLogger('ocdskingfisher.archive')
 DATA_VERSION_FORMAT = '%Y%m%d_%H%M%S'
 
 
-
 class Crawl:
     """
     A representation of a Kingfisher Collect crawl.
@@ -31,7 +30,7 @@ class Crawl:
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
         """
-        seven_weeks_ago = time.time() - 604800 # 7 * 24 * 60 * 60
+        seven_weeks_ago = time.time() - 604800  # 7 * 24 * 60 * 60
 
         for source_id in os.scandir(data_directory):
             if not source_id.is_dir():

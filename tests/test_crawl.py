@@ -1,8 +1,6 @@
 import datetime
 import os
 import time
-from collections import namedtuple
-from unittest.mock import patch
 
 import pytest
 

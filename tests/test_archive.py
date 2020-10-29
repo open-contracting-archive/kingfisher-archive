@@ -2,9 +2,9 @@ import datetime
 import os
 
 import pytest
-from xxhash import xxh3_128
 from botocore.exceptions import ClientError
 from botocore.stub import Stubber
+from xxhash import xxh3_128
 
 import ocdskingfisherarchive.s3
 from ocdskingfisherarchive.crawl import Crawl
