@@ -111,9 +111,9 @@ def test_errors_count(filename, expected):
 
 
 @pytest.mark.parametrize('filename, expected', [
-    ('log_error1.log', False),
-    ('log_sample1.log', True),
-    ('log_from_date1.log', True),
+    ('log_error1.log', True),
+    ('log_sample1.log', False),
+    ('log_from_date1.log', False),
 ])
-def test_is_subset(filename, expected):
-    assert ScrapyLogFile(path(filename)).is_subset() is expected
+def test_is_complete(filename, expected):
+    assert ScrapyLogFile(path(filename)).is_complete() is expected

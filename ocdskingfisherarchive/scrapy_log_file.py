@@ -132,12 +132,12 @@ class ScrapyLogFile():
 
         return self._spider_arguments
 
-    def is_subset(self):
+    def is_complete(self):
         """
         :returns: whether the crawl collected a subset of the dataset, according to the log file
         :rtype: bool
         """
-        return any(self.spider_arguments.get(arg) for arg in (
+        return not any(self.spider_arguments.get(arg) for arg in (
             'from_date', 'until_date', 'year', 'start_page', 'publisher', 'system', 'sample'
         ))
 

@@ -49,98 +49,96 @@ class Archive:
 
         # TODO If not archiving, still delete local files after 90 days
 
-        should_archive = self.should_archive(crawl)
+        should_archive, reason = self.should_archive(crawl)
+        if should_archive:
+            logger.info('ARCHIVE (%s) %s', reason, crawl)
+        else:
+            logger.info('skip (%s) %s', reason, crawl)
         if dry_run:
-            return
+            return should_archive
 
         elif should_archive:
             self.archive_crawl(crawl)
             self.cache.set(crawl, 'archived')
         else:
             self.cache.set(crawl, 'skipped')
+        return should_archive
 
     def should_archive(self, crawl):
         """
         Returns whether to archive the crawl.
 
+        This implements Kingfisher Process' `data retention policy
+        <https://ocdsdeploy.readthedocs.io/en/latest/use/kingfisher-process.html#data-retention-policy>`__.
+
+        It will not archive a crawl that:
+
+        -  has no data directory
+        -  has no data files
+        -  has no log file
+        -  is not finished, according to the log
+        -  is not complete, according to the log (it uses spider arguments to filter results)
+        -  is insufficiently clean, according to the log (it has more error responses than success responses)
+
+        If a crawl passes these tests, it is compared to archived crawls. If there's already a crawl in the same month,
+        it will not archive if it:
+
+        -  is not distinct (the checksums are identical)
+        -  is less clean
+        -  is less complete (it has less than 50% more bytes)
+
+        If there's a crawl in a earlier month, it will compare to the most recent, and it will not archive if it:
+
+        -  is not distinct (the checksums are identical)
+        -  is less clean and less complete (in which case it might have been identical, if not for the errors)
+
+        Otherwise, it will archive the crawl.
+
         :returns: whether to archive the crawl
         :rtype: bool
         """
         if not os.path.isdir(crawl.directory):
-            logger.info('Skipping %s because data files do not exist', crawl)
-            return False
+            return False, 'no_data_directory'
 
         if not crawl.scrapy_log_file:
-            logger.info('Skipping %s because log file does not exist', crawl)
-            return False
+            return False, 'no_log_file'
 
-        # Is it a subset; was from or until date set? (Sample is already checked but may as well check again)
-        if crawl.scrapy_log_file.is_subset():
-            logger.info('Skipping %s because crawl is a subset', crawl)
-            return False
-
-        # If not finished, don't archive
         if not crawl.scrapy_log_file.is_finished():
-            logger.info('Skipping %s because Scrapy log file says it is not finished', crawl)
-            return False
+            return False, 'not_finished'
 
-        # Is there already a crawl archived for source / year / month?
+        if not crawl.scrapy_log_file.is_complete():
+            return False, 'not_complete'
+
         remote_metadata = self.s3.load_exact(crawl.source_id, crawl.data_version)
         if remote_metadata:
-            # If checksums identical, leave it
             if remote_metadata['checksum'] == crawl.checksum:
-                logger.info('Skipping %s because an archive exists for same period and same checksum', crawl)
-                return False
+                return False, 'same_period_not_distinct'
 
-            # If the local directory has more errors, leave it
-            # (But we may not have an errors count for one of the things we are comparing)
             if remote_metadata['errors_count'] is not None and \
                     crawl.scrapy_log_file.errors_count > remote_metadata['errors_count']:
-                logger.info('Skipping %s because an archive exists for same period and fewer errors', crawl)
-                return False
+                return False, 'same_period_less_clean'
 
-            # If the local directory has equal or fewer bytes, leave it
             if crawl.bytes <= remote_metadata['bytes']:
-                logger.info('Skipping %s because an archive exists for same period and same or larger size', crawl)
-                return False
+                return False, 'same_period_less_complete'
 
-            # Otherwise, Backup
-            logger.info('Archiving %s because an archive exists for same period and we can not find a good reason to '
-                        'not archive', crawl)
-            return True
+            return True, 'same_period'
 
-        # Is an earlier crawl archived for source?
         remote_metadata, year, month = self.s3.load_latest(crawl.source_id, crawl.data_version)
         if remote_metadata:
-            # If checksums identical, leave it
             if remote_metadata['checksum'] == crawl.checksum:
-                logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and same checksum',
-                            crawl, year, month)
-                return False
+                return False, f'{year}_{month}_not_distinct'
 
-            # Complete: If the local directory has 50% more bytes, replace the remote directory.
             if crawl.bytes >= remote_metadata['bytes'] * 1.5:
-                logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local crawl has '
-                            '50%% more size', crawl, year, month)
-                return True
+                return True, f'{year}_{month}_more_complete'
 
-            # Clean: If the local directory has fewer or same errors, and greater or equal bytes,
-            # replace the remote directory.
-            # (But we may not have an errors count for one of the things we are comparing)
             if remote_metadata['errors_count'] is not None and \
                     crawl.scrapy_log_file.errors_count <= remote_metadata['errors_count'] and \
                     crawl.bytes >= remote_metadata['bytes']:
-                logger.info('Archiving %s because an archive exists from earlier period (%s/%s) and local crawl '
-                            'has fewer or equal errors and greater or equal size', crawl, year, month)
-                return True
+                return True, f'{year}_{month}_more_clean_more_complete'
 
-            # Otherwise, do not backup
-            logger.info('Skipping %s because an archive exists from earlier period (%s/%s) and we can not find a '
-                        'good reason to backup', crawl, year, month)
-            return False
+            return False, f'{year}_{month}_other'
 
-        logger.info('Archiving %s because no current or previous archives found', crawl)
-        return True
+        return True, f'new_period'
 
     def archive_crawl(self, crawl):
         """
