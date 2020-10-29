@@ -8,3 +8,4 @@ Kingfisher Archive
    setup
    use
    formats
+   contributing
