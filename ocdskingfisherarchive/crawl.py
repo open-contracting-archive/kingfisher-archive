@@ -10,6 +10,8 @@ from xxhash import xxh3_128
 
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
+DATA_VERSION_FORMAT = '%Y%m%d_%H%M%S'
+
 
 class Crawl:
     """
@@ -73,7 +75,7 @@ class Crawl:
         :returns: the path to the crawl directory relative to the data directory
         :rtype: str
         """
-        return os.path.join(self.source_id, self.data_version.strftime('%Y%m%d_%H%M%S'))
+        return os.path.join(self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT))
 
     @property
     def directory(self):
@@ -81,7 +83,7 @@ class Crawl:
         :returns: the full path to the crawl directory
         :rtype: str
         """
-        return os.path.join(self.data_directory, self.source_id, self.data_version.strftime('%Y%m%d_%H%M%S'))
+        return os.path.join(self.data_directory, self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT))
 
     @property
     def checksum(self):
@@ -127,6 +129,9 @@ class Crawl:
 
     def write_meta_data_file(self):
         data = {
+            'version': '1',
+            'source_id': self.source_id,
+            'data_version': self.data_version.strftime(DATA_VERSION_FORMAT),
             'checksum': self.checksum,
             'bytes': self.bytes,
             'errors_count': self.scrapy_log_file.errors_count,
