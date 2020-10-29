@@ -31,9 +31,9 @@ class ScrapyLogFile():
         """
         source_directory = os.path.join(logs_directory, source_id)
         if os.path.isdir(source_directory):
-            for filename in sorted(os.listdir(source_directory)):
-                if filename.endswith(".log"):
-                    scrapy_log_file = ScrapyLogFile(os.path.join(source_directory, filename))
+            for entry in os.scandir(source_directory):
+                if entry.name.endswith('.log'):
+                    scrapy_log_file = ScrapyLogFile(entry.path)
                     if scrapy_log_file.match(data_version):
                         return scrapy_log_file
 

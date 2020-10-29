@@ -24,18 +24,17 @@ class Crawl:
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
         """
-        for source_id in os.listdir(data_directory):
-            spider_directory = os.path.join(data_directory, source_id)
-            if not os.path.isdir(spider_directory):
+        for source_id in os.scandir(data_directory):
+            if not source_id.is_dir():
                 continue
-            if source_id.endswith('_sample'):
+            if source_id.name.endswith('_sample'):
                 continue
 
-            for data_version in os.listdir(spider_directory):
-                crawl_directory = os.path.join(spider_directory, data_version)
-                if not os.path.isdir(crawl_directory):
+            for data_version in os.scandir(source_id.path):
+                if not data_version.is_dir():
                     continue
-                data_version = cls.parse_data_version(data_version)
+                source_id = source_id.name
+                data_version = cls.parse_data_version(data_version.name)
                 if not data_version:
                     continue
 
