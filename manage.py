@@ -31,7 +31,7 @@ def cli():
               help="Don't archive any files, just show whether they would be")
 @click.option('--invalidate-cache', is_flag=True,
               help="Ignore and overwrite existing rows in the SQLite database")
-def archive(bucket_name, data_directory, logs_directory, cache_file, logging_config_file, dry_run):
+def archive(bucket_name, data_directory, logs_directory, cache_file, logging_config_file, dry_run, invalidate_cache):
     """
     Archives data and log files written by Kingfisher Collect to Amazon S3.
     """
