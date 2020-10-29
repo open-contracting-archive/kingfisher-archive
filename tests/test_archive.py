@@ -32,21 +32,24 @@ def assert_log(caplog, levelname, message):
 
 @pytest.mark.parametrize('data_files, log_file, load_exact, load_latest, expected_return_value, message_log_message', [
     # No remote directory.
-    (['data.json'], 'log_error1.log',
-     None, (None, None, None),
-     True, 'ARCHIVE (new_period) scotland/20200902_052458'),
-    (['data.json'], 'log_sample1.log',
-     None, (None, None, None),
-     False, 'skip (not_complete) scotland/20200902_052458'),
     (None, 'log1.log',
      None, (None, None, None),
      False, 'skip (no_data_directory) scotland/20200902_052458'),
-    (['data.json'], 'log_in_progress1.log',
+    ([], 'log1.log',
      None, (None, None, None),
-     False, 'skip (not_finished) scotland/20200902_052458'),
+     False, 'skip (no_data_files) scotland/20200902_052458'),
     (['data.json'], None,
      None, (None, None, None),
      False, 'skip (no_log_file) scotland/20200902_052458'),
+    (['data.json'], 'log_sample1.log',
+     None, (None, None, None),
+     False, 'skip (not_complete) scotland/20200902_052458'),
+    (['data.json'], 'log_in_progress1.log',
+     None, (None, None, None),
+     False, 'skip (not_finished) scotland/20200902_052458'),
+    (['data.json'], 'log_error1.log',
+     None, (None, None, None),
+     True, 'ARCHIVE (new_period) scotland/20200902_052458'),
 
     # Same remote directory.
     (['data.json'], 'log_error1.log',

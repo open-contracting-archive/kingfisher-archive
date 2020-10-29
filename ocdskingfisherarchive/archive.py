@@ -71,7 +71,7 @@ class Archive:
         This implements Kingfisher Process' `data retention policy
         <https://ocdsdeploy.readthedocs.io/en/latest/use/kingfisher-process.html#data-retention-policy>`__.
 
-        It will not archive a crawl that:
+        The crawl will not be archived if it:
 
         -  has no data directory
         -  has no data files
@@ -80,14 +80,15 @@ class Archive:
         -  is not complete, according to the log (it uses spider arguments to filter results)
         -  is insufficiently clean, according to the log (it has more error responses than success responses)
 
-        If a crawl passes these tests, it is compared to archived crawls. If there's already a crawl in the same month,
-        it will not archive if it:
+        If a crawl passes these tests, it is compared to archived crawls. If there is an earlier crawl in the same
+        month, the new crawl will not be archived if it:
 
         -  is not distinct (the checksums are identical)
         -  is less clean
         -  is less complete (it has less than 50% more bytes)
 
-        If there's a crawl in a earlier month, it will compare to the most recent, and it will not archive if it:
+        If there is an earlier crawl in an earlier month, it will compare to the most recent, and the new crawl will
+        not be archived if it:
 
         -  is not distinct (the checksums are identical)
         -  is less clean and less complete (in which case it might have been identical, if not for the errors)
@@ -99,6 +100,9 @@ class Archive:
         """
         if not os.path.isdir(crawl.directory):
             return False, 'no_data_directory'
+
+        if not next(os.scandir(crawl.directory), None):
+            return False, 'no_data_files'
 
         if not crawl.scrapy_log_file:
             return False, 'no_log_file'
@@ -138,7 +142,7 @@ class Archive:
 
             return False, f'{year}_{month}_other'
 
-        return True, f'new_period'
+        return True, 'new_period'
 
     def archive_crawl(self, crawl):
         """
