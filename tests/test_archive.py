@@ -2,7 +2,7 @@ import datetime
 import os
 
 import pytest
-from blake3 import blake3
+from xxhash import xxh3_128
 from botocore.exceptions import ClientError
 from botocore.stub import Stubber
 
@@ -12,8 +12,7 @@ from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 from tests import create_crawl_directory, path
 
 with open(path('data.json'), 'rb') as f:
-    checksum = blake3(f.read())
-checksum = checksum.hexdigest()
+    checksum = xxh3_128(f.read()).hexdigest()
 size = 239
 
 

@@ -6,7 +6,7 @@ import tarfile
 import tempfile
 from functools import partial
 
-from blake3 import blake3
+from xxhash import xxh3_128
 
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
@@ -90,7 +90,7 @@ class Crawl:
         Returns the checksum of all data in the crawl directory.
 
         To ensure a consistent checksum for a given directory, it processes sub-directories and files in alphabetical
-        order. It uses the BLAKE3 cryptographic hash function and reads files in chunks to limit use of memory.
+        order. It uses the xxHash non-cryptographic hash function and reads files in chunks to limit use of memory.
 
         :returns: the checksum of all data in the crawl directory
         :rtype: str
@@ -98,17 +98,15 @@ class Crawl:
         if self._checksum is not None:
             return self._checksum
 
-        hasher = blake3()
+        hasher = xxh3_128()
         for root, dirs, files in os.walk(self.directory):
             dirs.sort()
             for file in sorted(files):
                 with open(os.path.join(root, file), 'rb') as f:
-                    # See https://github.com/oconnor663/blake3-py/issues/14
-                    # If hashing is the bottleneck, consider:
-                    # - Memory map all but the largest files
-                    # - Read large chunk with multithreading
-                    # - Call b3sum as subprocess
-                    for chunk in iter(partial(f.read, 16384), b''):
+                    # xxsum reads 64KB at a time (https://github.com/Cyan4973/xxHash/blob/dev/xxhsum.c). If it were
+                    # possible for the end of a file to appear at the start of another file, we could add bytes for
+                    # file boundaries.
+                    for chunk in iter(partial(f.read, 65536), b''):  # 64KB
                         hasher.update(chunk)
         self._checksum = hasher.hexdigest()
 

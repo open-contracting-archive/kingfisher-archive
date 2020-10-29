@@ -1,7 +1,7 @@
-blake3
 boto3
 click
 logparser
 python-dotenv
 python-pidfile
 sentry-sdk
+xxhash

@@ -5,7 +5,6 @@
 #    pip-compile requirements_dev.in
 #
 attrs==20.2.0             # via pytest
-blake3==0.1.7             # via -r requirements.txt
 boto3==1.15.2             # via -r requirements.txt
 botocore==1.18.2          # via -r requirements.txt, boto3, s3transfer
 certifi==2020.6.20        # via -r requirements.txt, requests, sentry-sdk
@@ -44,6 +43,7 @@ sentry-sdk==0.17.7        # via -r requirements.txt
 six==1.15.0               # via -r requirements.txt, logparser, packaging, pip-tools, python-dateutil
 toml==0.10.1              # via pytest
 urllib3==1.25.10          # via -r requirements.txt, botocore, requests, sentry-sdk
+xxhash==2.0.0             # via -r requirements.txt
 zipp==3.1.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
