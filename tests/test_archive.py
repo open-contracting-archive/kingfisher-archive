@@ -9,7 +9,7 @@ from botocore.stub import Stubber
 import ocdskingfisherarchive.s3
 from ocdskingfisherarchive.crawl import Crawl
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
-from tests import create_crawl_directory, path
+from tests import assert_log, create_crawl_directory, path
 
 with open(path('data.json'), 'rb') as f:
     checksum = xxh3_128(f.read()).hexdigest()
@@ -21,13 +21,6 @@ def crawl(tmpdir):
     data_version = datetime.datetime(2020, 9, 2, 5, 24, 58)
     scrapy_log_file = ScrapyLogFile.find(tmpdir.join('logs', 'kingfisher'), source_id, data_version)
     return Crawl(tmpdir.join('data'), source_id, data_version, scrapy_log_file)
-
-
-def assert_log(caplog, levelname, message):
-    assert len(caplog.records) == 1
-    assert caplog.records[0].name == 'ocdskingfisher.archive'
-    assert caplog.records[0].levelname == levelname, f'{caplog.records[0].levelname!r} == {levelname!r}'
-    assert caplog.records[0].message == message, f'{caplog.records[0].message!r} == {message!r}'
 
 
 @pytest.mark.parametrize('data_files, log_file, load_exact, load_latest, expected_return_value, message_log_message', [
@@ -108,6 +101,7 @@ def test_process_crawl(archive, tmpdir, caplog, monkeypatch):
         return {'KeyCount': 0}
 
     create_crawl_directory(tmpdir, ['data.json'], 'log_error1.log')
+    os.utime(tmpdir.join('data', 'scotland', '20200902_052458'), (1, 1))
 
     stubber = Stubber(ocdskingfisherarchive.s3.client)
     monkeypatch.setattr(ocdskingfisherarchive.s3, 'client', stubber)

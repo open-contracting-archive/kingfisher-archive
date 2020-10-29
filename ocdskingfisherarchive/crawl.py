@@ -1,16 +1,21 @@
 import datetime
 import json
+import logging
 import os
 import subprocess
 import tarfile
 import tempfile
+import time
 from functools import partial
 
 from xxhash import xxh3_128
 
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 
+logger = logging.getLogger('ocdskingfisher.archive')
+
 DATA_VERSION_FORMAT = '%Y%m%d_%H%M%S'
+
 
 
 class Crawl:
@@ -26,6 +31,8 @@ class Crawl:
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
         """
+        seven_weeks_ago = time.time() - 604800 # 7 * 24 * 60 * 60
+
         for source_id in os.scandir(data_directory):
             if not source_id.is_dir():
                 continue
@@ -35,13 +42,15 @@ class Crawl:
             for data_version in os.scandir(source_id.path):
                 if not data_version.is_dir():
                     continue
-                source_id = source_id.name
-                data_version = cls.parse_data_version(data_version.name)
-                if not data_version:
+                parsed = cls.parse_data_version(data_version.name)
+                if not parsed:
+                    continue
+                if data_version.stat().st_mtime >= seven_weeks_ago:
+                    logger.info('wait (recent) %s/%s', source_id.name, data_version.name)
                     continue
 
-                scrapy_log_file = ScrapyLogFile.find(logs_directory, source_id, data_version)
-                yield cls(data_directory, source_id, data_version, scrapy_log_file)
+                scrapy_log_file = ScrapyLogFile.find(logs_directory, source_id.name, parsed)
+                yield cls(data_directory, source_id.name, parsed, scrapy_log_file)
 
     @staticmethod
     def parse_data_version(directory):
@@ -51,7 +60,7 @@ class Crawl:
         :rtype: datatime.datetime
         """
         try:
-            return datetime.datetime.strptime(directory, '%Y%m%d_%H%M%S')
+            return datetime.datetime.strptime(directory, DATA_VERSION_FORMAT)
         except ValueError:
             pass
 
@@ -75,7 +84,7 @@ class Crawl:
         :returns: the path to the crawl directory relative to the data directory
         :rtype: str
         """
-        return os.path.join(self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT))
+        return '/'.join([self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT)])
 
     @property
     def directory(self):

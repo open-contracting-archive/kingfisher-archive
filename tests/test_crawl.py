@@ -1,25 +1,38 @@
 import datetime
-import os.path
+import os
+import time
+from collections import namedtuple
+from unittest.mock import patch
 
 import pytest
 
 from ocdskingfisherarchive.crawl import Crawl
-from tests import create_crawl_directory
+from tests import assert_log, create_crawl_directory
 
+current_time = time.time()
 data_version = datetime.datetime(2020, 9, 2, 5, 24, 58)
 
 
-def test_all(tmpdir, caplog, monkeypatch):
+@pytest.mark.parametrize('mtime, expected', [
+    (current_time - 604800 + 60, 0),
+    (current_time - 604800 - 60, 1),  # change if tests are slow
+])
+def test_all(mtime, expected, tmpdir, caplog):
     create_crawl_directory(tmpdir, ['data.json'], 'log_error1.log')
+    os.utime(tmpdir.join('data', 'scotland', '20200902_052458'), (mtime, mtime))
 
     crawls = list(Crawl.all(tmpdir.join('data'), tmpdir.join('logs', 'kingfisher')))
 
-    assert len(crawls) == 1
-    assert crawls[0].source_id == 'scotland'
-    assert crawls[0].data_version == data_version
-    assert crawls[0].data_directory == tmpdir.join('data')
-    assert crawls[0].scrapy_log_file.name == tmpdir.join('logs', 'kingfisher', 'scotland',
-                                                         '307e8331edc801c691e21690db130256.log')
+    assert len(crawls) == expected
+
+    if expected:
+        assert crawls[0].source_id == 'scotland'
+        assert crawls[0].data_version == data_version
+        assert crawls[0].data_directory == tmpdir.join('data')
+        assert crawls[0].scrapy_log_file.name == tmpdir.join('logs', 'kingfisher', 'scotland',
+                                                             '307e8331edc801c691e21690db130256.log')
+    else:
+        assert_log(caplog, 'INFO', 'wait (recent) scotland/20200902_052458')
 
 
 def test_all_not_existing(tmpdir):

@@ -24,3 +24,10 @@ def create_crawl_directory(tmpdir, data, log, source_id='scotland'):
         file = spider_directory.join('307e8331edc801c691e21690db130256.log')
         with open(path(log)) as f:
             file.write(f.read())
+
+
+def assert_log(caplog, levelname, message):
+    assert len(caplog.records) == 1
+    assert caplog.records[0].name == 'ocdskingfisher.archive'
+    assert caplog.records[0].levelname == levelname, f'{caplog.records[0].levelname!r} == {levelname!r}'
+    assert caplog.records[0].message == message, f'{caplog.records[0].message!r} == {message!r}'
