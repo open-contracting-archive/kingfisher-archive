@@ -2,6 +2,7 @@ import ast
 import datetime
 import os
 import re
+from collections import defaultdict
 
 from logparser import parse
 from logparser.common import DATETIME_PATTERN, Common
@@ -44,7 +45,7 @@ class ScrapyLogFile():
         self.name = name
 
         self._logparser = None
-        self._errors_count = None
+        self._item_counts = None
         self._spider_arguments = None
 
     def delete(self):
@@ -111,15 +112,15 @@ class ScrapyLogFile():
     # Line-by-line processing
 
     @property
-    def errors_count(self):
+    def item_counts(self):
         """
-        :returns: the number of retrieval errors, according to the log file
-        :rtype: int
+        :returns: the number of each type of item, according to the log file
+        :rtype: dict
         """
-        if self._errors_count is None:
+        if self._item_counts is None:
             self._process_line_by_line()
 
-        return self._errors_count
+        return self._item_counts
 
     @property
     def spider_arguments(self):
@@ -142,7 +143,7 @@ class ScrapyLogFile():
         ))
 
     def _process_line_by_line(self):
-        self._errors_count = 0
+        self._item_counts = defaultdict(int)
         self._spider_arguments = {}
 
         buf = []
@@ -156,7 +157,11 @@ class ScrapyLogFile():
                         # an 'errors' key. FileError items use only simple types, so `ast.literal_eval` can be used.
                         item = ast.literal_eval(''.join(buf))
                         if 'errors' in item:
-                            self._errors_count += 1
+                            self._item_counts['FileError'] += 1
+                        elif 'number' in item:
+                            self._item_counts['FileItem'] += 1
+                        elif 'data_type' in item:
+                            self._item_counts['File'] += 1
                     except ValueError:
                         # Scrapy dumps stats as a dict, which uses `datetime.datetime` types that can't be parsed with
                         # `ast.literal_eval`.
@@ -168,3 +173,23 @@ class ScrapyLogFile():
                     # `eval` is used, because the string can contain `datetime.date` and is written by trusted code in
                     # Kingfisher Collect. Otherwise, we can modify the string so that `ast.literal_eval` can be used.
                     self._spider_arguments = eval(line[index + len(SPIDER_ARGUMENTS_SEARCH_STRING):])
+
+    # Mixed processing
+
+    @property
+    def error_rate(self):
+        """
+        Returns an estimated lower bound of the true error rate.
+
+        Kingfisher Collect is expected to yield at most one FileError item per request leading to a File item, so the
+        true error rate can only be less than this estimated lower bound if Kingfisher Collect breaks this expectation.
+        On the other hand, the true error rate can easily be higher than the estimated lower bound; for example:
+
+        -  If the spider crawls 10 URLs, each returning 99 URLs, each returning OCDS data, and the requests for 5 of
+           the 10 fail, then the estimated lower bound is 5 / 500 (1%), though the true error rate is 50%.
+        -  Similarly if the spider crawls 10 archive files, each containing 99 OCDS files.
+
+        :returns: an estimated lower bound of the true error rate
+        :rtype: float
+        """
+        return self.item_counts['FileError'] / (self.item_counts['FileError'] + self.item_counts['File'])

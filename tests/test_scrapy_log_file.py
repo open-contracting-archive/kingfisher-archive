@@ -106,8 +106,8 @@ def test_is_finished(filename, expected):
     ('log1.log', 0),
     ('log_error1.log', 1),
 ])
-def test_errors_count(filename, expected):
-    assert ScrapyLogFile(path(filename)).errors_count == expected
+def test_item_counts(filename, expected):
+    assert ScrapyLogFile(path(filename)).item_counts['FileError'] == expected
 
 
 @pytest.mark.parametrize('filename, expected', [

@@ -113,13 +113,16 @@ class Archive:
         if not crawl.scrapy_log_file.is_complete():
             return False, 'not_complete'
 
+        if crawl.scrapy_log_file.error_rate > 0.5:
+            return False, 'not_clean_enough'
+
         remote_metadata = self.s3.load_exact(crawl.source_id, crawl.data_version)
         if remote_metadata:
             if remote_metadata['checksum'] == crawl.checksum:
                 return False, 'same_period_not_distinct'
 
             if remote_metadata['errors_count'] is not None and \
-                    crawl.scrapy_log_file.errors_count > remote_metadata['errors_count']:
+                    crawl.scrapy_log_file.item_counts['FileError'] > remote_metadata['errors_count']:
                 return False, 'same_period_less_clean'
 
             if crawl.bytes <= remote_metadata['bytes']:
@@ -136,7 +139,7 @@ class Archive:
                 return True, f'{year}_{month}_more_complete'
 
             if remote_metadata['errors_count'] is not None and \
-                    crawl.scrapy_log_file.errors_count <= remote_metadata['errors_count'] and \
+                    crawl.scrapy_log_file.item_counts['FileError'] <= remote_metadata['errors_count'] and \
                     crawl.bytes >= remote_metadata['bytes']:
                 return True, f'{year}_{month}_more_clean_more_complete'
 
