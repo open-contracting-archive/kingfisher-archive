@@ -158,7 +158,7 @@ class Crawl:
         with tarfile.open(filename, 'w') as tar:
             tar.add(self.directory)
 
-        subprocess.run(['lz4', '--content-size', filename, f'{filename}.lz4'], check=True)
+        subprocess.run(['lz4', filename, f'{filename}.lz4'], check=True)
 
         os.unlink(filename)
 
