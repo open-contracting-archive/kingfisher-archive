@@ -142,6 +142,7 @@ class Crawl:
             'data_version': self.data_version.strftime(DATA_VERSION_FORMAT),
             'checksum': self.checksum,
             'bytes': self.bytes,
+            'files_count': self.scrapy_log_file.item_counts['File'],
             'errors_count': self.scrapy_log_file.item_counts['FileError'],
         }
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
