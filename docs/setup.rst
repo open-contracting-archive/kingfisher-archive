@@ -8,23 +8,6 @@ The application needs to be run by a user that has:
 
 Each deployment of this application should be related to a distinct instance of Kingfisher Collect and should move files to a distinct bucket.
 
-Dependencies
-------------
-
-This application requires the ``lz4`` command.
-
-On macOS:
-
-.. code-block:: shell-session
-
-   brew install lz4
-
-On Ubuntu:
-
-.. code-block:: shell-session
-
-   apt-get install liblz4-tool
-
 Amazon S3
 ---------
 

@@ -2,8 +2,6 @@ import datetime
 import json
 import logging
 import os
-import subprocess
-import tarfile
 import tempfile
 import time
 from functools import partial
@@ -11,6 +9,7 @@ from functools import partial
 from xxhash import xxh3_128
 
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
+from ocdskingfisherarchive.tarfile import LZ4TarFile
 
 logger = logging.getLogger('ocdskingfisher.archive')
 
@@ -145,21 +144,18 @@ class Crawl:
             'files_count': self.scrapy_log_file.item_counts['File'],
             'errors_count': self.scrapy_log_file.item_counts['FileError'],
         }
+
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
-        with open(filename, 'w') as file:
-            json.dump(data, file, indent=2)
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=2)
+
         os.close(file_descriptor)
         return filename
 
     def write_data_file(self):
-        file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar')
-        os.close(file_descriptor)
-
-        with tarfile.open(filename, 'w') as tar:
+        file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar.lz4')
+        with LZ4TarFile.open(filename, 'w:lz4') as tar:
             tar.add(self.directory)
 
-        subprocess.run(['lz4', filename, f'{filename}.lz4'], check=True)
-
-        os.unlink(filename)
-
-        return f'{filename}.lz4'
+        os.close(file_descriptor)
+        return filename

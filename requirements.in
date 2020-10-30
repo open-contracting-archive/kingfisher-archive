@@ -1,6 +1,7 @@
 boto3
 click
 logparser
+lz4
 python-dotenv
 python-pidfile
 sentry-sdk
