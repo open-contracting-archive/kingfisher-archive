@@ -81,23 +81,25 @@ class Archive:
         -  is insufficiently clean, according to the log (it has more error responses than success responses)
 
         If a crawl passes these tests, it is compared to archived crawls. If there is an earlier crawl in the same
-        month, the new crawl will not be archived if it:
+        month, the new crawl will **replace** the earlier crawl if it has more bytes (and is thus distinct) and:
 
-        -  is not distinct (the checksums are identical)
-        -  is less clean
-        -  is less complete (it has less than 50% more bytes)
+        -  has 50% more bytes
+        -  has 50% more files
+        -  is more clean
 
         If there is an earlier crawl in an earlier month, it will compare to the most recent, and the new crawl will
         not be archived if it:
 
-        -  is not distinct (the checksums are identical)
         -  is less clean and less complete (in which case it might have been identical, if not for the errors)
+        -  is not distinct (the checksums are identical)
 
         Otherwise, it will archive the crawl.
 
         :returns: whether to archive the crawl
         :rtype: bool
         """
+        # Issue: https://github.com/open-contracting/deploy/issues/153#issuecomment-670186295
+
         if not os.path.isdir(crawl.directory):
             return False, 'no_data_directory'
 
@@ -116,34 +118,35 @@ class Archive:
         if crawl.scrapy_log_file.error_rate > 0.5:
             return False, 'not_clean_enough'
 
+        # We run tests from least to most expensive, except where the logic requires otherwise:
+        #
+        # - Tests against Scrapy log files
+        # - Counting bytes requires a ``stat()`` system call for each file
+        # - Calculating checksums requires reading each file
+
         remote_metadata = self.s3.load_exact(crawl.source_id, crawl.data_version)
         if remote_metadata:
-            if remote_metadata['checksum'] == crawl.checksum:
-                return False, 'same_period_not_distinct'
+            if crawl.bytes > remote_metadata['bytes']:
+                if crawl.bytes >= remote_metadata['bytes'] * 1.5:
+                    return True, 'same_period_more_bytes'
+                if crawl.scrapy_log_file.item_counts['File'] >= remote_metadata['files_count'] * 1.5:
+                    return True, 'same_period_more_files'
+                if crawl.scrapy_log_file.item_counts['FileError'] < remote_metadata['errors_count']:
+                    return True, 'same_period_more_clean'
 
-            if remote_metadata['errors_count'] is not None and \
-                    crawl.scrapy_log_file.item_counts['FileError'] > remote_metadata['errors_count']:
-                return False, 'same_period_less_clean'
-
-            if crawl.bytes <= remote_metadata['bytes']:
-                return False, 'same_period_less_complete'
-
-            return True, 'same_period'
+            return False, 'same_period'
 
         remote_metadata, year, month = self.s3.load_latest(crawl.source_id, crawl.data_version)
         if remote_metadata:
+            if (
+                crawl.scrapy_log_file.item_counts['FileError'] > remote_metadata['errors_count']
+                and crawl.scrapy_log_file.item_counts['File'] <= remote_metadata['files_count']
+                and crawl.bytes <= remote_metadata['bytes']
+            ):
+                return False, f'{year}_{month}_not_distinct_maybe'
+
             if remote_metadata['checksum'] == crawl.checksum:
                 return False, f'{year}_{month}_not_distinct'
-
-            if crawl.bytes >= remote_metadata['bytes'] * 1.5:
-                return True, f'{year}_{month}_more_complete'
-
-            if remote_metadata['errors_count'] is not None and \
-                    crawl.scrapy_log_file.item_counts['FileError'] <= remote_metadata['errors_count'] and \
-                    crawl.bytes >= remote_metadata['bytes']:
-                return True, f'{year}_{month}_more_clean_more_complete'
-
-            return False, f'{year}_{month}_other'
 
         return True, 'new_period'
 
