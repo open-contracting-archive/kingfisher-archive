@@ -138,6 +138,7 @@ class ScrapyLogFile():
         :returns: whether the crawl collected a subset of the dataset, according to the log file
         :rtype: bool
         """
+        # See https://kingfisher-collect.readthedocs.io/en/latest/spiders.html#spider-arguments
         return not any(self.spider_arguments.get(arg) for arg in (
             'from_date', 'until_date', 'year', 'start_page', 'publisher', 'system', 'sample'
         ))
@@ -192,4 +193,4 @@ class ScrapyLogFile():
         :returns: an estimated lower bound of the true error rate
         :rtype: float
         """
-        return self.item_counts['FileError'] / (self.item_counts['FileError'] + self.item_counts['File'])
+        return self.item_counts['FileError'] / (self.item_counts['File'] + self.item_counts['FileError'])
