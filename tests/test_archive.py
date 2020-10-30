@@ -48,41 +48,56 @@ def crawl(tmpdir):
      True, 'ARCHIVE (new_period) scotland/20200902_052458'),
 
     # Same remote directory.
+    # Identical
     (['data.json'], 'log_error1.log',
      {'checksum': checksum, 'bytes': size, 'errors_count': 1, 'files_count': 2}, (None, None, None),
      False, 'skip (same_period) scotland/20200902_052458'),
+    # Same bytes
     (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': 1000000, 'errors_count': 1, 'files_count': 2}, (None, None, None),
+     {'checksum': 'other', 'bytes': size, 'errors_count': 2, 'files_count': 1}, (None, None, None),
      False, 'skip (same_period) scotland/20200902_052458'),
-    (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': size, 'errors_count': 0, 'files_count': 2}, (None, None, None),
-     False, 'skip (same_period) scotland/20200902_052458'),
+    # More bytes, but not 50% more bytes
     (['data.json'], 'log_error1.log',
      {'checksum': 'other', 'bytes': size - 1, 'errors_count': 1, 'files_count': 2}, (None, None, None),
      False, 'skip (same_period) scotland/20200902_052458'),
+    # More bytes, but not 50% more files
+    (['data.json'], 'log_error1.log',
+     {'checksum': 'other', 'bytes': size - 1, 'errors_count': 1, 'files_count': 1.5}, (None, None, None),
+     False, 'skip (same_period) scotland/20200902_052458'),
+    # More bytes, but less clean
+    (['data.json'], 'log_error1.log',
+     {'checksum': 'other', 'bytes': size - 1, 'errors_count': 0, 'files_count': 2}, (None, None, None),
+     False, 'skip (same_period) scotland/20200902_052458'),
+    # More bytes, and 50% more bytes
     (['data.json'], 'log_error1.log',
      {'checksum': 'other', 'bytes': int(size // 1.5), 'errors_count': 1, 'files_count': 2}, (None, None, None),
      True, 'ARCHIVE (same_period_more_bytes) scotland/20200902_052458'),
+    # More bytes, and 50% more files
     (['data.json'], 'log_error1.log',
      {'checksum': 'other', 'bytes': size - 1, 'errors_count': 1, 'files_count': 1}, (None, None, None),
      True, 'ARCHIVE (same_period_more_files) scotland/20200902_052458'),
+    # More bytes, and more clean
     (['data.json'], 'log_error1.log',
      {'checksum': 'other', 'bytes': size - 1, 'errors_count': 2, 'files_count': 2}, (None, None, None),
      True, 'ARCHIVE (same_period_more_clean) scotland/20200902_052458'),
 
     # Earlier remote directory.
+    # Identical
     (['data.json'], 'log_error1.log',
      None, ({'checksum': checksum, 'bytes': size, 'errors_count': 1, 'files_count': 2}, 2020, 1),
      False, 'skip (2020_1_not_distinct) scotland/20200902_052458'),
+    # Same errors
     (['data.json'], 'log_error1.log',
-     None, ({'checksum': 'other', 'bytes': size - 1, 'errors_count': 1, 'files_count': 2}, 2020, 1),
+     None, ({'checksum': 'other', 'bytes': size, 'errors_count': 1, 'files_count': 2}, 2020, 1),
      True, 'ARCHIVE (new_period) scotland/20200902_052458'),
+    # More errors, fewer files, same bytes
     (['data.json'], 'log_error1.log',
-     None, ({'checksum': 'other', 'bytes': 1, 'errors_count': 1, 'files_count': 2}, 2020, 1),
-     True, 'ARCHIVE (new_period) scotland/20200902_052458'),
+     None, ({'checksum': 'other', 'bytes': size, 'errors_count': 0, 'files_count': 3}, 2020, 1),
+     False, 'skip (2020_1_not_distinct_maybe) scotland/20200902_052458'),
+    # More errors, same files, fewer bytes
     (['data.json'], 'log_error1.log',
-     None, ({'checksum': 'other', 'bytes': size, 'errors_count': 2, 'files_count': 2}, 2020, 1),
-     True, 'ARCHIVE (new_period) scotland/20200902_052458'),
+     None, ({'checksum': 'other', 'bytes': size + 1, 'errors_count': 0, 'files_count': 2}, 2020, 1),
+     False, 'skip (2020_1_not_distinct_maybe) scotland/20200902_052458'),
 ])
 def test_should_archive(data_files, log_file, load_exact, load_latest, expected_return_value, message_log_message,
                         archive, tmpdir, caplog, monkeypatch):
