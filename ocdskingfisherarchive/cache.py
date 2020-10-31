@@ -2,6 +2,7 @@ import sqlite3
 
 from ocdskingfisherarchive.metadata import Metadata
 
+
 class Cache:
     """
     A cache of which crawl directories have been archived or skipped.

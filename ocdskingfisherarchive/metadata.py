@@ -1,5 +1,6 @@
 import attr
 
+
 @attr.s
 class Metadata:
     version = attr.ib(default='1')
