@@ -8,6 +8,8 @@ import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
+from ocdskingfisherarchive.metadata import Metadata
+
 load_dotenv()
 client = boto3.client('s3')
 logger = logging.getLogger('ocdskingfisher.archive')
@@ -59,7 +61,7 @@ class S3:
         filename = self.get_file(remote_filename)
         if filename:
             with open(filename) as f:
-                metadata = json.load(f)
+                metadata = Metadata(**json.load(f))
             os.unlink(filename)
             return metadata
 

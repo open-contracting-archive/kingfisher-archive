@@ -42,9 +42,9 @@ class Archive:
         :param ocdskingfisherarchive.crawl.Crawl crawl: a crawl
         :param bool dry_run: whether to modify the filesystem and the bucket
         """
-        state = self.cache.get(crawl)
-        if state:
-            logger.info('Ignoring %s: previously %s', crawl, state)
+        metadata, archived = self.cache.get(crawl)
+        if archived is not None:
+            logger.info('Ignoring %s: previously %s', crawl, 'archived' if archived else 'skipped')
             return
 
         # TODO If not archiving, still delete local files after 90 days
@@ -59,9 +59,9 @@ class Archive:
 
         elif should_archive:
             self.archive_crawl(crawl)
-            self.cache.set(crawl, 'archived')
+            self.cache.set(crawl, True)
         else:
-            self.cache.set(crawl, 'skipped')
+            self.cache.set(crawl, False)
         return should_archive
 
     def should_archive(self, crawl):
@@ -126,12 +126,12 @@ class Archive:
 
         remote_metadata = self.s3.load_exact(crawl.source_id, crawl.data_version)
         if remote_metadata:
-            if crawl.bytes > remote_metadata['bytes']:
-                if crawl.bytes >= remote_metadata['bytes'] * 1.5:
+            if crawl.bytes > remote_metadata.bytes:
+                if crawl.bytes >= remote_metadata.bytes * 1.5:
                     return True, 'same_period_more_bytes'
-                if crawl.scrapy_log_file.item_counts['File'] >= remote_metadata['files_count'] * 1.5:
+                if crawl.scrapy_log_file.item_counts['File'] >= remote_metadata.files_count * 1.5:
                     return True, 'same_period_more_files'
-                if crawl.scrapy_log_file.item_counts['FileError'] < remote_metadata['errors_count']:
+                if crawl.scrapy_log_file.item_counts['FileError'] < remote_metadata.errors_count:
                     return True, 'same_period_more_clean'
 
             return False, 'same_period'
@@ -139,13 +139,13 @@ class Archive:
         remote_metadata, year, month = self.s3.load_latest(crawl.source_id, crawl.data_version)
         if remote_metadata:
             if (
-                crawl.scrapy_log_file.item_counts['FileError'] > remote_metadata['errors_count']
-                and crawl.scrapy_log_file.item_counts['File'] <= remote_metadata['files_count']
-                and crawl.bytes <= remote_metadata['bytes']
+                crawl.scrapy_log_file.item_counts['FileError'] > remote_metadata.errors_count
+                and crawl.scrapy_log_file.item_counts['File'] <= remote_metadata.files_count
+                and crawl.bytes <= remote_metadata.bytes
             ):
                 return False, f'{year}_{month}_not_distinct_maybe'
 
-            if remote_metadata['checksum'] == crawl.checksum:
+            if remote_metadata.checksum == crawl.checksum:
                 return False, f'{year}_{month}_not_distinct'
 
         return True, 'new_period'
