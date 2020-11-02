@@ -6,19 +6,19 @@ Archive
 
 The application's command-line interface uses `process locking <https://pypi.org/project/python-pidfile/>`__, to ensure that only one archival process runs at one time.
 
-.. code-block:: shell-session
+.. code-block:: shell
 
    python manage.py archive
 
 To do a dry run:
 
-.. code-block:: shell-session
+.. code-block:: shell
 
    python manage.py archive --dry-run
 
 To see all options:
 
-.. code-block:: shell-session
+.. code-block:: shell
 
    python manage.py archive --help
 
@@ -29,20 +29,20 @@ Restore
 #. Find and download the archive
 #. Uncompress the archive, for example:
 
-   .. code-block:: shell-session
+   .. code-block:: shell
 
       unlz4 source.tar.lz4
 
 #. Extract the files, for example:
 
-   .. code-block:: shell-session
+   .. code-block:: shell
 
       tar xvf source.tar
 
 #. Load the files into `Kingfisher Process <https://kingfisher-process.readthedocs.io/en/latest/>`__
 #. Delete the files, for example:
 
-   .. code-block:: shell-session
+   .. code-block:: shell
 
       rm -f source.tar.lz4 source.tar
       rm -rf source/20200102_030405
