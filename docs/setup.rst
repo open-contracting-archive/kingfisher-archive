@@ -91,6 +91,7 @@ The ``.env`` file would look like:
    KINGFISHER_ARCHIVE_DATA_DIRECTORY=scrapyd/data
    KINGFISHER_ARCHIVE_LOGS_DIRECTORY=scrapyd/logs/kingfisher
    KINGFISHER_ARCHIVE_CACHE_FILE=/home/my-user/cache.sqlite3
+   KINGFISHER_ARCHIVE_LOGGING_CONFIG_FILE=/home/my-user/.config/ocdskingfisher-archive/logging.json
    SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
    AWS_ACCESS_KEY_ID=xxx
    AWS_SECRET_ACCESS_KEY=xxx
