@@ -101,6 +101,14 @@ class Crawl:
         return os.path.join(self.data_directory, self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT))
 
     @property
+    def files_count(self):
+        return self.scrapy_log_file.item_counts['File']
+
+    @property
+    def errors_count(self):
+        return self.scrapy_log_file.item_counts['FileError']
+
+    @property
     def checksum(self):
         """
         Returns the checksum of all data in the crawl directory.
@@ -149,8 +157,8 @@ class Crawl:
             'data_version': self.data_version.strftime(DATA_VERSION_FORMAT),
             'checksum': self.checksum,
             'bytes': self.bytes,
-            'files_count': self.scrapy_log_file.item_counts['File'],
-            'errors_count': self.scrapy_log_file.item_counts['FileError'],
+            'files_count': self.files_count,
+            'errors_count': self.errors_count,
         }
 
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
