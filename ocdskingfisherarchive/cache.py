@@ -53,7 +53,7 @@ class Cache:
                 archived
             FROM crawl
             WHERE id = :id
-        """, {'id': crawl.identifier})
+        """, {'id': str(crawl)})
         result = self.cursor.fetchone()
         if result:
             return Metadata('1', *result[:-1]), result[-1] == 1
@@ -85,7 +85,7 @@ class Cache:
                 :archived
             )
         """, {
-            'id': crawl.identifier,
+            'id': str(crawl),
             'source_id': crawl.source_id,
             'data_version': crawl.data_version,
             'bytes': crawl.bytes,

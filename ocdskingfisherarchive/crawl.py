@@ -85,14 +85,6 @@ class Crawl:
         return '/'.join([self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT)])
 
     @property
-    def identifier(self):
-        """
-        :returns: the full path to the crawl directory with ``/`` path separators
-        :rtype: str
-        """
-        return '/'.join([str(self.data_directory), self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT)])
-
-    @property
     def directory(self):
         """
         :returns: the full path to the crawl directory
