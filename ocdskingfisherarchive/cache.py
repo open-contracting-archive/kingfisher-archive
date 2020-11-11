@@ -90,8 +90,8 @@ class Cache:
             'data_version': crawl.data_version,
             'bytes': crawl.bytes,
             'checksum': crawl.checksum,
-            'files_count': crawl.scrapy_log_file and crawl.scrapy_log_file.item_counts['File'],
-            'errors_count': crawl.scrapy_log_file and crawl.scrapy_log_file.item_counts['FileError'],
+            'files_count': crawl.files_count,
+            'errors_count': crawl.errors_count,
             'archived': archived,
         })
         self.conn.commit()

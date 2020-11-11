@@ -47,8 +47,7 @@ class Crawl:
                     logger.info('wait (recent) %s/%s', source_id.name, data_version.name)
                     continue
 
-                scrapy_log_file = ScrapyLogFile.find(logs_directory, source_id.name, parsed)
-                yield cls(data_directory, source_id.name, parsed, scrapy_log_file)
+                yield cls(data_directory, source_id.name, parsed, logs_directory)
 
     @staticmethod
     def parse_data_version(directory):
@@ -62,20 +61,21 @@ class Crawl:
         except ValueError:
             pass
 
-    def __init__(self, data_directory, source_id, data_version, scrapy_log_file):
+    def __init__(self, data_directory, source_id, data_version, logs_directory):
         """
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str source_id: the spider's name
         :param str data_version: the crawl directory's name, parsed as a datetime
-        :param ocdskingfisherarchive.scrapy_log_file.ScrapyLogFile: the Scrapy log file
+        :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
         """
         self.data_directory = data_directory
         self.source_id = source_id
         self.data_version = data_version
-        self.scrapy_log_file = scrapy_log_file
+        self.logs_directory = logs_directory
 
         self._checksum = None
         self._bytes = None
+        self._scrapy_log_file = None
 
     def __str__(self):
         """
@@ -101,12 +101,19 @@ class Crawl:
         return os.path.join(self.data_directory, self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT))
 
     @property
+    def scrapy_log_file(self):
+        if self._scrapy_log_file is None:
+            self._scrapy_log_file = ScrapyLogFile.find(self.logs_directory, self.source_id, self.data_version)
+
+        return self._scrapy_log_file
+
+    @property
     def files_count(self):
-        return self.scrapy_log_file.item_counts['File']
+        return self.logs_directory and self.scrapy_log_file.item_counts['File']
 
     @property
     def errors_count(self):
-        return self.scrapy_log_file.item_counts['FileError']
+        return self.logs_directory and self.scrapy_log_file.item_counts['FileError']
 
     @property
     def checksum(self):

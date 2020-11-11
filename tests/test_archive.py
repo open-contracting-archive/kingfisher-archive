@@ -20,8 +20,7 @@ size = 239
 def crawl(tmpdir):
     source_id = 'scotland'
     data_version = datetime.datetime(2020, 9, 2, 5, 24, 58)
-    scrapy_log_file = ScrapyLogFile.find(tmpdir.join('logs', 'kingfisher'), source_id, data_version)
-    return Crawl(tmpdir.join('data'), source_id, data_version, scrapy_log_file)
+    return Crawl(tmpdir.join('data'), source_id, data_version, tmpdir.join('logs', 'kingfisher'))
 
 
 @pytest.mark.parametrize('data_files, log_file, load_exact, load_latest, expected_return_value, message_log_message', [
