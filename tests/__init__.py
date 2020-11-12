@@ -1,8 +1,14 @@
 import os.path
 
+from ocdskingfisherarchive.crawl import Crawl
+
 
 def path(filename):
     return os.path.join('tests', 'fixtures', filename)
+
+
+def crawl(tmpdir):
+    return Crawl('scotland', '20200902_052458', tmpdir.join('data'), tmpdir.join('logs', 'kingfisher'))
 
 
 def create_crawl_directory(tmpdir, data, log, source_id='scotland'):

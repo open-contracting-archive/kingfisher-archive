@@ -8,41 +8,14 @@ from xxhash import xxh3_128
 
 import ocdskingfisherarchive.s3
 from ocdskingfisherarchive.crawl import Crawl
-from tests import assert_log, create_crawl_directory, path
+from tests import assert_log, crawl, create_crawl_directory, path
 
 with open(path('data.json'), 'rb') as f:
     checksum = xxh3_128(f.read()).hexdigest()
 size = 239
 
 
-def crawl(tmpdir):
-    return Crawl('scotland', '20200902_052458', tmpdir.join('data'), tmpdir.join('logs', 'kingfisher'))
-
-
 @pytest.mark.parametrize('data_files,log_file,exact_cache,latest_cache,expected_return_value,expected_log_message', [
-    # No remote directory.
-    (None, 'log1.log',
-     None, None,
-     False, 'skip (no_data_directory) scotland/20200902_052458'),
-    ([], 'log1.log',
-     None, None,
-     False, 'skip (no_data_files) scotland/20200902_052458'),
-    (['data.json'], None,
-     None, None,
-     False, 'skip (no_log_file) scotland/20200902_052458'),
-    (['data.json'], 'log_in_progress1.log',
-     None, None,
-     False, 'skip (not_finished) scotland/20200902_052458'),
-    (['data.json'], 'log_sample1.log',
-     None, None,
-     False, 'skip (not_complete) scotland/20200902_052458'),
-    (['data.json'], 'log_not_clean_enough.log',
-     None, None,
-     False, 'skip (not_clean_enough) scotland/20200902_052458'),
-    (['data.json'], 'log_error1.log',
-     None, None,
-     True, 'ARCHIVE (new_period) scotland/20200902_052458'),
-
     # Same remote directory.
     # Identical
     (['data.json'], 'log_error1.log',
@@ -137,7 +110,7 @@ def test_process_crawl(archive, tmpdir, caplog, monkeypatch):
     monkeypatch.setattr(stubber, 'list_objects_v2', list_objects_v2, raising=False)
     stubber.activate()
 
-    archive.process()
+    archive.run()
 
     stubber.assert_no_pending_responses()
 

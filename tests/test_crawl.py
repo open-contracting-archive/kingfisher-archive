@@ -5,7 +5,7 @@ import time
 import pytest
 
 from ocdskingfisherarchive.crawl import Crawl
-from tests import assert_log, create_crawl_directory
+from tests import assert_log, crawl, create_crawl_directory
 
 current_time = time.time()
 
@@ -80,6 +80,21 @@ def test_directory(tmpdir):
     crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
     assert crawl.directory == str(tmpdir.join('scotland', '20200902_052458'))
+
+
+@pytest.mark.parametrize('data_files, log_file, expected', [
+    (None, 'log1.log', 'no_data_directory'),
+    ([], 'log1.log', 'no_data_files'),
+    (['data.json'], None, 'no_log_file'),
+    (['data.json'], 'log_in_progress1.log', 'not_finished'),
+    (['data.json'], 'log_sample1.log', 'not_complete'),
+    (['data.json'], 'log_not_clean_enough.log', 'not_clean_enough'),
+    (['data.json'], 'log_error1.log', None),
+])
+def test_reject_reason(data_files, log_file, expected, tmpdir):
+    create_crawl_directory(tmpdir, data_files, log_file)
+
+    assert crawl(tmpdir).reject_reason == expected
 
 
 def test_checksum(tmpdir):

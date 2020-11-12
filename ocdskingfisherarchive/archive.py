@@ -23,7 +23,7 @@ class Archive:
         self.logs_directory = logs_directory
         self.cache = Cache(cache_file, expired=cached_expired)
 
-    def process(self, dry_run=False):
+    def run(self, dry_run=False):
         """
         Runs the archival process.
 

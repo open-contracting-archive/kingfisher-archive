@@ -90,6 +90,14 @@ class Crawl:
         return '/'.join([self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT)])
 
     @property
+    def directory(self):
+        """
+        :returns: the full path to the crawl directory
+        :rtype: str
+        """
+        return os.path.join(self.data_directory, self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT))
+
+    @property
     def reject_reason(self):
         """
         A crawl is not archived if it:
@@ -123,14 +131,6 @@ class Crawl:
             self._cache['reject_reason'] = None
 
         return self._cache['reject_reason']
-
-    @property
-    def directory(self):
-        """
-        :returns: the full path to the crawl directory
-        :rtype: str
-        """
-        return os.path.join(self.data_directory, self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT))
 
     @property
     def scrapy_log_file(self):
