@@ -1,4 +1,3 @@
-attrs
 boto3
 click
 logparser

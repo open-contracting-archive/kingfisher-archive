@@ -1,6 +1,6 @@
 import sqlite3
 
-from ocdskingfisherarchive.metadata import Metadata
+from ocdskingfisherarchive.crawl import DATA_VERSION_FORMAT, Crawl
 
 
 class Cache:
@@ -56,7 +56,12 @@ class Cache:
         """, {'id': str(crawl)})
         result = self.cursor.fetchone()
         if result:
-            return Metadata('1', *result[:-1]), result[-1] == 1
+            return Crawl(result[0], result[1], cache={
+                'bytes': result[2],
+                'checksum': result[3],
+                'files_count': result[4],
+                'errors_count': result[5],
+            }), result[-1] == 1
         return None, None
 
     def set(self, crawl, archived=None):
@@ -87,7 +92,7 @@ class Cache:
         """, {
             'id': str(crawl),
             'source_id': crawl.source_id,
-            'data_version': crawl.data_version,
+            'data_version': crawl.data_version.strftime(DATA_VERSION_FORMAT),
             'bytes': crawl.bytes,
             'checksum': crawl.checksum,
             'files_count': crawl.files_count,

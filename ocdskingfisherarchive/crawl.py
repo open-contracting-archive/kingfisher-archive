@@ -47,7 +47,7 @@ class Crawl:
                     logger.info('wait (recent) %s/%s', source_id.name, data_version.name)
                     continue
 
-                yield cls(data_directory, source_id.name, parsed, logs_directory)
+                yield cls(source_id.name, parsed, data_directory=data_directory, logs_directory=logs_directory)
 
     @staticmethod
     def parse_data_version(directory):
@@ -61,20 +61,25 @@ class Crawl:
         except ValueError:
             pass
 
-    def __init__(self, data_directory, source_id, data_version, logs_directory):
+    def __init__(self, source_id, data_version, data_directory=None, logs_directory=None, cache=None):
         """
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str source_id: the spider's name
         :param str data_version: the crawl directory's name, parsed as a datetime
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
         """
-        self.data_directory = data_directory
         self.source_id = source_id
-        self.data_version = data_version
+        if isinstance(data_version, str):
+            self.data_version = self.parse_data_version(data_version)
+        else:
+            self.data_version = data_version
+        self.data_directory = data_directory
         self.logs_directory = logs_directory
 
-        self._checksum = None
-        self._bytes = None
+        if cache:
+            self._cache = cache
+        else:
+            self._cache = {}
         self._scrapy_log_file = None
 
     def __str__(self):
@@ -94,18 +99,24 @@ class Crawl:
 
     @property
     def scrapy_log_file(self):
-        if self._scrapy_log_file is None:
+        if self._scrapy_log_file is None and self.logs_directory:
             self._scrapy_log_file = ScrapyLogFile.find(self.logs_directory, self.source_id, self.data_version)
 
         return self._scrapy_log_file
 
     @property
     def files_count(self):
-        return self.logs_directory and self.scrapy_log_file.item_counts['File']
+        if 'files_count' not in self._cache:
+            self._cache['files_count'] = self.scrapy_log_file and self.scrapy_log_file.item_counts['File']
+
+        return self._cache['files_count']
 
     @property
     def errors_count(self):
-        return self.logs_directory and self.scrapy_log_file.item_counts['FileError']
+        if 'errors_count' not in self._cache:
+            self._cache['errors_count'] = self.scrapy_log_file and self.scrapy_log_file.item_counts['FileError']
+
+        return self._cache['errors_count']
 
     @property
     def checksum(self):
@@ -118,8 +129,8 @@ class Crawl:
         :returns: the checksum of all data in the crawl directory
         :rtype: str
         """
-        if self._checksum is not None:
-            return self._checksum
+        if 'checksum' in self._cache:
+            return self._cache['checksum']
 
         hasher = xxh3_128()
         for root, dirs, files in os.walk(self.directory):
@@ -131,9 +142,9 @@ class Crawl:
                     # file boundaries.
                     for chunk in iter(partial(f.read, 65536), b''):  # 64KB
                         hasher.update(chunk)
-        self._checksum = hasher.hexdigest()
+        self._cache['checksum'] = hasher.hexdigest()
 
-        return self._checksum
+        return self._cache['checksum']
 
     @property
     def bytes(self):
@@ -141,13 +152,13 @@ class Crawl:
         :returns: the total size in bytes of all files in the crawl directory
         :rtype: int
         """
-        if self._bytes is not None:
-            return self._bytes
+        if 'bytes' in self._cache:
+            return self._cache['bytes']
 
-        self._bytes = sum(os.path.getsize(os.path.join(root, file))
-                          for root, _, files in os.walk(self.directory) for file in files)
+        self._cache['bytes'] = sum(os.path.getsize(os.path.join(root, file))
+                                   for root, _, files in os.walk(self.directory) for file in files)
 
-        return self._bytes
+        return self._cache['bytes']
 
     def write_meta_data_file(self):
         data = {

@@ -8,7 +8,6 @@ from ocdskingfisherarchive.crawl import Crawl
 from tests import assert_log, create_crawl_directory
 
 current_time = time.time()
-data_version = datetime.datetime(2020, 9, 2, 5, 24, 58)
 
 
 @pytest.mark.parametrize('mtime, expected', [
@@ -25,7 +24,7 @@ def test_all(mtime, expected, tmpdir, caplog):
 
     if expected:
         assert crawls[0].source_id == 'scotland'
-        assert crawls[0].data_version == data_version
+        assert crawls[0].data_version == datetime.datetime(2020, 9, 2, 5, 24, 58)
         assert crawls[0].data_directory == tmpdir.join('data')
         assert crawls[0].scrapy_log_file.name == tmpdir.join('logs', 'kingfisher', 'scotland',
                                                              '307e8331edc801c691e21690db130256.log')
@@ -72,13 +71,13 @@ def test_parse_data_version(directory, expected):
 
 
 def test_str(tmpdir):
-    crawl = Crawl(tmpdir, 'scotland', data_version, None)
+    crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
     assert str(crawl) == os.path.join('scotland', '20200902_052458')
 
 
 def test_directory(tmpdir):
-    crawl = Crawl(tmpdir, 'scotland', data_version, None)
+    crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
     assert crawl.directory == str(tmpdir.join('scotland', '20200902_052458'))
 
@@ -99,13 +98,13 @@ def test_checksum(tmpdir):
     file = sub_directory.join('test.json')
     file.write('{"id": 100}')
 
-    crawl = Crawl(tmpdir, 'scotland', data_version, None)
+    crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
     assert crawl.checksum == '06bbee76269a3bd770704840395e8e10'
 
 
 def test_checksum_empty(tmpdir):
-    crawl = Crawl(tmpdir, 'scotland', data_version, None)
+    crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
     assert crawl.checksum == '99aa06d3014798d86001c324468d497f'
 
@@ -126,12 +125,12 @@ def test_bytes(tmpdir):
     file = sub_directory.join('test.json')
     file.write('{"id": 100}')  # 11
 
-    crawl = Crawl(tmpdir, 'scotland', data_version, None)
+    crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
     assert crawl.bytes == 20
 
 
 def test_bytes_empty(tmpdir):
-    crawl = Crawl(tmpdir, 'scotland', data_version, None)
+    crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
     assert crawl.bytes == 0

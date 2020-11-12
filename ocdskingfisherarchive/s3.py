@@ -8,7 +8,7 @@ import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
-from ocdskingfisherarchive.metadata import Metadata
+from ocdskingfisherarchive.crawl import Crawl
 
 load_dotenv()
 client = boto3.client('s3')
@@ -61,9 +61,10 @@ class S3:
         filename = self.get_file(remote_filename)
         if filename:
             with open(filename) as f:
-                metadata = Metadata(**json.load(f))
+                metadata = json.load(f)
+                crawl = Crawl(metadata.pop('source_id'), metadata.pop('data_version'), cache=metadata)
             os.unlink(filename)
-            return metadata
+            return crawl
 
     def upload_file_to_staging(self, local_file_name, remote_file_name):
         with _try(self):
