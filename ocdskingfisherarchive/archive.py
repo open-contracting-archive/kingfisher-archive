@@ -50,18 +50,18 @@ class Archive:
         # TODO If not archiving, still delete local files after 90 days
 
         should_archive, reason = self.should_archive(crawl)
+
         if should_archive:
             logger.info('ARCHIVE (%s) %s', reason, crawl)
         else:
             logger.info('skip (%s) %s', reason, crawl)
+
         if dry_run:
             return should_archive
-
         elif should_archive:
             self.archive_crawl(crawl)
-            self.cache.set(crawl, True)
-        else:
-            self.cache.set(crawl, False)
+        self.cache.set(crawl, should_archive)
+
         return should_archive
 
     def should_archive(self, crawl):
@@ -71,15 +71,6 @@ class Archive:
         This implements Kingfisher Process' `data retention policy
         <https://ocdsdeploy.readthedocs.io/en/latest/use/kingfisher-process.html#data-retention-policy>`__.
 
-        The crawl will not be archived if it:
-
-        -  has no data directory
-        -  has no data files
-        -  has no log file
-        -  is not finished, according to the log
-        -  is not complete, according to the log (it uses spider arguments to filter results)
-        -  is insufficiently clean, according to the log (it has more error responses than success responses)
-
         If a crawl passes these tests, it is compared to archived crawls. If there is an earlier crawl in the same
         month, the new crawl will **replace** the earlier crawl if it has more bytes (and is thus distinct) and:
 
@@ -87,8 +78,8 @@ class Archive:
         -  has 50% more files
         -  is more clean
 
-        If there is an earlier crawl in an earlier month, it will compare to the most recent, and the new crawl will
-        not be archived if it:
+        If there is an earlier crawl in an earlier month but not in the same month, it will compare to the most recent,
+        and the new crawl will not be archived if it:
 
         -  is less clean and less complete (in which case it might have been identical, if not for the errors)
         -  is not distinct (the checksums are identical)
@@ -100,23 +91,9 @@ class Archive:
         """
         # Issue: https://github.com/open-contracting/deploy/issues/153#issuecomment-670186295
 
-        if not os.path.isdir(crawl.directory):
-            return False, 'no_data_directory'
-
-        if not next(os.scandir(crawl.directory), None):
-            return False, 'no_data_files'
-
-        if not crawl.scrapy_log_file:
-            return False, 'no_log_file'
-
-        if not crawl.scrapy_log_file.is_finished():
-            return False, 'not_finished'
-
-        if not crawl.scrapy_log_file.is_complete():
-            return False, 'not_complete'
-
-        if crawl.scrapy_log_file.error_rate > 0.5:
-            return False, 'not_clean_enough'
+        reason = crawl.reject_reason
+        if reason:
+            return False, reason
 
         # We run tests from least to most expensive, except where the logic requires otherwise:
         #

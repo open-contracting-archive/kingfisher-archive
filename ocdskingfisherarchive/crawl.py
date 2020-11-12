@@ -90,6 +90,41 @@ class Crawl:
         return '/'.join([self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT)])
 
     @property
+    def reject_reason(self):
+        """
+        A crawl is not archived if it:
+
+        -  has no data directory
+        -  has no data files
+        -  has no log file
+        -  is not finished, according to the log
+        -  is not complete, according to the log (it uses spider arguments to filter results)
+        -  is insufficiently clean, according to the log (it has more error responses than success responses)
+
+        :returns: the reason the crawl is not archivable, if any
+        :rtype: str
+        """
+        if 'reject_reason' in self._cache:
+            return self._cache['reject_reason']
+
+        if not os.path.isdir(self.directory):
+            self._cache['reject_reason'] = 'no_data_directory'
+        elif not next(os.scandir(self.directory), None):
+            self._cache['reject_reason'] = 'no_data_files'
+        elif not self.scrapy_log_file:
+            self._cache['reject_reason'] = 'no_log_file'
+        elif not self.scrapy_log_file.is_finished():
+            self._cache['reject_reason'] = 'not_finished'
+        elif not self.scrapy_log_file.is_complete():
+            self._cache['reject_reason'] = 'not_complete'
+        elif self.scrapy_log_file.error_rate > 0.5:
+            self._cache['reject_reason'] = 'not_clean_enough'
+        else:
+            self._cache['reject_reason'] = None
+
+        return self._cache['reject_reason']
+
+    @property
     def directory(self):
         """
         :returns: the full path to the crawl directory
