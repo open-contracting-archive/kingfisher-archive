@@ -53,8 +53,7 @@ class S3:
         data = self.get_years_and_months_for_source(source_id)
         year, month = _find_latest_year_month_to_load(data, data_version.year, data_version.month)
         if year and month:
-            return self._load(source_id, year, month), year, month
-        return None, None, None
+            return self._load(source_id, year, month)
 
     def _load(self, source_id, year, month):
         remote_filename = f'{source_id}/{year}/{month:02d}/metadata.json'
@@ -62,7 +61,7 @@ class S3:
         if filename:
             with open(filename) as f:
                 metadata = json.load(f)
-                crawl = Crawl(metadata.pop('source_id'), metadata.pop('data_version'), cache=metadata)
+                crawl = Crawl(**metadata)
             os.unlink(filename)
             return crawl
 

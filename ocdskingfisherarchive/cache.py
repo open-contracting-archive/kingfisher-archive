@@ -1,6 +1,6 @@
 import sqlite3
 
-from ocdskingfisherarchive.crawl import DATA_VERSION_FORMAT, Crawl
+from ocdskingfisherarchive.crawl import Crawl
 
 
 class Cache:
@@ -14,6 +14,7 @@ class Cache:
         :param bool expired: whether to ignore and overwrite existing rows in the SQLite database
         """
         self.conn = sqlite3.connect(filename)
+        self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
         self.expired = expired
 
@@ -38,8 +39,8 @@ class Cache:
     def get(self, crawl):
         """
         :param crawl: an instance of the :class:`~ocdskingfisherarchive.crawl.Crawl` class
-        :returns: the metadata for the crawl and whether the crawl was archived
-        :rtype: tuple
+        :returns: the cached version of the given crawl, or the given crawl
+        :rtype: ocdskingfisherarchive.crawl.Crawl
         """
         if self.expired:
             return
@@ -59,19 +60,12 @@ class Cache:
         """, {'id': crawl.pk})
         result = self.cursor.fetchone()
         if result:
-            return Crawl(result[0], result[1], cache={
-                'bytes': result[2],
-                'checksum': result[3],
-                'files_count': result[4],
-                'errors_count': result[5],
-                'reject_reason': result[6],
-            }), result[-1] == 1
-        return None, None
+            return Crawl(**result)
+        return crawl
 
-    def set(self, crawl, archived=None):
+    def set(self, crawl):
         """
         :param crawl: an instance of the :class:`~ocdskingfisherarchive.crawl.Crawl` class
-        :param boolean archived: whether the crawl was archived
         """
         self.cursor.execute("""
             REPLACE INTO crawl (
@@ -95,5 +89,5 @@ class Cache:
                 :reject_reason,
                 :archived
             )
-        """, {**crawl.asdict(), **{'archived': archived}})
+        """, crawl.asdict())
         self.conn.commit()

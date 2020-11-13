@@ -1,6 +1,5 @@
 import datetime
 import json
-import logging
 import os
 import tempfile
 import time
@@ -8,6 +7,7 @@ from functools import partial
 
 from xxhash import xxh3_128
 
+from ocdskingfisherarchive.exceptions import FutureDataVersionError, SourceMismatchError
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 from ocdskingfisherarchive.tarfile import LZ4TarFile
 
@@ -59,25 +59,29 @@ class Crawl:
         except ValueError:
             pass
 
-    def __init__(self, source_id, data_version, data_directory=None, logs_directory=None, cache=None):
+    def __init__(self, source_id, data_version, data_directory=None, logs_directory=None, **kwargs):
         """
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str source_id: the spider's name
         :param str data_version: the crawl directory's name, parsed as a datetime
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
         """
-        self.source_id = source_id
-        if isinstance(data_version, str):
-            self.data_version = self.parse_data_version(data_version)
-        else:
-            self.data_version = data_version
         self.data_directory = data_directory
         self.logs_directory = logs_directory
 
-        if cache:
-            self._cache = cache
-        else:
-            self._cache = {}
+        if isinstance(data_version, str):
+            data_version = self.parse_data_version(data_version)
+        if 'archived' not in kwargs:
+            kwargs['archived'] = None
+        if isinstance(kwargs['archived'], int):
+            kwargs['archived'] = bool(kwargs['archived'])
+
+        kwargs.update({
+            'source_id': source_id,
+            'data_version': data_version,
+        })
+
+        self._values = kwargs
         self._scrapy_log_file = None
 
     def __str__(self):
@@ -94,6 +98,14 @@ class Crawl:
         :rtype: str
         """
         return f'{self.source_id}/{self.data_version.strftime(DATA_VERSION_FORMAT)}'
+
+    @property
+    def source_id(self):
+        return self._values['source_id']
+
+    @property
+    def data_version(self):
+        return self._values['data_version']
 
     @property
     def remote_directory(self):
@@ -126,25 +138,25 @@ class Crawl:
         :returns: the reason the crawl is not archivable, if any
         :rtype: str
         """
-        if 'reject_reason' in self._cache:
-            return self._cache['reject_reason']
+        if 'reject_reason' in self._values:
+            return self._values['reject_reason']
 
         if not os.path.isdir(self.local_directory):
-            self._cache['reject_reason'] = 'no_data_directory'
+            self._values['reject_reason'] = 'no_data_directory'
         elif not next(os.scandir(self.local_directory), None):
-            self._cache['reject_reason'] = 'no_data_files'
+            self._values['reject_reason'] = 'no_data_files'
         elif not self.scrapy_log_file:
-            self._cache['reject_reason'] = 'no_log_file'
+            self._values['reject_reason'] = 'no_log_file'
         elif not self.scrapy_log_file.is_finished():
-            self._cache['reject_reason'] = 'not_finished'
+            self._values['reject_reason'] = 'not_finished'
         elif not self.scrapy_log_file.is_complete():
-            self._cache['reject_reason'] = 'not_complete'
+            self._values['reject_reason'] = 'not_complete'
         elif self.scrapy_log_file.error_rate > 0.5:
-            self._cache['reject_reason'] = 'not_clean_enough'
+            self._values['reject_reason'] = 'not_clean_enough'
         else:
-            self._cache['reject_reason'] = None
+            self._values['reject_reason'] = None
 
-        return self._cache['reject_reason']
+        return self._values['reject_reason']
 
     @property
     def scrapy_log_file(self):
@@ -155,17 +167,17 @@ class Crawl:
 
     @property
     def files_count(self):
-        if 'files_count' not in self._cache:
-            self._cache['files_count'] = self.scrapy_log_file and self.scrapy_log_file.item_counts['File']
+        if 'files_count' not in self._values:
+            self._values['files_count'] = self.scrapy_log_file and self.scrapy_log_file.item_counts['File']
 
-        return self._cache['files_count']
+        return self._values['files_count']
 
     @property
     def errors_count(self):
-        if 'errors_count' not in self._cache:
-            self._cache['errors_count'] = self.scrapy_log_file and self.scrapy_log_file.item_counts['FileError']
+        if 'errors_count' not in self._values:
+            self._values['errors_count'] = self.scrapy_log_file and self.scrapy_log_file.item_counts['FileError']
 
-        return self._cache['errors_count']
+        return self._values['errors_count']
 
     @property
     def checksum(self):
@@ -178,8 +190,8 @@ class Crawl:
         :returns: the checksum of all data in the crawl directory
         :rtype: str
         """
-        if 'checksum' in self._cache:
-            return self._cache['checksum']
+        if 'checksum' in self._values:
+            return self._values['checksum']
 
         hasher = xxh3_128()
         for root, dirs, files in os.walk(self.local_directory):
@@ -190,9 +202,9 @@ class Crawl:
                     # a file could appear at the start of another file, we could add bytes for file boundaries.
                     for chunk in iter(partial(f.read, 65536), b''):  # 64KB
                         hasher.update(chunk)
-        self._cache['checksum'] = hasher.hexdigest()
+        self._values['checksum'] = hasher.hexdigest()
 
-        return self._cache['checksum']
+        return self._values['checksum']
 
     @property
     def bytes(self):
@@ -200,24 +212,33 @@ class Crawl:
         :returns: the total size in bytes of all files in the crawl directory
         :rtype: int
         """
-        if 'bytes' in self._cache:
-            return self._cache['bytes']
+        if 'bytes' in self._values:
+            return self._values['bytes']
 
-        self._cache['bytes'] = sum(os.path.getsize(os.path.join(root, file))
-                                   for root, _, files in os.walk(self.local_directory) for file in files)
+        self._values['bytes'] = sum(os.path.getsize(os.path.join(root, file))
+                                    for root, _, files in os.walk(self.local_directory) for file in files)
 
-        return self._cache['bytes']
+        return self._values['bytes']
+
+    @property
+    def archived(self):
+        return self._values['archived']
+
+    @archived.setter
+    def archived(self, archived):
+        self._values['archived'] = archived
 
     def asdict(self):
         return {
             'id': self.pk,
             'source_id': self.source_id,
             'data_version': self.data_version.strftime(DATA_VERSION_FORMAT),
-            'bytes': self._cache.get('bytes'),
-            'checksum': self._cache.get('checksum'),
-            'files_count': self._cache.get('files_count'),
-            'errors_count': self._cache.get('errors_count'),
-            'reject_reason': self._cache.get('reject_reason'),
+            'bytes': self._values.get('bytes'),
+            'checksum': self._values.get('checksum'),
+            'files_count': self._values.get('files_count'),
+            'errors_count': self._values.get('errors_count'),
+            'reject_reason': self._values.get('reject_reason'),
+            'archived': self._values.get('archived'),
         }
 
     def write_meta_data_file(self):

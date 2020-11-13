@@ -42,8 +42,8 @@ class Archive:
         :param ocdskingfisherarchive.crawl.Crawl crawl: a crawl
         :param bool dry_run: whether to modify the filesystem and the bucket
         """
-        metadata, archived = self.cache.get(crawl)
-        if archived is not None:
+        crawl = self.cache.get(crawl)
+        if crawl.archived is not None:
             logger.info('Ignoring %s: previously %s', crawl, 'archived' if archived else 'skipped')
             return
 
@@ -60,7 +60,8 @@ class Archive:
             return should_archive
         elif should_archive:
             self.archive_crawl(crawl)
-        self.cache.set(crawl, should_archive)
+        crawl.archived = should_archive
+        self.cache.set(crawl)
 
         return should_archive
 
@@ -106,24 +107,30 @@ class Archive:
             if crawl.bytes > remote_metadata.bytes:
                 if crawl.bytes >= remote_metadata.bytes * 1.5:
                     return True, 'same_period_more_bytes'
-                if crawl.scrapy_log_file.item_counts['File'] >= remote_metadata.files_count * 1.5:
+                if crawl.files_count >= remote_metadata.files_count * 1.5:
                     return True, 'same_period_more_files'
-                if crawl.scrapy_log_file.item_counts['FileError'] < remote_metadata.errors_count:
+                if crawl.errors_count < remote_metadata.errors_count:
                     return True, 'same_period_more_clean'
 
             return False, 'same_period'
 
-        remote_metadata, year, month = self.s3.load_latest(crawl.source_id, crawl.data_version)
+        remote_metadata = self.s3.load_latest(crawl.source_id, crawl.data_version)
         if remote_metadata:
             if (
-                crawl.scrapy_log_file.item_counts['FileError'] > remote_metadata.errors_count
-                and crawl.scrapy_log_file.item_counts['File'] <= remote_metadata.files_count
+                crawl.errors_count > remote_metadata.errors_count
+                and crawl.files_count <= remote_metadata.files_count
                 and crawl.bytes <= remote_metadata.bytes
             ):
-                return False, f'{year}_{month}_not_distinct_maybe'
+                return (
+                    False,
+                    f'{remote_metadata.data_version.year}_{remote_metadata.data_version.month}_not_distinct_maybe'
+                )
 
             if remote_metadata.checksum == crawl.checksum:
-                return False, f'{year}_{month}_not_distinct'
+                return (
+                    False,
+                    f'{remote_metadata.data_version.year}_{remote_metadata.data_version.month}_not_distinct'
+                )
 
         return True, 'new_period'
 

@@ -78,9 +78,9 @@ def test_should_archive(data_files, log_file, exact_cache, latest_cache, expecte
         monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_exact', lambda *args: None)
 
     if latest_cache:
-        load_latest = (Crawl('scotland', '20200101_000000', cache=latest_cache), 2020, 1)
+        load_latest = Crawl('scotland', '20200101_000000', **latest_cache)
     else:
-        load_latest = (None, None, None)
+        load_latest = None
     monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_latest', lambda *args: load_latest)
 
     create_crawl_directory(tmpdir, data_files, log_file)
