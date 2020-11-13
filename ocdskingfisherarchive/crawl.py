@@ -93,7 +93,7 @@ class Crawl:
         :returns: the path to the crawl directory relative to the data directory
         :rtype: str
         """
-        return '/'.join([self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT)])
+        return f'{self.source_id}/{self.data_version.strftime(DATA_VERSION_FORMAT)}'
 
     @property
     def remote_directory(self):
@@ -186,9 +186,8 @@ class Crawl:
             dirs.sort()
             for file in sorted(files):
                 with open(os.path.join(root, file), 'rb') as f:
-                    # xxsum reads 64KB at a time (https://github.com/Cyan4973/xxHash/blob/dev/xxhsum.c). If it were
-                    # possible for the end of a file to appear at the start of another file, we could add bytes for
-                    # file boundaries.
+                    # xxsum reads 64KB at a time (https://github.com/Cyan4973/xxHash/blob/dev/xxhsum.c). If the end of
+                    # a file could appear at the start of another file, we could add bytes for file boundaries.
                     for chunk in iter(partial(f.read, 65536), b''):  # 64KB
                         hasher.update(chunk)
         self._cache['checksum'] = hasher.hexdigest()
@@ -209,20 +208,22 @@ class Crawl:
 
         return self._cache['bytes']
 
-    def write_meta_data_file(self):
-        data = {
-            'version': '1',
+    def asdict(self):
+        return {
+            'id': self.pk,
             'source_id': self.source_id,
             'data_version': self.data_version.strftime(DATA_VERSION_FORMAT),
-            'checksum': self.checksum,
-            'bytes': self.bytes,
-            'files_count': self.files_count,
-            'errors_count': self.errors_count,
+            'bytes': self._cache.get('bytes'),
+            'checksum': self._cache.get('checksum'),
+            'files_count': self._cache.get('files_count'),
+            'errors_count': self._cache.get('errors_count'),
+            'reject_reason': self._cache.get('reject_reason'),
         }
 
+    def write_meta_data_file(self):
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')
         with open(filename, 'w') as f:
-            json.dump(data, f, indent=2)
+            json.dump(self.asdict(), f, indent=2)
 
         os.close(file_descriptor)
         return filename

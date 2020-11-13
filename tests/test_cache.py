@@ -6,14 +6,15 @@ from ocdskingfisherarchive.crawl import Crawl
 
 def test_get_and_set(tmpdir):
     expected = {
-        'bytes': 0,
-        'checksum': '99aa06d3014798d86001c324468d497f',
+        'bytes': None,
+        'checksum': None,
         'errors_count': None,
         'files_count': None,
         'reject_reason': 'no_data_directory',
     }
 
     crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
+    crawl.reject_reason
 
     # Initialize.
     Cache(str(tmpdir.join('cache.sqlite3')))

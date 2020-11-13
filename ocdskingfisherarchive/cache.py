@@ -95,15 +95,5 @@ class Cache:
                 :reject_reason,
                 :archived
             )
-        """, {
-            'id': crawl.pk,
-            'source_id': crawl.source_id,
-            'data_version': crawl.data_version.strftime(DATA_VERSION_FORMAT),
-            'bytes': crawl.bytes,
-            'checksum': crawl.checksum,
-            'files_count': crawl.files_count,
-            'errors_count': crawl.errors_count,
-            'reject_reason': crawl.reject_reason,
-            'archived': archived,
-        })
+        """, {**crawl.asdict(), **{'archived': archived}})
         self.conn.commit()
