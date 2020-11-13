@@ -11,8 +11,6 @@ from xxhash import xxh3_128
 from ocdskingfisherarchive.scrapy_log_file import ScrapyLogFile
 from ocdskingfisherarchive.tarfile import LZ4TarFile
 
-logger = logging.getLogger('ocdskingfisher.archive')
-
 DATA_VERSION_FORMAT = '%Y%m%d_%H%M%S'
 
 
@@ -24,7 +22,8 @@ class Crawl:
     @classmethod
     def all(cls, data_directory, logs_directory):
         """
-        Yields a :class:`~ocdskingfisherarchive.crawl.Crawl` instance for each crawl directory.
+        Yields a :class:`~ocdskingfisherarchive.crawl.Crawl` instance for each non-sample crawl directory to which no
+        files have been written in 7 days.
 
         :param str data_directory: Kingfisher Collect's FILES_STORE directory
         :param str logs_directory: Kingfisher Collect's project directory within Scrapyd's logs_dir directory
@@ -44,7 +43,6 @@ class Crawl:
                 if not parsed:
                     continue
                 if data_version.stat().st_mtime >= seven_weeks_ago:
-                    logger.info('wait (recent) %s/%s', source_id.name, data_version.name)
                     continue
 
                 yield cls(source_id.name, parsed, data_directory=data_directory, logs_directory=logs_directory)

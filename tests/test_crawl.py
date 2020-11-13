@@ -5,7 +5,7 @@ import time
 import pytest
 
 from ocdskingfisherarchive.crawl import Crawl
-from tests import assert_log, crawl, create_crawl_directory
+from tests import crawl, create_crawl_directory
 
 current_time = time.time()
 
@@ -28,8 +28,6 @@ def test_all(mtime, expected, tmpdir, caplog):
         assert crawls[0].data_directory == tmpdir.join('data')
         assert crawls[0].scrapy_log_file.name == tmpdir.join('logs', 'kingfisher', 'scotland',
                                                              '307e8331edc801c691e21690db130256.log')
-    else:
-        assert_log(caplog, 'INFO', 'wait (recent) scotland/20200902_052458')
 
 
 def test_all_not_existing(tmpdir):
