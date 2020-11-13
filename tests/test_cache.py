@@ -10,6 +10,7 @@ def test_get_and_set(tmpdir):
         'checksum': '99aa06d3014798d86001c324468d497f',
         'errors_count': None,
         'files_count': None,
+        'reject_reason': 'no_data_directory',
     }
 
     crawl = Crawl('scotland', '20200902_052458', tmpdir, None)

@@ -79,7 +79,7 @@ def test_str(tmpdir):
 def test_directory(tmpdir):
     crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
-    assert crawl.directory == str(tmpdir.join('scotland', '20200902_052458'))
+    assert crawl.local_directory == str(tmpdir.join('scotland', '20200902_052458'))
 
 
 @pytest.mark.parametrize('data_files, log_file, expected', [

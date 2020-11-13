@@ -87,10 +87,26 @@ class Crawl:
         :returns: the path to the crawl directory relative to the data directory
         :rtype: str
         """
+        return self.pk
+
+    @property
+    def pk(self):
+        """
+        :returns: the path to the crawl directory relative to the data directory
+        :rtype: str
+        """
         return '/'.join([self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT)])
 
     @property
-    def directory(self):
+    def remote_directory(self):
+        """
+        :returns: the path of the remote directory
+        :rtype: str
+        """
+        return f'{self.source_id}/{self.data_version.year}/{self.data_version.month:02d}'
+
+    @property
+    def local_directory(self):
         """
         :returns: the full path to the crawl directory
         :rtype: str
@@ -115,9 +131,9 @@ class Crawl:
         if 'reject_reason' in self._cache:
             return self._cache['reject_reason']
 
-        if not os.path.isdir(self.directory):
+        if not os.path.isdir(self.local_directory):
             self._cache['reject_reason'] = 'no_data_directory'
-        elif not next(os.scandir(self.directory), None):
+        elif not next(os.scandir(self.local_directory), None):
             self._cache['reject_reason'] = 'no_data_files'
         elif not self.scrapy_log_file:
             self._cache['reject_reason'] = 'no_log_file'
@@ -168,7 +184,7 @@ class Crawl:
             return self._cache['checksum']
 
         hasher = xxh3_128()
-        for root, dirs, files in os.walk(self.directory):
+        for root, dirs, files in os.walk(self.local_directory):
             dirs.sort()
             for file in sorted(files):
                 with open(os.path.join(root, file), 'rb') as f:
@@ -191,7 +207,7 @@ class Crawl:
             return self._cache['bytes']
 
         self._cache['bytes'] = sum(os.path.getsize(os.path.join(root, file))
-                                   for root, _, files in os.walk(self.directory) for file in files)
+                                   for root, _, files in os.walk(self.local_directory) for file in files)
 
         return self._cache['bytes']
 
@@ -216,7 +232,7 @@ class Crawl:
     def write_data_file(self):
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.tar.lz4')
         with LZ4TarFile.open(filename, 'w:lz4') as tar:
-            tar.add(self.directory)
+            tar.add(self.local_directory)
 
         os.close(file_descriptor)
         return filename

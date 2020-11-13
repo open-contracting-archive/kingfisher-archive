@@ -28,7 +28,9 @@ class Cache:
                     checksum TEXT,
                     files_count INTEGER,
                     errors_count INTEGER,
-                    archived BOOLEAN
+                    reject_reason TEXT,
+                    archived BOOLEAN,
+                    UNIQUE (source_id, data_version)
                 )
             """)
             self.conn.commit()
@@ -50,10 +52,11 @@ class Cache:
                 checksum,
                 files_count,
                 errors_count,
+                reject_reason,
                 archived
             FROM crawl
             WHERE id = :id
-        """, {'id': str(crawl)})
+        """, {'id': crawl.pk})
         result = self.cursor.fetchone()
         if result:
             return Crawl(result[0], result[1], cache={
@@ -61,6 +64,7 @@ class Cache:
                 'checksum': result[3],
                 'files_count': result[4],
                 'errors_count': result[5],
+                'reject_reason': result[6],
             }), result[-1] == 1
         return None, None
 
@@ -78,6 +82,7 @@ class Cache:
                 checksum,
                 files_count,
                 errors_count,
+                reject_reason,
                 archived
             ) VALUES (
                 :id,
@@ -87,16 +92,18 @@ class Cache:
                 :checksum,
                 :files_count,
                 :errors_count,
+                :reject_reason,
                 :archived
             )
         """, {
-            'id': str(crawl),
+            'id': crawl.pk,
             'source_id': crawl.source_id,
             'data_version': crawl.data_version.strftime(DATA_VERSION_FORMAT),
             'bytes': crawl.bytes,
             'checksum': crawl.checksum,
             'files_count': crawl.files_count,
             'errors_count': crawl.errors_count,
+            'reject_reason': crawl.reject_reason,
             'archived': archived,
         })
         self.conn.commit()

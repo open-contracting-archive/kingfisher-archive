@@ -161,7 +161,7 @@ class Archive:
 
         os.unlink(meta_file_name)
         os.unlink(data_file_name)
-        shutil.rmtree(crawl.directory)
+        shutil.rmtree(crawl.local_directory)
         crawl.scrapy_log_file.delete()
 
         logger.info('Archived %s', crawl)
