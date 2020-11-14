@@ -18,7 +18,7 @@ class Cache:
         self.cursor = self.conn.cursor()
         self.expired = expired
 
-        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='crawl'")
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'crawl'")
         if not self.cursor.fetchone():
             self.cursor.execute("""
                 CREATE TABLE crawl (
@@ -90,4 +90,11 @@ class Cache:
                 :archived
             )
         """, crawl.asdict())
+        self.conn.commit()
+
+    def delete(self, crawl):
+        """
+        :param crawl: an instance of the :class:`~ocdskingfisherarchive.crawl.Crawl` class
+        """
+        self.cursor.execute("DELETE FROM crawl WHERE id = :id", {'id': crawl.pk})
         self.conn.commit()
