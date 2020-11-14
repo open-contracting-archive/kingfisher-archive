@@ -1,97 +1,13 @@
-import json
 import os
 
-import pytest
 from botocore.exceptions import ClientError
 from botocore.stub import Stubber
-from xxhash import xxh3_128
 
 import ocdskingfisherarchive.s3
-from ocdskingfisherarchive.crawl import Crawl
-from tests import assert_log, crawl, create_crawl_directory, path
-
-with open(path('data.json'), 'rb') as f:
-    checksum = xxh3_128(f.read()).hexdigest()
-size = 239
+from tests import create_crawl_directory
 
 
-@pytest.mark.parametrize('data_files,log_file,exact_cache,latest_cache,expected_return_value,expected_log_message', [
-    # Same remote directory.
-    # Identical
-    (['data.json'], 'log_error1.log',
-     {'checksum': checksum, 'bytes': size, 'errors_count': 1, 'files_count': 2}, None,
-     False, 'skip (same_period) scotland/20200902_052458'),
-    # Same bytes
-    (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': size, 'errors_count': 2, 'files_count': 1}, None,
-     False, 'skip (same_period) scotland/20200902_052458'),
-    # More bytes, but not 50% more bytes
-    (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': size - 1, 'errors_count': 1, 'files_count': 2}, None,
-     False, 'skip (same_period) scotland/20200902_052458'),
-    # More bytes, but not 50% more files
-    (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': size - 1, 'errors_count': 1, 'files_count': 1.5}, None,
-     False, 'skip (same_period) scotland/20200902_052458'),
-    # More bytes, but less clean
-    (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': size - 1, 'errors_count': 0, 'files_count': 2}, None,
-     False, 'skip (same_period) scotland/20200902_052458'),
-    # More bytes, and 50% more bytes
-    (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': int(size // 1.5), 'errors_count': 1, 'files_count': 2}, None,
-     True, 'ARCHIVE (same_period_more_bytes) scotland/20200902_052458'),
-    # More bytes, and 50% more files
-    (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': size - 1, 'errors_count': 1, 'files_count': 1}, None,
-     True, 'ARCHIVE (same_period_more_files) scotland/20200902_052458'),
-    # More bytes, and more clean
-    (['data.json'], 'log_error1.log',
-     {'checksum': 'other', 'bytes': size - 1, 'errors_count': 2, 'files_count': 2}, None,
-     True, 'ARCHIVE (same_period_more_clean) scotland/20200902_052458'),
-
-    # Earlier remote directory.
-    # Identical
-    (['data.json'], 'log_error1.log',
-     None, {'checksum': checksum, 'bytes': size, 'errors_count': 1, 'files_count': 2},
-     False, 'skip (2020_1_not_distinct) scotland/20200902_052458'),
-    # Same errors
-    (['data.json'], 'log_error1.log',
-     None, {'checksum': 'other', 'bytes': size, 'errors_count': 1, 'files_count': 2},
-     True, 'ARCHIVE (new_period) scotland/20200902_052458'),
-    # More errors, fewer files, same bytes
-    (['data.json'], 'log_error1.log',
-     None, {'checksum': 'other', 'bytes': size, 'errors_count': 0, 'files_count': 3},
-     False, 'skip (2020_1_not_distinct_maybe) scotland/20200902_052458'),
-    # More errors, same files, fewer bytes
-    (['data.json'], 'log_error1.log',
-     None, {'checksum': 'other', 'bytes': size + 1, 'errors_count': 0, 'files_count': 2},
-     False, 'skip (2020_1_not_distinct_maybe) scotland/20200902_052458'),
-])
-def test_should_archive(data_files, log_file, exact_cache, latest_cache, expected_return_value, expected_log_message,
-                        archive, tmpdir, caplog, monkeypatch):
-    if exact_cache:
-        metadata = tmpdir.join('metadata.json')
-        metadata.write(json.dumps({**{'source_id': 'scotland', 'data_version': '20200930_000000'}, **exact_cache}))
-        monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'get_file', lambda *args: metadata)
-    else:
-        monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_exact', lambda *args: None)
-
-    if latest_cache:
-        load_latest = Crawl('scotland', '20200101_000000', **latest_cache)
-    else:
-        load_latest = None
-    monkeypatch.setattr(ocdskingfisherarchive.s3.S3, 'load_latest', lambda *args: load_latest)
-
-    create_crawl_directory(tmpdir, data_files, log_file)
-
-    actual_return_value = archive.process_crawl(crawl(tmpdir), dry_run=True)
-
-    assert_log(caplog, 'INFO', expected_log_message)
-    assert actual_return_value is expected_return_value
-
-
-def test_process_crawl(archive, tmpdir, caplog, monkeypatch):
+def test_process_crawl(archiver, tmpdir, caplog, monkeypatch):
     def download_fileobj(*args, **kwargs):
         raise ClientError(error_response={'Error': {'Code': '404'}}, operation_name='')
 
@@ -110,7 +26,7 @@ def test_process_crawl(archive, tmpdir, caplog, monkeypatch):
     monkeypatch.setattr(stubber, 'list_objects_v2', list_objects_v2, raising=False)
     stubber.activate()
 
-    archive.run()
+    archiver.run()
 
     stubber.assert_no_pending_responses()
 

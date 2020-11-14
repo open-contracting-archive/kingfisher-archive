@@ -3,9 +3,16 @@ import os
 import time
 
 import pytest
+from xxhash import xxh3_128
 
 from ocdskingfisherarchive.crawl import Crawl
-from tests import crawl, create_crawl_directory
+from ocdskingfisherarchive.exceptions import FutureDataVersionError, SourceMismatchError
+from tests import crawl_fixture, create_crawl_directory, path
+
+with open(path('data.json'), 'rb') as f:
+    checksum = xxh3_128(f.read()).hexdigest()
+
+size = 239
 
 current_time = time.time()
 
@@ -92,7 +99,97 @@ def test_directory(tmpdir):
 def test_reject_reason(data_files, log_file, expected, tmpdir):
     create_crawl_directory(tmpdir, data_files, log_file)
 
-    assert crawl(tmpdir).reject_reason == expected
+    crawl = crawl_fixture(tmpdir)
+
+    assert crawl.reject_reason == expected
+
+
+def test_reject_reason_cached(tmpdir):
+    create_crawl_directory(tmpdir, None, 'log1.log')
+
+    crawl = crawl_fixture(tmpdir)
+
+    assert crawl.reject_reason == 'no_data_directory'
+    assert crawl.reject_reason == 'no_data_directory'
+
+
+@pytest.mark.parametrize('data_files, log_file, remote, expected', [
+    # Same month.
+    # Identical
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200901_000000', 'checksum': checksum, 'bytes': size, 'errors_count': 1, 'files_count': 2},
+     (False, 'same_period')),
+    # Same bytes
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200901_000000', 'bytes': size, 'errors_count': 2, 'files_count': 1},
+     (False, 'same_period')),
+    # More bytes, but not 50% more bytes
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200901_000000', 'bytes': size - 1, 'errors_count': 1, 'files_count': 2},
+     (False, 'same_period')),
+    # More bytes, but not 50% more files
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200901_000000', 'bytes': size - 1, 'errors_count': 1, 'files_count': 1.5},
+     (False, 'same_period')),
+    # More bytes, but less clean
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200901_000000', 'bytes': size - 1, 'errors_count': 0, 'files_count': 2},
+     (False, 'same_period')),
+    # More bytes, and 50% more bytes
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200901_000000', 'bytes': int(size // 1.5), 'errors_count': 1, 'files_count': 2},
+     (True, 'same_period_more_bytes')),
+    # More bytes, and 50% more files
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200901_000000', 'bytes': size - 1, 'errors_count': 1, 'files_count': 1},
+     (True, 'same_period_more_files')),
+    # More bytes, and more clean
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200901_000000', 'bytes': size - 1, 'errors_count': 2, 'files_count': 2},
+     (True, 'same_period_more_clean')),
+
+    # Earlier month.
+    # Identical
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200101_000000', 'checksum': checksum, 'bytes': size, 'errors_count': 1, 'files_count': 2},
+     (False, '2020_1_not_distinct')),
+    # Same errors
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200101_000000', 'bytes': size, 'errors_count': 1, 'files_count': 2},
+     (True, 'new_period')),
+    # More errors, fewer files, same bytes
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200101_000000', 'bytes': size, 'errors_count': 0, 'files_count': 3},
+     (False, '2020_1_not_distinct_maybe')),
+    # More errors, same files, fewer bytes
+    (['data.json'], 'log_error1.log',
+     {'data_version': '20200101_000000', 'bytes': size + 1, 'errors_count': 0, 'files_count': 2},
+     (False, '2020_1_not_distinct_maybe')),
+])
+def test_compare(data_files, log_file, remote, expected, archiver, tmpdir, caplog, monkeypatch):
+    create_crawl_directory(tmpdir, data_files, log_file)
+
+    remote['source_id'] = 'scotland'
+    if 'checksum' not in remote:
+        remote['checksum'] = 'other'
+
+    actual = crawl_fixture(tmpdir).compare(Crawl(**remote))
+
+    assert actual == expected
+
+
+def test_compare_bad_source_id():
+    with pytest.raises(SourceMismatchError) as excinfo:
+        Crawl('scotland', '20200101_000000').compare(Crawl('united_kingdom', '20200101_000000'))
+
+    assert str(excinfo.value) == 'Crawl source mismatch: scotland != united_kingdom'
+
+
+def test_compare_bad_data_version():
+    with pytest.raises(FutureDataVersionError) as excinfo:
+        Crawl('scotland', '20200101_000000').compare(Crawl('scotland', '20200201_000000'))
+
+    assert str(excinfo.value) == 'Future data version: 2020-02-01 00:00:00 > 2020-01-01 00:00:00'
 
 
 def test_checksum(tmpdir):
@@ -147,3 +244,35 @@ def test_bytes_empty(tmpdir):
     crawl = Crawl('scotland', '20200902_052458', tmpdir, None)
 
     assert crawl.bytes == 0
+
+
+def test_asdict(tmpdir):
+    create_crawl_directory(tmpdir, ['data.json'], 'log_error1.log')
+
+    assert crawl_fixture(tmpdir).asdict() == {
+        'id': 'scotland/20200902_052458',
+        'source_id': 'scotland',
+        'data_version': '20200902_052458',
+        'bytes': None,
+        'checksum': None,
+        'files_count': None,
+        'errors_count': None,
+        'reject_reason': None,
+        'archived': None,
+    }
+
+
+def test_asdict_cached(tmpdir):
+    create_crawl_directory(tmpdir, ['data.json'], 'log_error1.log')
+
+    assert crawl_fixture(tmpdir).asdict(cached=False) == {
+        'id': 'scotland/20200902_052458',
+        'source_id': 'scotland',
+        'data_version': '20200902_052458',
+        'bytes': 239,
+        'checksum': 'eba6c0bd00d10c54c3793ee13bcc114b',
+        'files_count': 2,
+        'errors_count': 1,
+        'reject_reason': None,
+        'archived': None,
+    }

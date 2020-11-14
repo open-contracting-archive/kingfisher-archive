@@ -16,7 +16,7 @@ logger = logging.getLogger('ocdskingfisher.archive')
 
 
 def _find_latest_year_month_to_load(data, year, month):
-    while year > 2010:
+    while year >= 2018:
         if data.get(year, {}).get(month):
             return year, month
         if month > 1:

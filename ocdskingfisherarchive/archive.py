@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+from collections import defaultdict
 
 from ocdskingfisherarchive.cache import Cache
 from ocdskingfisherarchive.crawl import Crawl
@@ -9,7 +10,7 @@ from ocdskingfisherarchive.s3 import S3
 logger = logging.getLogger('ocdskingfisher.archive')
 
 
-class Archive:
+class Archiver:
     def __init__(self, bucket_name, data_directory, logs_directory, cache_file, cached_expired=False):
         """
         :param str bucket_name: an Amazon S3 bucket name
@@ -29,112 +30,67 @@ class Archive:
 
         :param bool dry_run: whether to modify the filesystem and the bucket
         """
+        # Group the crawls by remote directory.
+        groups = defaultdict(list)
         for crawl in Crawl.all(self.data_directory, self.logs_directory):
-            self.process_crawl(crawl, dry_run)
+            crawl = self.cache.get(crawl)
 
-    def process_crawl(self, crawl, dry_run=False):
-        """
-        Runs the archival process for a single crawl.
+            if crawl.reject_reason:
+                # Save the decision to reject the crawl.
+                logger.info('Ignoring %s (%s)', crawl, crawl.reject_reason)
+                crawl.archived = False
+                self.cache.set(crawl)
+            elif crawl.archived is False:
+                logger.info('Ignoring %s', crawl)
+            else:
+                groups[crawl.remote_directory].append(crawl)
 
-        If the cache indicates that the crawl was already processed, the process ends. Otherwise, the crawl is archived
-        if appropriate, and the cache is updated.
+        for remote_directory, crawls in groups.items():
+            # Add the crawl information from remote storage.
+            remote = self.s3.load_exact(crawl.source_id, crawl.data_version)
+            if remote:
+                crawls.append(remote)
 
-        :param ocdskingfisherarchive.crawl.Crawl crawl: a crawl
-        :param bool dry_run: whether to modify the filesystem and the bucket
-        """
-        crawl = self.cache.get(crawl)
-        if crawl.archived is not None:
-            logger.info('Ignoring %s: previously %s', crawl, 'archived' if archived else 'skipped')
-            return
+            crawls.sort(key=lambda crawl: crawl.data_version)
 
-        # TODO If not archiving, still delete local files after 90 days
+            # Consider each crawl in chronological order.
+            best = crawls[0]
+            pool = crawls[1:]
 
-        should_archive, reason = self.should_archive(crawl)
+            # If no crawl is yet archived for this month, get the most recent earlier crawl.
+            if not remote:
+                remote = self.s3.load_latest(crawl.source_id, crawl.data_version)
+                if remote:
+                    best = remote
+                    pool = crawls
 
-        if should_archive:
-            logger.info('ARCHIVE (%s) %s', reason, crawl)
-        else:
-            logger.info('skip (%s) %s', reason, crawl)
+            logger.info('%s initial (%r)', crawl, crawl.asdict())
 
-        if dry_run:
-            return should_archive
-        elif should_archive:
-            self.archive_crawl(crawl)
-        crawl.archived = should_archive
-        self.cache.set(crawl)
+            # Find the best crawl to archive.
+            for crawl in pool:
+                decision, reason = crawl.compare(best)
+                if decision:
+                    best = crawl
+                logger.info('%s %s %s (%r)', crawl, '+' if decision else '-', reason, crawl.asdict())
 
-        return should_archive
+            logger.info('%s final', best)
+            if dry_run:
+                continue
 
-    def should_archive(self, crawl):
-        """
-        Returns whether to archive the crawl.
+            # Mark other crawls from this month as not archived. (The crawl from an earlier month is not included.)
+            if best in crawls:
+                crawls.remove(best)
+            for crawl in crawls:
+                # Keep the crawl for 90 days.
+                crawl.archived = False
+                self.cache.set(best)
 
-        This implements Kingfisher Process' `data retention policy
-        <https://ocdsdeploy.readthedocs.io/en/latest/use/kingfisher-process.html#data-retention-policy>`__.
+            # If the best crawl isn't archived, archive it. (The crawl from an earlier month is already archived.)
+            if not best.archived:
+                self.archive(best)
+                self.cache.delete(best)
 
-        If a crawl passes these tests, it is compared to archived crawls. If there is an earlier crawl in the same
-        month, the new crawl will **replace** the earlier crawl if it has more bytes (and is thus distinct) and:
-
-        -  has 50% more bytes
-        -  has 50% more files
-        -  is more clean
-
-        If there is an earlier crawl in an earlier month but not in the same month, it will compare to the most recent,
-        and the new crawl will not be archived if it:
-
-        -  is less clean and less complete (in which case it might have been identical, if not for the errors)
-        -  is not distinct (the checksums are identical)
-
-        Otherwise, it will archive the crawl.
-
-        :returns: whether to archive the crawl
-        :rtype: bool
-        """
-        # Issue: https://github.com/open-contracting/deploy/issues/153#issuecomment-670186295
-
-        reason = crawl.reject_reason
-        if reason:
-            return False, reason
-
-        # We run tests from least to most expensive, except where the logic requires otherwise:
-        #
-        # - Tests against Scrapy log files
-        # - Counting bytes requires a ``stat()`` system call for each file
-        # - Calculating checksums requires reading each file
-
-        remote_metadata = self.s3.load_exact(crawl.source_id, crawl.data_version)
-        if remote_metadata:
-            if crawl.bytes > remote_metadata.bytes:
-                if crawl.bytes >= remote_metadata.bytes * 1.5:
-                    return True, 'same_period_more_bytes'
-                if crawl.files_count >= remote_metadata.files_count * 1.5:
-                    return True, 'same_period_more_files'
-                if crawl.errors_count < remote_metadata.errors_count:
-                    return True, 'same_period_more_clean'
-
-            return False, 'same_period'
-
-        remote_metadata = self.s3.load_latest(crawl.source_id, crawl.data_version)
-        if remote_metadata:
-            if (
-                crawl.errors_count > remote_metadata.errors_count
-                and crawl.files_count <= remote_metadata.files_count
-                and crawl.bytes <= remote_metadata.bytes
-            ):
-                return (
-                    False,
-                    f'{remote_metadata.data_version.year}_{remote_metadata.data_version.month}_not_distinct_maybe'
-                )
-
-            if remote_metadata.checksum == crawl.checksum:
-                return (
-                    False,
-                    f'{remote_metadata.data_version.year}_{remote_metadata.data_version.month}_not_distinct'
-                )
-
-        return True, 'new_period'
-
-    def archive_crawl(self, crawl):
+    def archive(self, crawl):
         """
         Performs the archival of the crawl.
 

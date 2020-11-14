@@ -2,12 +2,12 @@ import os
 
 import pytest
 
-from ocdskingfisherarchive.archive import Archive
+from ocdskingfisherarchive.archive import Archiver
 
 
 @pytest.fixture
-def archive(tmpdir):
-    return Archive(
+def archiver(tmpdir):
+    return Archiver(
         os.getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
         tmpdir.join('data'),
         tmpdir.join('logs', 'kingfisher'),

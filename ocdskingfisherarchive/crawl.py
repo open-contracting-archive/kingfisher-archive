@@ -17,6 +17,9 @@ DATA_VERSION_FORMAT = '%Y%m%d_%H%M%S'
 class Crawl:
     """
     A representation of a Kingfisher Collect crawl.
+
+    Crawl information might be loaded from a :class:`local cache<ocdskingfisherarchive.cache.Cache>` or from
+    :class:`remote storage<ocdskingfisherarchive.s3.S3>`, or constructed from scratch.
     """
 
     @classmethod
@@ -48,16 +51,24 @@ class Crawl:
                 yield cls(source_id.name, parsed, data_directory=data_directory, logs_directory=logs_directory)
 
     @staticmethod
-    def parse_data_version(directory):
+    def parse_data_version(string):
         """
-        :param str directory: a directory name in the format "YYMMDD_HHMMSS"
+        :param str string: a string in the format "YYMMDD_HHMMSS"
         :returns: a datetime if the format is correct, otherwise ``None``
-        :rtype: datatime.datetime
+        :rtype: datetime.datetime
         """
         try:
-            return datetime.datetime.strptime(directory, DATA_VERSION_FORMAT)
+            return datetime.datetime.strptime(string, DATA_VERSION_FORMAT)
         except ValueError:
             pass
+
+    def format_data_version(self):
+        """
+        :param datetime.datetime data_version: a datetime
+        :returns: a string in the format "YYMMDD_HHMMSS"
+        :rtype: str
+        """
+        return self.data_version.strftime(DATA_VERSION_FORMAT)
 
     def __init__(self, source_id, data_version, data_directory=None, logs_directory=None, **kwargs):
         """
@@ -69,17 +80,17 @@ class Crawl:
         self.data_directory = data_directory
         self.logs_directory = logs_directory
 
-        if isinstance(data_version, str):
-            data_version = self.parse_data_version(data_version)
-        if 'archived' not in kwargs:
-            kwargs['archived'] = None
-        if isinstance(kwargs['archived'], int):
-            kwargs['archived'] = bool(kwargs['archived'])
-
         kwargs.update({
             'source_id': source_id,
             'data_version': data_version,
         })
+        if 'archived' not in kwargs:
+            kwargs['archived'] = None
+
+        if isinstance(kwargs['data_version'], str):
+            kwargs['data_version'] = self.parse_data_version(kwargs['data_version'])
+        if isinstance(kwargs['archived'], int):
+            kwargs['archived'] = bool(kwargs['archived'])
 
         self._values = kwargs
         self._scrapy_log_file = None
@@ -97,7 +108,7 @@ class Crawl:
         :returns: the path to the crawl directory relative to the data directory
         :rtype: str
         """
-        return f'{self.source_id}/{self.data_version.strftime(DATA_VERSION_FORMAT)}'
+        return f'{self.source_id}/{self.format_data_version()}'
 
     @property
     def source_id(self):
@@ -121,7 +132,7 @@ class Crawl:
         :returns: the full path to the crawl directory
         :rtype: str
         """
-        return os.path.join(self.data_directory, self.source_id, self.data_version.strftime(DATA_VERSION_FORMAT))
+        return os.path.join(self.data_directory, self.source_id, self.format_data_version())
 
     @property
     def reject_reason(self):
@@ -228,18 +239,87 @@ class Crawl:
     def archived(self, archived):
         self._values['archived'] = archived
 
-    def asdict(self):
+    def asdict(self, cached=True):
+        if cached:
+            def getter(key):
+                return self._values.get(key)
+        else:
+            def getter(key):
+                return getattr(self, key)
+
         return {
             'id': self.pk,
             'source_id': self.source_id,
-            'data_version': self.data_version.strftime(DATA_VERSION_FORMAT),
-            'bytes': self._values.get('bytes'),
-            'checksum': self._values.get('checksum'),
-            'files_count': self._values.get('files_count'),
-            'errors_count': self._values.get('errors_count'),
-            'reject_reason': self._values.get('reject_reason'),
-            'archived': self._values.get('archived'),
+            'data_version': self.format_data_version(),
+            'bytes': getter('bytes'),
+            'checksum': getter('checksum'),
+            'files_count': getter('files_count'),
+            'errors_count': getter('errors_count'),
+            'reject_reason': getter('reject_reason'),
+            'archived': getter('archived'),
         }
+
+    def compare(self, other):
+        """
+        Returns whether to archive this crawl in preference to another crawl.
+
+        This implements Kingfisher Process' `data retention policy
+        <https://ocdsdeploy.readthedocs.io/en/latest/use/kingfisher-process.html#data-retention-policy>`__.
+
+        If there is an earlier crawl in the same month, this crawl is preferred to the earlier crawl if it has more
+        bytes (and is thus distinct) and:
+
+        -  has 50% more bytes
+        -  has 50% more files
+        -  is more clean
+
+        If there is an earlier crawl in an earlier month, this crawl is not preferred if, compared to the most recent
+        earlier crawl, it:
+
+        -  is less clean and less complete (in which case it might have been identical, if not for the errors)
+        -  is not distinct (the checksums are identical)
+
+        Otherwise, it is preferred.
+
+        :returns: whether this crawl is preferred for archival, and the reason
+        :rtype: tuple
+        """
+        # Issue: https://github.com/open-contracting/deploy/issues/153#issuecomment-670186295
+
+        if self.source_id != other.source_id:
+            raise SourceMismatchError(f'Crawl source mismatch: {self.source_id} != {other.source_id}')
+        # Crawls should only be compared in chronological order.
+        if other.data_version.year > self.data_version.year or other.data_version.month > self.data_version.month:
+            raise FutureDataVersionError(f'Future data version: {other.data_version} > {self.data_version}')
+
+        # We run tests from least to most expensive, except where the logic requires otherwise:
+        #
+        # - Tests against Scrapy log files
+        # - Counting bytes requires a ``stat()`` system call for each file
+        # - Calculating checksums requires reading each file
+
+        if other.data_version.year == self.data_version.year and other.data_version.month == self.data_version.month:
+            if self.bytes > other.bytes:
+                if self.bytes >= other.bytes * 1.5:
+                    return True, 'same_period_more_bytes'
+                if self.files_count >= other.files_count * 1.5:
+                    return True, 'same_period_more_files'
+                if self.errors_count < other.errors_count:
+                    return True, 'same_period_more_clean'
+
+            return False, 'same_period'
+
+        if other.data_version.year < self.data_version.year or other.data_version.month < self.data_version.month:
+            if (
+                self.errors_count > other.errors_count
+                and self.files_count <= other.files_count
+                and self.bytes <= other.bytes
+            ):
+                return False, f'{other.data_version.year}_{other.data_version.month}_not_distinct_maybe'
+            if other.checksum == self.checksum:
+                return False, f'{other.data_version.year}_{other.data_version.month}_not_distinct'
+
+        return True, 'new_period'
 
     def write_meta_data_file(self):
         file_descriptor, filename = tempfile.mkstemp(prefix='archive', suffix='.json')

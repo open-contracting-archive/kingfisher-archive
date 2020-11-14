@@ -8,7 +8,7 @@ import pidfile
 import sentry_sdk
 from dotenv import load_dotenv
 
-from ocdskingfisherarchive.archive import Archive
+from ocdskingfisherarchive.archive import Archiver
 
 
 @click.group()
@@ -50,7 +50,7 @@ def archive(bucket_name, data_directory, logs_directory, cache_file, logging_con
     # We don't catch pidfile.AlreadyRunningError so that it can be raised to Sentry. If this error is raised by a cron
     # job, it points to either a very slow archival process, or to an unanticipated problem.
     with pidfile.PIDFile():
-        Archive(bucket_name, data_directory, logs_directory, cache_file, invalidate_cache).run(dry_run)
+        Archiver(bucket_name, data_directory, logs_directory, cache_file, invalidate_cache).run(dry_run)
 
 
 if __name__ == '__main__':
