@@ -5,7 +5,7 @@ import pytest
 from ocdskingfisherarchive.archive import Archiver
 
 
-@pytest.fixture
+@pytest.fixture()
 def archiver(tmpdir):
     return Archiver(
         os.getenv('KINGFISHER_ARCHIVE_BUCKET_NAME'),
