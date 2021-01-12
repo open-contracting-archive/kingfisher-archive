@@ -9,3 +9,4 @@ Kingfisher Archive
    use
    formats
    contributing
+   api/index
