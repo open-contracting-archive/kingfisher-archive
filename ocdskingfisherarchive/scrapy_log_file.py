@@ -140,6 +140,7 @@ class ScrapyLogFile():
         """
         # See https://kingfisher-collect.readthedocs.io/en/latest/spiders.html#spider-arguments
         return not any(self.spider_arguments.get(arg) for arg in (
+            # 'year' not supported in new spiders.
             'from_date', 'until_date', 'year', 'start_page', 'publisher', 'system', 'sample'
         ))
 
