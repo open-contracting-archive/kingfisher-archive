@@ -84,8 +84,7 @@ class Crawl:
             'source_id': source_id,
             'data_version': data_version,
         })
-        if 'archived' not in kwargs:
-            kwargs['archived'] = None
+        kwargs.setdefault('archived')
 
         if isinstance(kwargs['data_version'], str):
             kwargs['data_version'] = self.parse_data_version(kwargs['data_version'])
@@ -178,17 +177,15 @@ class Crawl:
 
     @property
     def files_count(self):
-        if 'files_count' not in self._values:
-            self._values['files_count'] = self.scrapy_log_file and self.scrapy_log_file.item_counts['File']
-
-        return self._values['files_count']
+        return self._values.setdefault('files_count',
+            self.scrapy_log_file and self.scrapy_log_file.item_counts['File']
+        )
 
     @property
     def errors_count(self):
-        if 'errors_count' not in self._values:
-            self._values['errors_count'] = self.scrapy_log_file and self.scrapy_log_file.item_counts['FileError']
-
-        return self._values['errors_count']
+        return self._values.setdefault('errors_count',
+            self.scrapy_log_file and self.scrapy_log_file.item_counts['FileError']
+        )
 
     @property
     def checksum(self):

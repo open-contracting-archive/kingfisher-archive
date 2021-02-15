@@ -170,8 +170,7 @@ def test_compare(data_files, log_file, remote, expected, archiver, tmpdir, caplo
     create_crawl_directory(tmpdir, data_files, log_file)
 
     remote['source_id'] = 'scotland'
-    if 'checksum' not in remote:
-        remote['checksum'] = 'other'
+    remote.setdefault('checksum', 'other')
 
     actual = crawl_fixture(tmpdir).compare(Crawl(**remote))
 

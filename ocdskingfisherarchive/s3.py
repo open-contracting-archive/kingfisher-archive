@@ -107,7 +107,6 @@ class S3:
                 key_bits = c['Key'].split('/')
                 year = int(key_bits[1])
                 month = int(key_bits[2])
-                if year not in out:
-                    out[year] = {}
+                out.setdefault(year, {})
                 out[year][month] = True
             return out
