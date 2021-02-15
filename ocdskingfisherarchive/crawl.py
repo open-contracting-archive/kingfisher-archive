@@ -178,14 +178,12 @@ class Crawl:
     @property
     def files_count(self):
         return self._values.setdefault('files_count',
-            self.scrapy_log_file and self.scrapy_log_file.item_counts['File']
-        )
+                                       self.scrapy_log_file and self.scrapy_log_file.item_counts['File'])
 
     @property
     def errors_count(self):
         return self._values.setdefault('errors_count',
-            self.scrapy_log_file and self.scrapy_log_file.item_counts['FileError']
-        )
+                                       self.scrapy_log_file and self.scrapy_log_file.item_counts['FileError'])
 
     @property
     def checksum(self):
