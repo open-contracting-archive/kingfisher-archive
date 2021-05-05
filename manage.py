@@ -20,12 +20,16 @@ def cli():
 @click.option('-b', '--bucket-name', envvar='KINGFISHER_ARCHIVE_BUCKET_NAME',
               help='The Amazon S3 bucket name')
 @click.option('--data-directory', envvar='KINGFISHER_ARCHIVE_DATA_DIRECTORY',
+              type=click.Path(exists=True, file_okay=False),
               help="Kingfisher Collect's FILES_STORE directory")
 @click.option('--logs-directory', envvar='KINGFISHER_ARCHIVE_LOGS_DIRECTORY',
+              type=click.Path(exists=True, file_okay=False),
               help="Kingfisher Collect's project directory within Scrapyd's logs_dir directory")
 @click.option('--cache-file', default='cache.sqlite3', envvar='KINGFISHER_ARCHIVE_CACHE_FILE',
+              type=click.Path(exists=False, dir_okay=False),
               help='The SQLite database for caching the local state (defaults to cache.sqlite3)')
 @click.option('--logging-config-file', envvar='KINGFISHER_ARCHIVE_LOGGING_CONFIG_FILE',
+              type=click.Path(exists=True, dir_okay=False),
               help="A JSON file following Python's logging configuration dictionary schema")
 @click.option('-n', '--dry-run', is_flag=True,
               help="Don't archive any files, just show whether they would be")
