@@ -12,12 +12,12 @@ message = '2020-01-02 03:04:05 [scrapy.utils.log] INFO message'
 @pytest.mark.parametrize('files, expected', [
     # Only match.
     ({'test1.log': '2020-01-02 03:04:02 [scrapy.utils.log] INFO message',
-      'test2.log': '2020-01-02 03:04:05 [scrapy.utils.log] INFO message'}, 'test2.log'),
+      'test2.log': '2020-01-02 03:04:05 [scrapy.utils.log] INFO message'}, ('test2.log',)),
     # First match.
     ({'test1.log': '2020-01-02 03:04:03 [scrapy.utils.log] INFO message',
-      'test2.log': '2020-01-02 03:04:05 [scrapy.utils.log] INFO message'}, 'test1.log'),
+      'test2.log': '2020-01-02 03:04:05 [scrapy.utils.log] INFO message'}, ('test1.log', 'test2.log')),
     ({'test1.log': '2020-01-02 03:04:05 [scrapy.utils.log] INFO message',
-      'test2.log': '2020-01-02 03:04:03 [scrapy.utils.log] INFO message'}, 'test1.log'),
+      'test2.log': '2020-01-02 03:04:03 [scrapy.utils.log] INFO message'}, ('test1.log', 'test2.log')),
     # No match.
     ({'test1.log': '2020-01-02 03:04:06 [scrapy.utils.log] INFO message'}, None),
 ])
@@ -28,7 +28,9 @@ def test_find(files, expected, tmpdir):
         file.write(content)
 
     if expected:
-        assert ScrapyLogFile.find(tmpdir, 'source_id', data_version).name == directory.join(expected)
+        assert ScrapyLogFile.find(tmpdir, 'source_id', data_version).name in map(
+            lambda name: directory.join(name), expected
+        )
     else:
         assert ScrapyLogFile.find(tmpdir, 'source_id', data_version) is None
 
